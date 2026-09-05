@@ -1,0 +1,81 @@
+<!doctype html><html lang="zh"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<!-- source: design:g_h01map.html -->
+<title>H01 入职字段地图</title>
+<style>
+html,body{margin:0;padding:0;background:#fff;overflow:hidden}
+#stage{transform-origin:top left}
+</style>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+#stage{width:820px;background:#ffffff;font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Source Han Sans SC",-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2329;
+  padding:40px 32px 32px;-webkit-font-smoothing:antialiased}
+.pg-hdr{display:flex;justify-content:space-between;align-items:flex-end;
+  padding-bottom:16px;border-bottom:2px solid #1f2329;margin-bottom:24px}
+.pg-hdr h1{font-size:25px;line-height:1.25;font-weight:700;letter-spacing:-.01em}
+.pg-sub{font-size:14px;line-height:1.5;color:#646a73;margin-top:8px;max-width:620px}
+.pg-sub b{color:#1f2329;font-weight:600}
+.pg-stat{text-align:right;white-space:nowrap;padding-left:32px}
+.pg-stat b{font-size:31px;line-height:1;font-weight:700;font-variant-numeric:tabular-nums}
+.pg-stat span{font-size:12px;color:#8f959e;display:block;margin-top:4px}
+.pg-foot{margin-top:24px;padding-top:12px;border-top:1px solid #dee0e3;
+  font-size:12px;color:#8f959e;display:flex;justify-content:space-between}
+.sec{font-size:12px;color:#8f959e;letter-spacing:.06em;margin-bottom:12px}
+
+.kb{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start}
+.kb-c{background:#F5F6F7;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.kb-h{display:flex;justify-content:space-between;align-items:center;border-top:3px solid;padding-top:8px;margin:-4px 0 4px}
+.kb-h b{font-size:14px;font-weight:700}
+.kb-h em{font-style:normal;font-size:12px;color:#8f959e;font-weight:600}
+.kb-i{background:#fff;border:1px solid #dee0e3;border-radius:4px;padding:12px;
+  font-size:12px;font-weight:600;line-height:1.4;display:flex;flex-direction:column;gap:4px}
+.kb-i i{font-style:normal;font-weight:400;color:#8f959e}
+.kb-i u{text-decoration:none;align-self:flex-start;border-radius:3px;padding:2px 7px;font-size:11px;font-weight:600}
+</style>
+<div id="stage">
+  <div class="pg-hdr"><div><h1>H01 入职三阶段 · 字段地图</h1><div class="pg-sub">每一步只在自己的视图里填；灯不绿不进下一步</div></div><div class="pg-stat"><b>4 步</b><span>当天办完</span></div></div>
+  <div class="kb"><div class="kb-c">
+    <div class="kb-h" style="border-top-color:#9DB53C"><b>1️⃣ 材料 Berkas</b><em>5</em></div>
+    <div class="kb-i">Full name<i>身份证法定全名</i>
+      </div><div class="kb-i">Phone<i>+62 国际格式</i>
+      </div><div class="kb-i">Lark Name<i>当面问本人想用的名</i>
+      </div><div class="kb-i">KTP NIK + 照片<i>16 位，传原件照</i>
+      </div><div class="kb-i">Check 灯<i>查重</i>
+      <u style="background:#E8F1FC;color:#1B4F8C">要 ✅唯一</u></div>
+  </div><div class="kb-c">
+    <div class="kb-h" style="border-top-color:#D9A62E"><b>2️⃣ 配置 Setup</b><em>4</em></div>
+    <div class="kb-i">Gender / Type<i>Type=用工形态</i>
+      </div><div class="kb-i">Start<i>计划入职首日</i>
+      </div><div class="kb-i">TRI End<i>自动=入职+3月，勿改</i>
+      <u style="background:#FDECEC;color:#8E2F2C">PKWTT 上限</u></div><div class="kb-i">Reports To<i>直属上级</i>
+      </div>
+  </div><div class="kb-c">
+    <div class="kb-h" style="border-top-color:#4A86C8"><b>3️⃣ 交接 Serah</b><em>4</em></div>
+    <div class="kb-i">Team<i>决定考勤组</i>
+      <u style="background:#EDF5DC;color:#3E5416">关键</u></div><div class="kb-i">Kit / ASST<i>物料包·资产</i>
+      </div><div class="kb-i">Ready 灯<i>校验</i>
+      <u style="background:#E8F1FC;color:#1B4F8C">要 ✅GO</u></div><div class="kb-i">Add Lark 按钮<i>账号·部门·考勤一次到位</i>
+      <u style="background:#EDF5DC;color:#3E5416">点它</u></div>
+  </div></div>
+  <div class="pg-foot"><span></span><span>MUKE · 自动生成</span></div>
+</div>
+<script>
+// 等比缩放到容器宽度（820 = 设计基准）。手机上整体缩小，想看清横屏即可。
+var DW=820;
+function fit(){
+ var st=document.getElementById("stage");if(!st)return;
+ var cw=document.documentElement.clientWidth||window.innerWidth;
+ var s=Math.min(1,cw/DW);
+ st.style.transform=s<1?"scale("+s+")":"none";
+ document.body.style.height=Math.ceil(st.offsetHeight*s)+"px";
+ try{parent.postMessage({type:"resize",height:Math.ceil(st.offsetHeight*s)+8,src:"muke-demo"},"*")}catch(e){}
+}
+var t;function relayout(){clearTimeout(t);t=setTimeout(fit,120)}
+window.addEventListener("resize",relayout);
+if(window.ResizeObserver)try{new ResizeObserver(relayout).observe(document.documentElement)}catch(e){}
+var lw=0,lh=0;setInterval(function(){
+ if(innerWidth!==lw||innerHeight!==lh){lw=innerWidth;lh=innerHeight;fit()}},1200);
+fit();
+</script>
+</body></html>

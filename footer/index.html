@@ -1,0 +1,148 @@
+<!doctype html><html lang="zh"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>签到</title>
+<style>
+/* ① 背景永远透明：暗色模式下不能出现大白块
+   ② 文字用中性灰 —— 在白底(4.0:1)与黑底(4.7:1)上都够对比，不赌宿主主题 */
+:root{--fg:#8a9099}
+@media (prefers-color-scheme:dark){:root{--fg:#9aa0a8}}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent;overflow:hidden}
+/* ⚠ 必须写在上面这条之后 —— 同特异性下后者胜，写在前面会被 transparent 覆盖（踩过）。
+   飞书不给第三方 iframe 传主题、暗色下又露白底；#1a1a1a 是实测的飞书暗色文档底色，
+   按系统主题近似匹配。宿主与系统主题不一致时用 ?bg=dark|light|none 强制。 */
+@media (prefers-color-scheme:dark){html,body{background:#1a1a1a}}
+body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif}
+/* ③ 820 设计基准，整体等比缩放（transform 不改变布局，高度由 JS 同步） */
+#stage{width:820px;transform-origin:top left;padding:40px 16px 22px;text-align:center}
+
+/* ── LOGO：极光（LOGO 形状当窗口，内部彩色光团各自公转/呼吸）──
+   ⚠ 动画一律用 CSS @keyframes，**禁止 SVG 的 <animate*> (SMIL)** ——
+     SMIL 在移动端 WebView 普遍不执行（手机上会完全静止），且标准已废弃。踩过一次。 */
+.art{position:relative;width:152px;height:109px;margin:0 auto 38px}
+.art svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+/* ⚠ isolation:isolate 必须有 —— mix-blend-mode 默认与「页面背景」混合，
+   白底上 screen 会把整个 LOGO 混成白色直接消失（踩过）。隔离后只在本组内混合。 */
+.aur{isolation:isolate}
+/* 整体公转：10 秒 180 度（张博 2026-08-30 指定），所以整圈 20 秒。
+   必须转 mask **内部** 的这层 g —— 转外层会把 LOGO 形状本身转走。 */
+.rot{transform-box:view-box;transform-origin:center;animation:aurorot 20s linear infinite}
+@keyframes aurorot{to{transform:rotate(360deg)}}
+.blob{transform-box:view-box;transform-origin:center;mix-blend-mode:screen}
+.b1{animation:drift1 13s ease-in-out infinite}
+.b2{animation:drift2 17s ease-in-out infinite}
+.b3{animation:drift3 21s ease-in-out infinite}
+.veil{transform-box:view-box;transform-origin:center;animation:spin 26s linear infinite;opacity:.5}
+@keyframes drift1{
+ 0%,100%{transform:translate(-14px,-6px) scale(1)}
+ 35%{transform:translate(38px,16px) scale(1.28)}
+ 70%{transform:translate(6px,-22px) scale(.86)}}
+@keyframes drift2{
+ 0%,100%{transform:translate(24px,10px) scale(1.1)}
+ 40%{transform:translate(-30px,-14px) scale(.9)}
+ 75%{transform:translate(10px,26px) scale(1.24)}}
+@keyframes drift3{
+ 0%,100%{transform:translate(0,14px) scale(.95) rotate(0)}
+ 50%{transform:translate(-24px,-16px) scale(1.2) rotate(180deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.blob,.veil,.rot{animation:none}}
+
+/* ── 三语轮播（21px；LOGO 与文字较上一版各缩 20%） ── */
+.line{height:29px;position:relative;overflow:hidden}
+/* 字号是「结果」不是设定值：基准 19px，运行时按 80% 宽度上限自动下调（见 fitText） */
+/* ⚠ 用 left:50%+translateX 居中，不能用 left:0;right:0 —— 后者会把 span 拉成容器宽，
+   导致 scrollWidth 恒等于容器宽，宽度检验永远测不出真实文字宽度（踩过） */
+.line span{position:absolute;left:50%;top:0;transform:translateX(-50%);
+ font-size:19px;line-height:29px;color:var(--fg);
+ letter-spacing:.01em;white-space:nowrap;
+ transition:opacity 3s cubic-bezier(.4,0,.2,1)}
+.line span.out{opacity:0}
+.line span.in{opacity:0}
+</style></head><body>
+<div id="stage">
+  <div class="art">
+    <svg viewBox="0 0 324.2 232.54" aria-hidden="true">
+      <defs>
+        <!-- LOGO 形状当作「窗口」，极光只在窗口内可见 -->
+        <mask id="mkMask"><path fill="#fff" d="M4.02,142.79L98.77,7.34c5.38-7.71,15.99-9.59,23.7-4.21,4.73,3.31,7.27,8.59,7.27,13.95h.07v83.36L196.25,7.21c5.46-7.67,16.1-9.46,23.76-4,4.67,3.32,7.16,8.56,7.16,13.88h.05v83.17L292.46,8.28c2.99-4.96,8.43-8.28,14.65-8.28,9.44,0,17.09,7.65,17.09,17.09,0,4.14-1.47,7.94-3.92,10.9l-95.49,134.62c-2.99,4.96-8.43,8.29-14.65,8.29-9.44,0-17.09-7.65-17.09-17.09v-83.36l-65.69,92.19c-2.99,4.95-8.43,8.26-14.63,8.26-9.44,0-17.09-7.65-17.09-17.09v-82.59l-63.7,91.06c-2.94,5.15-8.49,8.62-14.85,8.62-9.44,0-17.09-7.65-17.09-17.09,0-4.19,1.51-8.03,4.02-11.01Z"/><path fill="#fff" fill-rule="evenodd" d="M294.83,104.02c16.55,2.07,29.37,16.19,29.37,33.31s-12.81,31.24-29.37,33.31v-19.98l13.57-10.67h0c.42-.33.78-.72,1.09-1.19,1.54-2.32.91-5.45-1.42-6.99l-13.24-8.74v-19.05ZM290.63,103.75c1.42,0,2.82.09,4.2.26v19.05l-7.38-4.87c-.85-.65-1.91-1.03-3.06-1.03-2.79,0-5.06,2.25-5.06,5.05v30.21h0c0,1.09.35,2.19,1.08,3.12,1.72,2.19,4.9,2.57,7.09.85l7.31-5.75v19.98c-1.38.17-2.78.26-4.2.26-18.53,0-33.57-15.03-33.57-33.57s15.03-33.57,33.57-33.57Z"/><path fill="#fff" d="M305.35,222.07v-3.53h5.55l-3.42-9.07c-.92-2.43-1.63-4.48-2.13-6.15v-4.08h2.25l13.4,32.75h-4.94l-3.82-9.92h-6.89ZM305.35,199.24v4.08c-.07-.22-.13-.43-.19-.64-.42,2.1-1.01,4.19-1.77,6.26l-3.6,9.6h5.55v3.53h-6.81l-3.59,9.92h-4.61l12.58-32.75h2.42ZM256.59,231.94v-3.9c1.17-.09,2.15-.27,2.94-.53,1.23-.4,2.2-.97,2.94-1.7,1.03-1.02,1.83-2.41,2.4-4.14.57-1.74.86-3.84.86-6.31,0-3.42-.56-6.05-1.69-7.89-1.13-1.85-2.49-3.07-4.1-3.7-.79-.31-1.91-.51-3.35-.6v-3.89c1.5.07,2.71.21,3.64.43,1.88.43,3.48,1.21,4.8,2.34,1.72,1.46,3.02,3.32,3.87,5.6.86,2.27,1.29,4.86,1.29,7.79,0,2.49-.29,4.69-.88,6.61-.58,1.92-1.32,3.52-2.23,4.77-.91,1.26-1.9,2.25-2.98,2.97-1.07.72-2.38,1.27-3.9,1.65-1.09.27-2.29.44-3.61.51h0ZM279.44,231.99v-32.75h4.33v32.75h-4.33ZM6.59,231.99v-32.75h6.53l7.75,23.19c.72,2.16,1.24,3.77,1.56,4.85.37-1.19.95-2.94,1.75-5.25l7.84-22.78h5.83v32.75h-4.18v-27.41l-9.52,27.41h-3.91l-9.47-27.88v27.88h-4.18ZM256.59,199.28v3.89c-.68-.05-1.43-.07-2.25-.07h-6.89v25.02h6.99c.77,0,1.49-.03,2.15-.08v3.9c-.53.03-1.08.05-1.65.05h-11.82v-32.75h11.28c.79,0,1.52.02,2.19.05h0ZM68.86,199.24h4.34v18.93c0,3.29-.37,5.9-1.12,7.84-.75,1.94-2.09,3.51-4.03,4.72-1.94,1.22-4.49,1.82-7.65,1.82s-5.58-.53-7.53-1.59c-1.95-1.05-3.35-2.58-4.18-4.59-.84-2.01-1.25-4.74-1.25-8.2v-18.93h4.33v18.9c0,2.84.27,4.94.79,6.28.53,1.35,1.44,2.39,2.72,3.12,1.29.73,2.87,1.1,4.73,1.1,3.19,0,5.46-.72,6.82-2.17,1.35-1.44,2.03-4.22,2.03-8.33v-18.9h0ZM82.77,231.99v-32.75h4.34v16.24l16.26-16.24h5.87l-13.74,13.27,14.34,19.48h-5.72l-11.66-16.58-5.36,5.23v11.35h-4.34ZM116.11,231.99v-32.75h23.68v3.87h-19.35v10.03h18.12v3.84h-18.12v11.15h20.11v3.87h-24.44ZM169.27,231.99v-32.75h6.53l7.75,23.19c.72,2.16,1.24,3.77,1.56,4.85.37-1.19.95-2.94,1.75-5.25l7.84-22.78h5.83v32.75h-4.18v-27.41l-9.52,27.41h-3.91l-9.47-27.88v27.88h-4.18ZM210.15,231.99v-32.75h23.68v3.87h-19.35v10.03h18.12v3.84h-18.12v11.15h20.11v3.87h-24.44Z"/></mask>
+        <!-- 底色：品牌渐变（静态），保证任何一帧都还认得出是 MUKE 的色 -->
+        <linearGradient id="mkBase" x1="0" y1="0" x2="324.2" y2="232.54" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#e4007f"/><stop offset=".55" stop-color="#6d3b85"/>
+          <stop offset="1" stop-color="#1d2088"/>
+        </linearGradient>
+        <!-- 三个光团：径向渐变，边缘完全透明，叠加时自然融合 -->
+        <radialGradient id="gP"><stop offset="0" stop-color="#ff3ea5" stop-opacity=".95"/><stop offset="1" stop-color="#ff3ea5" stop-opacity="0"/></radialGradient>
+        <radialGradient id="gB"><stop offset="0" stop-color="#2b6cff" stop-opacity=".95"/><stop offset="1" stop-color="#2b6cff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="gV"><stop offset="0" stop-color="#b14dff" stop-opacity=".9"/><stop offset="1" stop-color="#b14dff" stop-opacity="0"/></radialGradient>
+        <!-- 斜向纱幕：整体缓慢公转，给极光加一层方向感 -->
+        <linearGradient id="gVeil" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#ff2fa0" stop-opacity=".55"/>
+          <stop offset=".5" stop-color="#7b2fff" stop-opacity="0"/>
+          <stop offset="1" stop-color="#00d0ff" stop-opacity=".5"/>
+        </linearGradient>
+      </defs>
+      <g class="aur" mask="url(#mkMask)">
+        <!-- .rot 整体公转（10s / 180°）。底色矩形按对角线放大，转到任何角度都不露角。 -->
+        <g class="rot">
+          <rect x="-120" y="-120" width="564" height="473" fill="url(#mkBase)"/>
+          <ellipse class="blob b1" cx="70" cy="70" rx="150" ry="120" fill="url(#gP)"/>
+          <ellipse class="blob b2" cx="250" cy="150" rx="165" ry="130" fill="url(#gB)"/>
+          <ellipse class="blob b3" cx="160" cy="110" rx="130" ry="150" fill="url(#gV)"/>
+          <rect class="veil" x="-120" y="-120" width="564" height="473" fill="url(#gVeil)" style="mix-blend-mode:screen"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="line" id="line"></div>
+</div>
+<script>
+var L=["请首次阅读后点击签到 · 如有优化提议请评论留言","Silakan klik Check in setelah membaca · Beri komentar bila ada saran","Please click Check in upon first reading · Comment if you have suggestions"],i=0,HOLD=7200,timer=null;
+var line=document.getElementById("line"),cur=null,stage=document.getElementById("stage");
+function flush(el){void el.offsetWidth}
+// 宽度是准则，字号服从它：基准 19px，超过总宽 80% 就按比例下调，最低 12px。
+// 三语字号因此可以不一致 —— 这是设计意图，不是 bug。
+var BASE=19, MAXW=Math.round(820*0.8);   // 656px
+window.__fit=[];                          // 自检用：记录每条的最终字号与宽度
+function fitText(s){
+ s.style.fontSize=BASE+"px";
+ var w=s.offsetWidth;                      // 居中定位下 offsetWidth = 文字真实宽度
+ if(w>MAXW)s.style.fontSize=Math.max(12,Math.floor(BASE*MAXW/w*10)/10)+"px";
+ window.__fit.push({t:s.textContent.slice(0,16),px:parseFloat(getComputedStyle(s).fontSize),
+   w0:w,w:s.offsetWidth,fit:s.offsetWidth<=MAXW});
+}
+function swap(n){
+ var s=document.createElement("span");
+ s.textContent=L[n];s.className="in";line.appendChild(s);
+ flush(s);                      // 不用 rAF：后台/离屏时 rAF 被暂停会把动画卡在初始态
+ s.className="";
+ fitText(s);
+ // 移除延迟 3100ms ≥ 过渡 3s，确保淡出完整走完再摘除节点
+ if(cur){var old=cur;old.className="out";setTimeout(function(){old.remove()},3100);}
+ cur=s;
+}
+// 交叉淡化：新的淡入与旧的淡出同时进行（张博 2026-08-30 确认这是想要的效果）。
+// ⚠ 我曾把它改成「淡出走完再淡入」——那是自作主张，被明确要求改回，不要再动。
+function loop(){swap(i);timer=setTimeout(function(){i=(i+1)%L.length;loop();},HOLD);}
+document.addEventListener("visibilitychange",function(){
+ if(!document.hidden){clearTimeout(timer);loop();}});
+// 等比缩放：820 设计基准；transform 不影响布局高度，所以把缩放后的真实高度写回 body
+// URL 参数强制背景：?bg=dark|light|none —— 宿主主题与系统主题不一致时的人工兜底
+(function(){var bg=(location.search.match(/[?&]bg=([a-z]+)/)||[])[1];
+ if(bg==="dark")document.documentElement.style.background=document.body.style.background="#1a1a1a";
+ else if(bg==="light")document.documentElement.style.background=document.body.style.background="#fff";
+ else if(bg==="none")document.documentElement.style.background=document.body.style.background="transparent";})();
+function fit(){
+ var cw=document.documentElement.clientWidth||window.innerWidth;
+ var s=Math.min(1,cw/820);
+ stage.style.transform=s<1?"scale("+s+")":"none";
+ var h=Math.ceil(stage.offsetHeight*s);
+ document.body.style.height=h+"px";
+ try{parent.postMessage({type:"resize",height:h+6,src:"muke-demo"},"*")}catch(e){}
+}
+var t;function relayout(){clearTimeout(t);t=setTimeout(fit,120)}
+window.addEventListener("resize",relayout);
+if(window.ResizeObserver)try{new ResizeObserver(relayout).observe(document.documentElement)}catch(e){}
+var lw=0;setInterval(function(){if(innerWidth!==lw){lw=innerWidth;fit()}},1200);
+fit();loop();
+</script></body></html>

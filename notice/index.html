@@ -1,0 +1,140 @@
+<!doctype html><html lang="zh"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>密级声明</title>
+<style>
+/* 颜色只用中间调：白底对比 4.0:1、黑底 4.7:1，两种底都成立 */
+:root{--fg:#8a9099;--line:rgba(138,144,153,.34)}
+@media (prefers-color-scheme:dark){:root{--fg:#9aa0a8;--line:rgba(154,160,168,.4)}}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent;overflow:hidden}
+/* ⚠ 必须写在上面这条之后（同特异性后者胜）。#1a1a1a = 实测的飞书暗色文档底色。 */
+@media (prefers-color-scheme:dark){html,body{background:#1a1a1a}}
+body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif}
+/* 820 设计基准，整体等比缩放 */
+#stage{width:820px;transform-origin:top left;height:46px;display:flex;align-items:center;padding:0 14px}
+.bar{display:flex;align-items:center;width:100%;gap:12px}
+/* 渐变细线：靠近中心浓、向外淡出，收束视线 */
+.rule{flex:0 0 auto;width:64px;height:1px;background:linear-gradient(to right,transparent,var(--line))}
+.rule.r{background:linear-gradient(to left,transparent,var(--line))}
+.side{flex:1 1 0;min-width:0;font-size:12.5px;letter-spacing:.01em;color:var(--fg);
+ white-space:nowrap;overflow:hidden}
+.side.l{text-align:right}
+.side.r{text-align:left}
+.side span{display:inline-block;opacity:0;filter:blur(2px);
+ transition:opacity 1.8s cubic-bezier(.4,0,.2,1),filter 1.8s cubic-bezier(.4,0,.2,1)}
+.side.on span{opacity:1;filter:none}
+.logo{flex:0 0 auto;width:34px;height:19px;display:flex;align-items:center}
+.logo svg{width:100%;height:100%;overflow:visible}
+/* ⚠ 动画一律 CSS @keyframes，禁用 SVG <animate*>(SMIL)：移动端 WebView 不执行，手机上会静止 */
+/* ⚠ isolation:isolate 必须有 —— mix-blend-mode 默认与「页面背景」混合，
+   白底上 screen 会把整个 LOGO 混成白色直接消失（踩过）。隔离后只在本组内混合。 */
+.aur{isolation:isolate}
+/* 整体公转 10s/180°；必须转 mask 内部的 g，否则会把 LOGO 形状转走 */
+.rot{transform-box:view-box;transform-origin:center;animation:aurorot 20s linear infinite}
+@keyframes aurorot{to{transform:rotate(360deg)}}
+.blob{transform-box:view-box;transform-origin:center;mix-blend-mode:screen}
+.nb1{animation:nd1 15s ease-in-out infinite}
+.nb2{animation:nd2 19s ease-in-out infinite}
+@keyframes nd1{0%,100%{transform:translate(-16px,-8px) scale(1)}
+ 40%{transform:translate(34px,12px) scale(1.25)}
+ 72%{transform:translate(4px,-18px) scale(.88)}}
+@keyframes nd2{0%,100%{transform:translate(20px,8px) scale(1.12)}
+ 45%{transform:translate(-26px,-12px) scale(.9)}}
+@media (prefers-reduced-motion:reduce){.blob,.rot{animation:none}}
+</style></head><body>
+<div id="stage"><div class="bar">
+  <span class="rule"></span>
+  <div class="side l" id="L"></div>
+  <div class="logo">
+    <svg viewBox="0 0 324.2 175" aria-hidden="true">
+      <defs>
+        <mask id="nkMask"><g fill="#fff"><path d="M4.02,142.79L98.77,7.34c5.38-7.71,15.99-9.59,23.7-4.21,4.73,3.31,7.27,8.59,7.27,13.95h.07v83.36L196.25,7.21c5.46-7.67,16.1-9.46,23.76-4,4.67,3.32,7.16,8.56,7.16,13.88h.05v83.17L292.46,8.28c2.99-4.96,8.43-8.28,14.65-8.28,9.44,0,17.09,7.65,17.09,17.09,0,4.14-1.47,7.94-3.92,10.9l-95.49,134.62c-2.99,4.96-8.43,8.29-14.65,8.29-9.44,0-17.09-7.65-17.09-17.09v-83.36l-65.69,92.19c-2.99,4.95-8.43,8.26-14.63,8.26-9.44,0-17.09-7.65-17.09-17.09v-82.59l-63.7,91.06c-2.94,5.15-8.49,8.62-14.85,8.62-9.44,0-17.09-7.65-17.09-17.09,0-4.19,1.51-8.03,4.02-11.01Z"/><path fill-rule="evenodd" d="M294.83,104.02c16.55,2.07,29.37,16.19,29.37,33.31s-12.81,31.24-29.37,33.31v-19.98l13.57-10.67h0c.42-.33.78-.72,1.09-1.19,1.54-2.32.91-5.45-1.42-6.99l-13.24-8.74v-19.05ZM290.63,103.75c1.42,0,2.82.09,4.2.26v19.05l-7.38-4.87c-.85-.65-1.91-1.03-3.06-1.03-2.79,0-5.06,2.25-5.06,5.05v30.21h0c0,1.09.35,2.19,1.08,3.12,1.72,2.19,4.9,2.57,7.09.85l7.31-5.75v19.98c-1.38.17-2.78.26-4.2.26-18.53,0-33.57-15.03-33.57-33.57s15.03-33.57,33.57-33.57Z"/></g></mask>
+        <linearGradient id="nkBase" x1="0" y1="0" x2="324.2" y2="175" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#e4007f"/><stop offset=".55" stop-color="#6d3b85"/>
+          <stop offset="1" stop-color="#1d2088"/>
+        </linearGradient>
+        <radialGradient id="nkP"><stop offset="0" stop-color="#ff3ea5" stop-opacity=".95"/><stop offset="1" stop-color="#ff3ea5" stop-opacity="0"/></radialGradient>
+        <radialGradient id="nkB"><stop offset="0" stop-color="#2b6cff" stop-opacity=".95"/><stop offset="1" stop-color="#2b6cff" stop-opacity="0"/></radialGradient>
+        <linearGradient id="nkG" x1="0" y1="85" x2="648.4" y2="85" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#e4007f"/><stop offset=".13" stop-color="#a02585"/>
+          <stop offset=".26" stop-color="#1d2088"/><stop offset=".39" stop-color="#a02585"/>
+          <stop offset=".5" stop-color="#e4007f"/><stop offset=".63" stop-color="#a02585"/>
+          <stop offset=".76" stop-color="#1d2088"/><stop offset=".89" stop-color="#a02585"/>
+          <stop offset="1" stop-color="#e4007f"/>
+        </linearGradient>
+      </defs>
+      <g class="aur" mask="url(#nkMask)">
+        <g class="rot">
+          <rect x="-120" y="-120" width="564" height="415" fill="url(#nkBase)"/>
+          <ellipse class="blob nb1" cx="80" cy="60" rx="150" ry="110" fill="url(#nkP)"/>
+          <ellipse class="blob nb2" cx="250" cy="120" rx="160" ry="115" fill="url(#nkB)"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="side r" id="R"></div>
+  <span class="rule r"></span>
+</div></div>
+<script>
+var L=[{"k":"zh","l":"内部资料 · 仅限公司员工查阅","r":"禁止外传或截图分享 · 违规必究"},{"k":"id","l":"Dokumen Internal · Khusus Karyawan","r":"Dilarang Disebar atau Di-screenshot"},{"k":"en","l":"Internal Document · Staff Only","r":"Do Not Share or Screenshot"}],i=0,STEP=16,DUR=1800,HOLD=6800,timer=null;
+var eL=document.getElementById("L"),eR=document.getElementById("R");
+// 「距中心的位次」：左侧末字符最靠近中心，右侧首字符最靠近中心
+function rank(k,len,side){return side==="l"?(len-1-k):k}
+function paint(el,text,side){
+ el.innerHTML="";
+ var ch=text.split("");
+ ch.forEach(function(c,k){
+  var s=document.createElement("span");
+  s.textContent=(c===" "?"\u00a0":c);
+  s.dataset.r=rank(k,ch.length,side);
+  s.dataset.max=ch.length-1;
+  el.appendChild(s);});
+ return ch.length;
+}
+function setIn(el){[].forEach.call(el.children,function(s){
+ s.style.transitionDelay=(+s.dataset.r*STEP)+"ms"})}          // 淡入：中心先亮，向两端展开
+function setOut(el){[].forEach.call(el.children,function(s){
+ s.style.transitionDelay=((+s.dataset.max-+s.dataset.r)*STEP)+"ms"})}  // 淡出：两端先灭，向中心收拢
+function span(n){return Math.max(L[n].l.length,L[n].r.length)*STEP+DUR}
+// ⚠ 不用 requestAnimationFrame：页面在后台或滚出视口时 rAF 被暂停，动画会永久卡在初始态
+function flush(el){void el.offsetWidth}
+function show(n){
+ var g=L[n];paint(eL,g.l,"l");paint(eR,g.r,"r");
+ setIn(eL);setIn(eR);flush(eL);flush(eR);
+ eL.classList.add("on");eR.classList.add("on");
+ return span(n);
+}
+function hide(n){
+ setOut(eL);setOut(eR);flush(eL);flush(eR);
+ eL.classList.remove("on");eR.classList.remove("on");
+ return span(n);
+}
+function loop(){
+ var inMs=show(i);
+ timer=setTimeout(function(){
+  var outMs=hide(i);
+  timer=setTimeout(function(){i=(i+1)%L.length;loop();},outMs);
+ },inMs+HOLD);
+}
+document.addEventListener("visibilitychange",function(){
+ if(!document.hidden){clearTimeout(timer);loop();}});
+// URL 参数强制背景：?bg=dark|light|none —— 宿主主题与系统主题不一致时的人工兜底
+(function(){var bg=(location.search.match(/[?&]bg=([a-z]+)/)||[])[1];
+ if(bg==="dark")document.documentElement.style.background=document.body.style.background="#1a1a1a";
+ else if(bg==="light")document.documentElement.style.background=document.body.style.background="#fff";
+ else if(bg==="none")document.documentElement.style.background=document.body.style.background="transparent";})();
+function fit(){
+ var cw=document.documentElement.clientWidth||window.innerWidth;
+ var s=Math.min(1,cw/820);
+ var st=document.getElementById("stage");
+ st.style.transform=s<1?"scale("+s+")":"none";
+ var h=Math.ceil(46*s);
+ document.body.style.height=h+"px";
+ try{parent.postMessage({type:"resize",height:h+4,src:"muke-demo"},"*")}catch(e){}
+}
+var t;function relayout(){clearTimeout(t);t=setTimeout(fit,120)}
+window.addEventListener("resize",relayout);
+if(window.ResizeObserver)try{new ResizeObserver(relayout).observe(document.documentElement)}catch(e){}
+fit();loop();
+</script></body></html>

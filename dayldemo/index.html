@@ -1,0 +1,137 @@
+<!doctype html><html lang="zh"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<!-- source: api:bitable/<BASE2>/tblQrSHPGo5zEuhy -->
+<!-- live-fields: {"source":"api:bitable/<BASE2>/tblQrSHPGo5zEuhy","view":"DAYL.HR","fields":["Date","Lark","Job-CN","In","In St","Out","Out St","⏰M","Result"],"fetched":"2026-08-30"} -->
+<title>HR 每天怎么看考勤异常演示</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif;
+ color:#1f2329;background:#fff;padding:8px 10px}
+.wrap{max-width:820px;margin:0 auto}
+.top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.cap{font-size:15px;font-weight:700;margin-right:auto;letter-spacing:-.01em}
+.cap b{color:#3370ff}
+.pill{border:1px solid #dee0e3;border-radius:13px;padding:2px 10px;font-size:12px;
+ cursor:pointer;user-select:none;background:#fff;white-space:nowrap}
+.pill.on{background:#3370ff;border-color:#3370ff;color:#fff;font-weight:700}
+.pill.play{background:#f5f6f7}
+.sub{font-size:11.5px;color:#8f959e;margin:3px 0 7px}
+.grid{border:1px solid #dee0e3;border-radius:2px;overflow:hidden}
+#gwrap{transition:margin-left .8s ease}
+.hrow,.rrow{display:flex;border-bottom:1px solid #e5e6eb;height:24px}
+.rn{width:50px;flex:none;display:flex;align-items:center;gap:5px;padding-left:7px;
+ font-size:11px;color:#8f959e;border-right:1px solid #e5e6eb;background:#fff}
+.rn .cb{width:11px;height:11px;border:1px solid #d0d3d6;border-radius:2px;flex:none}
+.hrow .rn{background:#fcfcfd}
+.th{background:#fcfcfd;font-size:11.5px;color:#646a73;padding:5px 6px;
+ border-right:1px solid #e5e6eb;white-space:nowrap;overflow:hidden;flex:none}
+.th i{font-style:normal;color:#a8abb0;margin-right:3px;font-size:10px}
+.td{font-size:12px;padding:4px 6px;border-right:1px solid #eff0f2;white-space:nowrap;
+ overflow:hidden;flex:none;display:flex;align-items:center;gap:4px}
+.chip{display:inline-block;border-radius:4px;padding:0 7px;font-size:11px;line-height:16px;
+ background:#E1EAFF;color:#245BDB;white-space:nowrap}
+.chip.f{background:#FEE2EA;color:#D4418E}
+.chip.g{background:#D9F5D6;color:#35A612}
+.chip.y{background:#FDF4D8;color:#A26D0E}
+.ph{width:15px;height:15px;border-radius:2px;background:#c9a48a;display:inline-block;flex:none}
+.bar{display:inline-block;width:32px;height:5px;border-radius:3px;background:#eee;position:relative;flex:none}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:#62D256}
+.btn{display:inline-block;border-radius:4px;padding:1px 8px;font-size:11px;
+ background:#3370ff;color:#fff;font-weight:600;white-space:nowrap}
+.td.act{box-shadow:inset 0 0 0 2px #3370ff}
+.note{margin-top:7px;background:#F7FBF3;border:1px solid #C3DDA0;border-radius:6px;
+ padding:7px 12px;font-size:12px;color:#4A6318;opacity:0;transition:opacity .4s}
+.note.show{opacity:1}
+/* ── 等比缩放（2026-08-30 张博定）：820 是设计基准，容器窄就整体缩小，
+      字跟着一起缩 —— 和 GIF 的行为一致；想看清横屏即可，不做裁列/换布局 ── */
+body{padding:0;overflow:hidden}
+.wrap{width:820px;max-width:none;margin:0;padding:8px 10px;transform-origin:top left}
+</style></head><body><div class="wrap">
+<div class="top"><div class="cap" id="cap"></div>
+<span class="pill play" id="pp">⏸</span><span class="pill" data-s="0">起点</span>
+<span class="pill" data-s="1">①</span><span class="pill" data-s="2">②</span><span class="pill" data-s="3">③</span><span class="pill" data-s="4">④</span></div>
+<div class="sub" id="sub"></div>
+<div class="grid"><div id="gwrap">
+<div class="hrow"><div class="rn"><span class="cb"></span>☰</div><div class="th" data-col="Date" style="width:78px"><i>📅</i>Date</div><div class="th" data-col="Lark" style="width:88px"><i>🔍</i>Lark</div><div class="th" data-col="JobCN" style="width:68px"><i>🔍</i>Job-CN</div><div class="th" data-col="In" style="width:66px"><i>≡</i>In</div><div class="th" data-col="InSt" style="width:76px"><i>ƒ</i>In St</div><div class="th" data-col="Out" style="width:66px"><i>≡</i>Out</div><div class="th" data-col="OutSt" style="width:76px"><i>ƒ</i>Out St</div><div class="th" data-col="M" style="width:56px"><i>#</i>⏰M</div><div class="th" data-col="Result" style="width:76px"><i>ƒ</i>Result</div></div>
+<div id="ctx"></div>
+<div class="rrow"><div class="rn"><span class="cb"></span><span id="rnA"></span></div><div class="td" data-col="Date" style="width:78px" id="a_Date"></div><div class="td" data-col="Lark" style="width:88px" id="a_Lark"></div><div class="td" data-col="JobCN" style="width:68px" id="a_JobCN"></div><div class="td" data-col="In" style="width:66px" id="a_In"></div><div class="td" data-col="InSt" style="width:76px" id="a_InSt"></div><div class="td" data-col="Out" style="width:66px" id="a_Out"></div><div class="td" data-col="OutSt" style="width:76px" id="a_OutSt"></div><div class="td" data-col="M" style="width:56px" id="a_M"></div><div class="td" data-col="Result" style="width:76px" id="a_Result"></div></div>
+<div class="rrow" id="r1"><div class="rn"><span class="cb"></span><span id="rnB"></span></div><div class="td" data-col="Date" style="width:78px" id="b_Date"></div><div class="td" data-col="Lark" style="width:88px" id="b_Lark"></div><div class="td" data-col="JobCN" style="width:68px" id="b_JobCN"></div><div class="td" data-col="In" style="width:66px" id="b_In"></div><div class="td" data-col="InSt" style="width:76px" id="b_InSt"></div><div class="td" data-col="Out" style="width:66px" id="b_Out"></div><div class="td" data-col="OutSt" style="width:76px" id="b_OutSt"></div><div class="td" data-col="M" style="width:56px" id="b_M"></div><div class="td" data-col="Result" style="width:76px" id="b_Result"></div></div>
+<div class="rrow" id="addrow"><div class="rn" style="border-right:0;color:#a8abb0">＋</div></div>
+</div></div>
+<div class="note" id="note">演示数据为虚构。Result 是公式列，不用手填；你只需要判断和跟进。</div>
+</div><script>
+var COLS=[{"f":"Date","n":"Date","w":78},{"f":"Lark","n":"Lark","w":88},{"f":"JobCN","n":"Job-CN","w":68},{"f":"In","n":"In","w":66},{"f":"InSt","n":"In St","w":76},{"f":"Out","n":"Out","w":66},{"f":"OutSt","n":"Out St","w":76},{"f":"M","n":"⏰M","w":56},{"f":"Result","n":"Result","w":76}];
+var STEPS=[{cap:"每天上午看一遍昨天的 <b>Result</b> 列 —— 只有三种异常需要你动手",sub:"Base2 › H03_日勤 DAYL › DAYL.HR",cells:{},focus:[]}].concat([{"cap":"① 先看 Result 这一列","sub":"公式自动判的，✅ 正常的不用管，只挑出 ⏰ 迟到 / 🔺 严重迟到 / 🔴 缺卡","act":"Result","focus":["Date","Lark","Result"],"done":0,"note":0,"cells":{}},{"cap":"② 迟到：看 ⏰M 分几档","sub":"超过 10 分钟算迟到，超过 30 分钟算严重迟到（M02 组弹性 60 分钟另算）。扣款按日薪 20% / 40%","act":"M","focus":["Lark","M","Result"],"done":0,"note":0,"cells":{}},{"cap":"③ 缺卡：确认是哪一头空的","sub":"In 空 = 上班没打，Out 空 = 下班没打。空的那一头超过 60 分钟就判缺卡，扣日薪 60%","act":"Out","focus":["Lark","In","Out"],"done":0,"note":0,"cells":{}},{"cap":"④ 员工补卡通过后，这行自己会变","sub":"补卡走 Lark 审批 → 同步进 H04 → 自动化回写 H03。你不用手改这张表","act":"Result","focus":["Lark","Out","Result"],"done":0,"note":0,"cells":{"Out":"18:07","OutSt":"<span class=\"chip\">✅ 已补卡</span>","Result":"<span class=\"chip\">✅ 已补卡</span>"}}]);
+var BASE={"Date":"09-01","Lark":"Eko Prasetyo","JobCN":"妆造","In":"09:02","InSt":"<span class=\"chip\">✅ 正常</span>","Out":"—","OutSt":"<span class=\"chip bad\">🔴 缺卡</span>","M":"0","Hrs":"—","Result":"<span class=\"chip bad\">🔴 缺卡</span>"};
+var SEED=[{"Date":"09-01","Lark":"Intan Permata Putri","Job-CN":"主播","In":"08:56","In St":"<span class=\"chip\">✅ 正常</span>","Out":"18:03","Out St":"<span class=\"chip\">✅ 正常</span>","⏰M":"0","Hrs":"8.1","Result":"<span class=\"chip\">✅ 正常</span>"},{"Date":"09-01","Lark":"Rizky Fajar Ramadhanya","Job-CN":"中控","In":"09:24","In St":"<span class=\"chip warn\">⏰ 迟到</span>","Out":"18:10","Out St":"<span class=\"chip\">✅ 正常</span>","⏰M":"24","Hrs":"7.8","Result":"<span class=\"chip warn\">⏰ 迟到</span>"},{"Date":"09-01","Lark":"Dewi Anggraini","Job-CN":"主播","In":"09:38","In St":"<span class=\"chip bad\">🔺 严重迟到</span>","Out":"18:02","Out St":"<span class=\"chip\">✅ 正常</span>","⏰M":"38","Hrs":"7.4","Result":"<span class=\"chip bad\">🔺 严重迟到</span>"},{"Date":"09-01","Lark":"Eko Prasetyo","Job-CN":"妆造","In":"09:02","In St":"<span class=\"chip\">✅ 正常</span>","Out":"—","Out St":"<span class=\"chip bad\">🔴 缺卡</span>","⏰M":"0","Hrs":"—","Result":"<span class=\"chip bad\">🔴 缺卡</span>"}];
+var cur=0,auto=true,timer=null;
+function S(i){return document.getElementById(i)}
+function cell(col,row){var r=SEED[row%SEED.length]||{};return r[col.n]!==undefined?r[col.n]:""}
+function seedRow(no,ri){
+ // 属性一律加引号：属性值一旦含特殊字符（或为空），无引号会被解析成隔壁属性（2026-08-30 实测过）
+ var tds=COLS.map(function(c){return '<div class="td" data-col="'+c.f+'" style="width:'+c.w+'px">'+cell(c,ri)+"</div>"});
+ return '<div class="rrow"><div class="rn"><span class="cb"></span>'+no+"</div>"+tds.join("")+"</div>"}
+var DW=820, scale=1;
+function layout(){
+ // ① 整体等比缩放到容器宽度（820 = 设计基准 = 飞书正文封顶宽）
+ var cw=document.documentElement.clientWidth||window.innerWidth;
+ scale=Math.min(1,cw/DW);
+ var wrap=document.querySelector(".wrap");
+ wrap.style.transform=scale<1?"scale("+scale+")":"none";
+ // ② 行数在「设计坐标系」里算：容器实高换算回设计像素，再按 24px 行高排
+ var dh=window.innerHeight/scale;
+ var gridTop=document.querySelector(".grid").offsetTop;   // offsetTop 不受 transform 影响，本就是设计像素
+ var noteH=S("note").offsetHeight+9;
+ var n=Math.max(0,Math.floor((dh-gridTop-noteH-8)/24)-4);
+ n=Math.min(n,40);
+ var h="";for(var i=0;i<n;i++)h+=seedRow(15+i,i);
+ S("ctx").innerHTML=h;
+ S("rnA").textContent=15+n;S("rnB").textContent=16+n;
+}
+function apply(n){
+ cur=n;
+ document.querySelectorAll(".td[id]").forEach(function(e){e.innerHTML="";e.classList.remove("act")});
+ for(var k in BASE){var e=S("a_"+k);if(e)e.innerHTML=BASE[k]}
+ var merged={},done=0,note=0;
+ for(var i=0;i<=n;i++){var st=STEPS[i];for(var c in st.cells)merged[c]=st.cells[c];
+  done=st.done||done;note=st.note||note}
+ for(var c2 in merged){var e2=S("b_"+c2);if(e2)e2.innerHTML=merged[c2]}
+ var act=STEPS[n].act;
+ if(act&&S("b_"+act))S("b_"+act).classList.add("act");
+ // 横向滚动把整组关注列带进视野。⚠ 锚点必须取「物理最靠右」的列，
+ // 不能取 focus 数组的最后一项 —— 配置里的书写顺序不等于列在表里的顺序（2026-08-30 实测踩到）
+ var ml=0,maxR=-1;
+ (STEPS[n].focus||[]).concat(act?[act]:[]).forEach(function(f){
+  var e=S("b_"+f);if(e){var r=e.offsetLeft+e.offsetWidth;if(r>maxR)maxR=r}});
+ if(maxR>0){var gw=document.querySelector(".grid").clientWidth;
+  ml=-Math.max(0,maxR+10-gw)}
+ S("gwrap").style.marginLeft=ml+"px";
+ S("r1").className="rrow"+(done?" done":"");
+ S("note").className="note"+(note?" show":"");
+ S("cap").innerHTML=STEPS[n].cap;S("sub").textContent=STEPS[n].sub;
+ document.querySelectorAll(".pill[data-s]").forEach(function(p){
+  p.className="pill"+(+p.dataset.s===n?" on":"")});
+}
+function tick(){apply((cur+1)%STEPS.length)}
+function setAuto(v){auto=v;clearInterval(timer);if(auto)timer=setInterval(tick,2600);
+ S("pp").textContent=auto?"⏸":"▶"}
+document.querySelectorAll(".pill[data-s]").forEach(function(p){
+ p.onclick=function(){setAuto(false);apply(+p.dataset.s)}});
+S("pp").onclick=function(){setAuto(!auto)};
+// 尺寸自适应三重保险：resize 事件 / ResizeObserver / 心跳兜底
+//   （iframe 内某些宿主改尺寸不派发 resize 事件，实测过 —— 只靠事件会漏）
+var rto,lastW=0,lastH=0;
+function relayout(){clearTimeout(rto);rto=setTimeout(function(){layout();apply(cur)},160)}
+window.addEventListener("resize",relayout);
+if(window.ResizeObserver)try{new ResizeObserver(relayout).observe(document.documentElement)}catch(e){}
+// 高度广播（宿主若支持自动适配就白赚；飞书实测不监听，无害）
+function beat(){
+ if(window.innerWidth!==lastW||window.innerHeight!==lastH){
+  lastW=window.innerWidth;lastH=window.innerHeight;layout();apply(cur)}
+ // 广播的是缩放后的实际高度（getBoundingClientRect 已含 transform）
+ var h=Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height)+8;
+ try{parent.postMessage({type:"resize",height:h,src:"muke-demo"},"*")}catch(e){}}
+layout();apply(0);setAuto(true);lastW=window.innerWidth;lastH=window.innerHeight;
+setTimeout(beat,300);setInterval(beat,1200);
+</script></body></html>

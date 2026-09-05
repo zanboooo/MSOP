@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MS-MED005 · 头像制作流程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* ============================================================
+   MS-MED005 第四章「操作演示」的流程讲解图
+   ── 它不是工具的重复演示 ──
+   第五章已经把真工具嵌进去了，交互本身不复杂，再放一个仿真演示就是两张一样的图。
+   这里只做【流程讲解】：五步各是什么、哪一步会卡、卡了看哪里。
+
+   三条硬约束（飞书文档内嵌）：
+   · 背景透明 —— 文档底色可能是白也可能是暗，写死白底就在暗色模式里糊掉
+   · 字色黑白底通吃 —— 品牌绿 #B4FF70 在白底不可读，所以绿色只做【填充】不做字色
+   · 高度自适应不了（飞书的 iframe 高度只能手动拖）→ 版面压到最紧，不留富余
+   ============================================================ */
+:root{
+  --ink:#171B21; --sub:#5C6672; --hair:#C9CFD6;
+  --lime:#B4FF70; --limeDeep:#8FE24A;
+  --card:rgba(120,132,116,.09);
+  --warnBg:rgba(255,176,32,.13); --warnLine:#E0A21A;
+}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#EEF2F4; --sub:#98A3AE; --hair:#3A424C;
+        --card:rgba(180,255,112,.07); --warnBg:rgba(255,194,75,.10);}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:transparent;color:var(--ink);
+  font-family:Figtree,-apple-system,'Segoe UI','PingFang SC','Noto Sans SC',sans-serif;
+  font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;padding:2px 0 4px}
+
+.wrap{max-width:820px;margin:0 auto}
+
+/* ---------- 五步 ---------- */
+/* 用 auto-fit 自然换行，不设断点：820 宽时一行五步，窄了自动折成 3/2/1 列。
+   卡片最小 138px 是「标题不折行」的实测下限。 */
+.flow{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(134px,1fr))}
+.step{position:relative;background:var(--card);border-radius:9px;padding:11px 12px 12px}
+.step .n{display:inline-flex;align-items:center;justify-content:center;
+  width:21px;height:21px;border-radius:50%;background:var(--lime);color:#14171C;
+  font-weight:700;font-size:12px;margin-bottom:7px}
+.step h4{font-size:14.5px;font-weight:700;letter-spacing:.01em;margin-bottom:3px}
+.step p{font-size:12.5px;color:var(--sub);line-height:1.5}
+.step b{color:var(--ink);font-weight:700}
+/* 步与步之间的箭头：只在同一行相邻卡片之间出现，折行处自然不画 */
+.step+.step::before{content:"";position:absolute;left:-16px;top:22px;width:11px;height:1.5px;
+  background:var(--hair)}
+.step+.step::after{content:"";position:absolute;left:-6px;top:18.5px;
+  border:4px solid transparent;border-left-color:var(--hair)}
+
+/* ---------- 卡在哪 ---------- */
+.gate{margin-top:9px;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.g{display:flex;gap:8px;align-items:flex-start;background:var(--warnBg);
+  border-left:2px solid var(--warnLine);border-radius:0 6px 6px 0;padding:8px 10px}
+.g .k{flex:0 0 auto;font-size:13px;line-height:1.45}
+.g div{font-size:12.5px;line-height:1.5;color:var(--sub)}
+.g strong{color:var(--ink);font-weight:700}
+
+.tail{margin-top:9px;font-size:11.5px;color:var(--sub);text-align:center;
+  border-top:1px solid var(--hair);padding-top:7px}
+.tail b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="flow">
+    <div class="step">
+      <span class="n">1</span>
+      <h4>确认身份</h4>
+      <p>从私信里的<b>专属链接</b>打开，直接认出你。没有链接就输手机号。</p>
+    </div>
+    <div class="step">
+      <span class="n">2</span>
+      <h4>传照片</h4>
+      <p>点 02 那个按钮。<b>正脸、背景越简单越好</b>——白墙前拍的抠得最干净。</p>
+    </div>
+    <div class="step">
+      <span class="n">3</span>
+      <h4>等抠图</h4>
+      <p>AI 自动去背景。<b>第一次要下 81MB 模型</b>，之后就不用了。</p>
+    </div>
+    <div class="step">
+      <span class="n">4</span>
+      <h4>调位置</h4>
+      <p>四个滑杆调<b>大小 / 旋转 / 上下 / 左右</b>，把脸放到圆框中间偏上，然后下载。</p>
+    </div>
+    <div class="step">
+      <span class="n">5</span>
+      <h4>设到 Lark</h4>
+      <p>Mine → 点自己的名字 → Edit&nbsp;Profile → 点头像 → 选刚下载的图。</p>
+    </div>
+  </div>
+
+  <div class="gate">
+    <div class="g">
+      <span class="k">⏳</span>
+      <div><strong>第 3 步转圈很久</strong>——看小字，写着「下载模型 x%」就是正常的。
+        <strong>务必连 wifi</strong>，81MB 走流量很贵。</div>
+    </div>
+    <div class="g">
+      <span class="k">✂️</span>
+      <div><strong>边上有残留 / 缺了头发</strong>——换张背景更简单的重传。
+        逆光、和背景同色的衣服最容易出问题。</div>
+    </div>
+    <div class="g">
+      <span class="k">⬇️</span>
+      <div><strong>在本文档里点下载没反应</strong>——浏览器会拦掉文档内的下载。
+        <strong>右键预览图 → 图片另存为</strong>，按钮上也写着这句。</div>
+    </div>
+  </div>
+
+  <p class="tail">
+    照片全程在你自己的设备上处理，<b>不上传到任何服务器</b>　·
+    <b>没有员工名单</b>，你只看得到自己　·
+    配色按人事档案的性别自动定，<b>女紫男绿</b>，不需要也不能手动选
+  </p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html><html lang="id"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Kalkulator Izin</title>
+<style>
+/* 两条铁律（张博 2026-08-30）：① 背景一律透明 ② 按 820 基准等比缩放。
+   ⚠ 暗色兜底必须写在 transparent 之后，同特异性后者胜。
+   配色改中间调 —— 原来的 #1f2329 深字 + #fff 白底只在亮色宿主成立，暗色下要么白块要么隐形。*/
+html,body{background:transparent}
+@media (prefers-color-scheme:dark){html,body{background:#1a1a1a}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei","Source Han Sans SC",-apple-system,"Segoe UI",sans-serif;
+ color:#8a9099;overflow:hidden}
+#stage{width:820px;transform-origin:top left;padding:16px 28px 8px}
+.wrap{width:100%}
+h1{font-size:17px;font-weight:700;margin-bottom:2px;color:#6f757e}
+.sub{font-size:12px;color:#8a9099;opacity:.85;margin-bottom:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.f{flex:1;min-width:200px}
+label{display:block;font-size:12px;color:#8a9099;margin-bottom:6px}
+input{width:100%;border:1px solid rgba(138,144,153,.34);border-radius:8px;padding:10px 12px;font-size:15px;
+ font-weight:600;background:transparent;color:#6f757e;transition:border-color .25s}
+input:focus{outline:none;border-color:#6d3b85}
+.res{border:1px solid rgba(138,144,153,.34);border-radius:10px;padding:14px 16px}
+.res b{display:block;font-size:24px;font-variant-numeric:tabular-nums;margin:2px 0 6px}
+.res .neg{color:#e4007f}
+.f13{font-size:12px;color:#8a9099;line-height:1.6}
+.formula{font-family:ui-monospace,monospace;border:1px solid rgba(138,144,153,.34);border-radius:6px;
+ padding:6px 10px;font-size:12px;display:inline-block;margin-top:8px;color:#8a9099}
+.note{margin-top:12px;font-size:11px;color:#8a9099;opacity:.8}
+</style></head><body>
+<div id="stage"><div class="wrap">
+<h1>Kalkulator Potongan Izin · 事假扣款试算</h1>
+<div class="sub">Izin pribadi tidak dibayar / 事假无薪，按法定时薪基准扣</div>
+<div class="row">
+ <!-- ⚠ 默认值只能是明显的示例数。这里原本填的是真实试用期月薪，等于把薪档公开
+     （本页无需登录即可访问）。改动见 2026-09-06 重建。工资结构不进任何仓库。 -->
+  <div class="f"><label>Gaji bulanan (Rp) · 月薪</label><input id="g" type="number" inputmode="numeric" placeholder="1000000" value="1000000"></div>
+ <div class="f"><label>Jam izin · 事假小时</label><input id="h" type="number" inputmode="decimal" placeholder="9" value="9" step="0.5" min="0" max="48"></div>
+</div>
+<div class="res">
+ <span class="f13">Potongan · 扣款</span>
+ <b class="neg" id="out">—</b><!-- 加载时 calc() 立刻覆盖；源码里不留数字，否则 时薪×173 可反推出真实月薪 -->
+ <span class="f13" id="detail">Upah per jam · 时薪 = —</span>
+ <span class="formula">potongan = gaji ÷ 173 × jam　（1/173 = dasar upah per jam menurut UU）</span>
+</div>
+<div class="note">Kuota izin: 48 jam/tahun, maks 24 jam/bulan · Sakit dengan surat dokter = gaji penuh, tidak dipotong<br>
+口径：公司假典 2026-08-30 版 · 病假有医生证明全薪不扣 · 事假额度 48 小时/年（每月最多 24 小时）</div>
+</div></div>
+<script>
+var g=document.getElementById("g"),h=document.getElementById("h"),
+ out=document.getElementById("out"),det=document.getElementById("detail");
+function fmt(n){return "Rp "+Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");}
+function calc(){
+ var G=parseFloat(g.value)||0,Hh=Math.min(48,Math.max(0,parseFloat(h.value)||0));
+ var per=G/173,cut=per*Hh;
+ out.textContent="− "+fmt(cut);
+ det.textContent="Upah per jam · 时薪 = "+fmt(per)+(Hh>24?"　⚠ >24 jam/bulan melebihi batas bulanan":"");
+}
+g.addEventListener("input",calc);h.addEventListener("input",calc);calc();
+// 等比缩放到 820 设计基准；transform 不改布局高度，必须把高度写回 body
+var stage=document.getElementById("stage");
+function fit(){var s=Math.min(1,document.documentElement.clientWidth/820);
+ stage.style.transform=s<1?"scale("+s+")":"none";
+ document.body.style.height=Math.ceil(stage.offsetHeight*s)+"px";}
+fit();addEventListener("resize",fit);
+if(window.ResizeObserver)new ResizeObserver(fit).observe(document.body);
+setInterval(fit,1200);
+</script>
+</body></html>

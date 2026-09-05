@@ -1,0 +1,137 @@
+<!doctype html><html lang="zh"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<!-- source: api:bitable/<BASE2>/tbl0IXzgKcVRJetS -->
+<!-- live-fields: {"source":"api:bitable/<BASE2>/tbl0IXzgKcVRJetS","view":"1️⃣建档 Daftar","fields":["Emp ID","EVAL","Photo","Job-ID","Gender","Total Score","Phone","Type","Team","Start","Lark Name","Check","KTP","KTP NIK","Add Lark","Msg"],"fetched":"2026-08-30"} -->
+<title>入职建档演示</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif;
+ color:#1f2329;background:#fff;padding:8px 10px}
+.wrap{max-width:820px;margin:0 auto}
+.top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.cap{font-size:15px;font-weight:700;margin-right:auto;letter-spacing:-.01em}
+.cap b{color:#3370ff}
+.pill{border:1px solid #dee0e3;border-radius:13px;padding:2px 10px;font-size:12px;
+ cursor:pointer;user-select:none;background:#fff;white-space:nowrap}
+.pill.on{background:#3370ff;border-color:#3370ff;color:#fff;font-weight:700}
+.pill.play{background:#f5f6f7}
+.sub{font-size:11.5px;color:#8f959e;margin:3px 0 7px}
+.grid{border:1px solid #dee0e3;border-radius:2px;overflow:hidden}
+#gwrap{transition:margin-left .8s ease}
+.hrow,.rrow{display:flex;border-bottom:1px solid #e5e6eb;height:24px}
+.rn{width:50px;flex:none;display:flex;align-items:center;gap:5px;padding-left:7px;
+ font-size:11px;color:#8f959e;border-right:1px solid #e5e6eb;background:#fff}
+.rn .cb{width:11px;height:11px;border:1px solid #d0d3d6;border-radius:2px;flex:none}
+.hrow .rn{background:#fcfcfd}
+.th{background:#fcfcfd;font-size:11.5px;color:#646a73;padding:5px 6px;
+ border-right:1px solid #e5e6eb;white-space:nowrap;overflow:hidden;flex:none}
+.th i{font-style:normal;color:#a8abb0;margin-right:3px;font-size:10px}
+.td{font-size:12px;padding:4px 6px;border-right:1px solid #eff0f2;white-space:nowrap;
+ overflow:hidden;flex:none;display:flex;align-items:center;gap:4px}
+.chip{display:inline-block;border-radius:4px;padding:0 7px;font-size:11px;line-height:16px;
+ background:#E1EAFF;color:#245BDB;white-space:nowrap}
+.chip.f{background:#FEE2EA;color:#D4418E}
+.chip.g{background:#D9F5D6;color:#35A612}
+.chip.y{background:#FDF4D8;color:#A26D0E}
+.ph{width:15px;height:15px;border-radius:2px;background:#c9a48a;display:inline-block;flex:none}
+.bar{display:inline-block;width:32px;height:5px;border-radius:3px;background:#eee;position:relative;flex:none}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:#62D256}
+.btn{display:inline-block;border-radius:4px;padding:1px 8px;font-size:11px;
+ background:#3370ff;color:#fff;font-weight:600;white-space:nowrap}
+.td.act{box-shadow:inset 0 0 0 2px #3370ff}
+.note{margin-top:7px;background:#F7FBF3;border:1px solid #C3DDA0;border-radius:6px;
+ padding:7px 12px;font-size:12px;color:#4A6318;opacity:0;transition:opacity .4s}
+.note.show{opacity:1}
+/* ── 等比缩放（2026-08-30 张博定）：820 是设计基准，容器窄就整体缩小，
+      字跟着一起缩 —— 和 GIF 的行为一致；想看清横屏即可，不做裁列/换布局 ── */
+body{padding:0;overflow:hidden}
+.wrap{width:820px;max-width:none;margin:0;padding:8px 10px;transform-origin:top left}
+</style></head><body><div class="wrap">
+<div class="top"><div class="cap" id="cap"></div>
+<span class="pill play" id="pp">⏸</span><span class="pill" data-s="0">起点</span>
+<span class="pill" data-s="1">①关联</span><span class="pill" data-s="2">②资料</span><span class="pill" data-s="3">③材料</span><span class="pill" data-s="4">④查灯</span><span class="pill" data-s="5">⑤建号</span></div>
+<div class="sub" id="sub"></div>
+<div class="grid"><div id="gwrap">
+<div class="hrow"><div class="rn"><span class="cb"></span>☰</div><div class="th" data-col="EmpID" style="width:76px"><i>ƒ</i>Emp ID</div><div class="th" data-col="EVAL" style="width:128px"><i>🔗</i>EVAL</div><div class="th" data-col="Photo" style="width:88px"><i>🔍</i>Photo</div><div class="th" data-col="JobID" style="width:88px"><i>🔍</i>Job-ID</div><div class="th" data-col="Gender" style="width:84px"><i>◔</i>Gender</div><div class="th" data-col="TotalScore" style="width:92px"><i>#</i>Total Score</div><div class="th" data-col="Phone" style="width:108px"><i>≡</i>Phone</div><div class="th" data-col="Type" style="width:84px"><i>◔</i>Type</div><div class="th" data-col="Team" style="width:96px"><i>🔗</i>Team</div><div class="th" data-col="Start" style="width:84px"><i>📅</i>Start</div><div class="th" data-col="LarkName" style="width:84px"><i>≡</i>Lark Name</div><div class="th" data-col="Check" style="width:76px"><i>ƒ</i>Check</div><div class="th" data-col="KTP" style="width:60px"><i>📎</i>KTP</div><div class="th" data-col="KTPNIK" style="width:96px"><i>≡</i>KTP NIK</div><div class="th" data-col="AddLark" style="width:80px"><i>⚡</i>Add Lark</div><div class="th" data-col="Msg" style="width:96px"><i>≡</i>Msg</div></div>
+<div id="ctx"></div>
+<div class="rrow"><div class="rn"><span class="cb"></span><span id="rnA"></span></div><div class="td" data-col="EmpID" style="width:76px" id="a_EmpID"></div><div class="td" data-col="EVAL" style="width:128px" id="a_EVAL"></div><div class="td" data-col="Photo" style="width:88px" id="a_Photo"></div><div class="td" data-col="JobID" style="width:88px" id="a_JobID"></div><div class="td" data-col="Gender" style="width:84px" id="a_Gender"></div><div class="td" data-col="TotalScore" style="width:92px" id="a_TotalScore"></div><div class="td" data-col="Phone" style="width:108px" id="a_Phone"></div><div class="td" data-col="Type" style="width:84px" id="a_Type"></div><div class="td" data-col="Team" style="width:96px" id="a_Team"></div><div class="td" data-col="Start" style="width:84px" id="a_Start"></div><div class="td" data-col="LarkName" style="width:84px" id="a_LarkName"></div><div class="td" data-col="Check" style="width:76px" id="a_Check"></div><div class="td" data-col="KTP" style="width:60px" id="a_KTP"></div><div class="td" data-col="KTPNIK" style="width:96px" id="a_KTPNIK"></div><div class="td" data-col="AddLark" style="width:80px" id="a_AddLark"></div><div class="td" data-col="Msg" style="width:96px" id="a_Msg"></div></div>
+<div class="rrow" id="r1"><div class="rn"><span class="cb"></span><span id="rnB"></span></div><div class="td" data-col="EmpID" style="width:76px" id="b_EmpID"></div><div class="td" data-col="EVAL" style="width:128px" id="b_EVAL"></div><div class="td" data-col="Photo" style="width:88px" id="b_Photo"></div><div class="td" data-col="JobID" style="width:88px" id="b_JobID"></div><div class="td" data-col="Gender" style="width:84px" id="b_Gender"></div><div class="td" data-col="TotalScore" style="width:92px" id="b_TotalScore"></div><div class="td" data-col="Phone" style="width:108px" id="b_Phone"></div><div class="td" data-col="Type" style="width:84px" id="b_Type"></div><div class="td" data-col="Team" style="width:96px" id="b_Team"></div><div class="td" data-col="Start" style="width:84px" id="b_Start"></div><div class="td" data-col="LarkName" style="width:84px" id="b_LarkName"></div><div class="td" data-col="Check" style="width:76px" id="b_Check"></div><div class="td" data-col="KTP" style="width:60px" id="b_KTP"></div><div class="td" data-col="KTPNIK" style="width:96px" id="b_KTPNIK"></div><div class="td" data-col="AddLark" style="width:80px" id="b_AddLark"></div><div class="td" data-col="Msg" style="width:96px" id="b_Msg"></div></div>
+<div class="rrow" id="addrow"><div class="rn" style="border-right:0;color:#a8abb0">＋</div></div>
+</div></div>
+<div class="note" id="note">✅ Check 全绿再点 Add Lark —— 两盏灯没绿就点，会把两个人写成同一个</div>
+</div><script>
+var COLS=[{"f":"EmpID","n":"Emp ID","w":76},{"f":"EVAL","n":"EVAL","w":128},{"f":"Photo","n":"Photo","w":88},{"f":"JobID","n":"Job-ID","w":88},{"f":"Gender","n":"Gender","w":84},{"f":"TotalScore","n":"Total Score","w":92},{"f":"Phone","n":"Phone","w":108},{"f":"Type","n":"Type","w":84},{"f":"Team","n":"Team","w":96},{"f":"Start","n":"Start","w":84},{"f":"LarkName","n":"Lark Name","w":84},{"f":"Check","n":"Check","w":76},{"f":"KTP","n":"KTP","w":60},{"f":"KTPNIK","n":"KTP NIK","w":96},{"f":"AddLark","n":"Add Lark","w":80},{"f":"Msg","n":"Msg","w":96}];
+var STEPS=[{cap:"入职建档：<b>H01 新增一行</b>",sub:"Base2 › H01_员工 EMPL › 1️⃣建档 Daftar 视图",cells:{},focus:[]}].concat([{"cap":"① 关联 EVAL 总评","sub":"选中候选人 —— Photo / Job-ID / 打分自动带出","act":"EVAL","focus":["EVAL","Photo","JobID","Gender","TotalScore"],"done":0,"note":0,"cells":{"EVAL":"Intan Permata Putri","Photo":"<span class=\"ph\"></span>","JobID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip f\">🌸-F</span>","TotalScore":"<span class=\"bar\"><i style=\"width:58%\"></i></span>58"}},{"cap":"② Phone / Type / Team","sub":"电话抄 WhatsApp；Type=REG 正式；Team 选真实分团","act":"Phone","focus":["Phone","Type","Team"],"done":0,"note":0,"cells":{"Phone":"281355218870","Type":"<span class=\"chip\">正式 REG</span>","Team":"T102"}},{"cap":"③ Start / Lark Name / KTP","sub":"入职日 · Lark 名一个词无空格 · KTP 传附件并抄 NIK","act":"KTPNIK","focus":["Start","LarkName","KTP","KTPNIK"],"done":0,"note":0,"cells":{"Start":"09-02","LarkName":"Intan PermataP","KTP":"📎 1","KTPNIK":"3175…0002"}},{"cap":"④ 看 Check 灯","sub":"公式列自动亮 —— 🟢🟢 才继续","act":"Check","focus":["Check","KTP","LarkName"],"done":0,"note":1,"cells":{"Check":"🟢🟢"}},{"cap":"⑤ 点 Add Lark 按钮","sub":"自动建 Lark 账号，Msg 列回执","act":"AddLark","focus":["Check","AddLark","Msg"],"done":1,"note":1,"cells":{"AddLark":"<span class=\"btn\">Add Lark</span>","Msg":"✅ done"}}]);
+var BASE={"EmpID":"MK9008","EVAL":"Rina Kusuma Rizky F…","Photo":"<span class=\"ph\"></span>","JobID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip\">🧑‍💼-M</span>","TotalScore":"<span class=\"bar\"><i style=\"width:51%\"></i></span>51","Phone":"281990851796","Type":"<span class=\"chip\">正式 REG</span>","Team":"T100"};
+var SEED=[{"Emp ID":"MK9001","EVAL":"Rizky Pratama","Photo":"<span class=\"ph\"></span>","Job-ID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip\">🧑‍💼-M</span>","Total Score":"<span class=\"bar\"><i style=\"width:50%\"></i></span>50","Phone":"281824059215","Type":"<span class=\"chip\">正式 REG</span>","Team":"T100"},{"Emp ID":"MK9008","EVAL":"Eko Prasetyo","Photo":"<span class=\"ph\"></span>","Job-ID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip\">🧑‍💼-M</span>","Total Score":"<span class=\"bar\"><i style=\"width:55%\"></i></span>55","Phone":"281824996496","Type":"<span class=\"chip\">正式 REG</span>","Team":"T101"},{"Emp ID":"MK9002","EVAL":"Dewi Anggraini","Photo":"<span class=\"ph\"></span>","Job-ID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip f\">🌸-F</span>","Total Score":"<span class=\"bar\"><i style=\"width:45%\"></i></span>45","Phone":"281825933777","Type":"<span class=\"chip\">正式 REG</span>","Team":"T102"},{"Emp ID":"MK9003","EVAL":"Siti Rahayu","Photo":"<span class=\"ph\"></span>","Job-ID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip\">🧑‍💼-M</span>","Total Score":"<span class=\"bar\"><i style=\"width:43%\"></i></span>43","Phone":"281826871058","Type":"<span class=\"chip\">正式 REG</span>","Team":"T100"},{"Emp ID":"MK9004","EVAL":"Putri Maharani","Photo":"<span class=\"ph\"></span>","Job-ID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip f\">🌸-F</span>","Total Score":"<span class=\"bar\"><i style=\"width:42%\"></i></span>42","Phone":"281827808339","Type":"<span class=\"chip\">正式 REG</span>","Team":"T101"},{"Emp ID":"MK9005","EVAL":"Budi Santoso","Photo":"<span class=\"ph\"></span>","Job-ID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip f\">🌸-F</span>","Total Score":"<span class=\"bar\"><i style=\"width:52%\"></i></span>52","Phone":"281828745620","Type":"<span class=\"chip\">正式 REG</span>","Team":"T102"},{"Emp ID":"MK9006","EVAL":"Ayu Lestari","Photo":"<span class=\"ph\"></span>","Job-ID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip f\">🌸-F</span>","Total Score":"<span class=\"bar\"><i style=\"width:43%\"></i></span>43","Phone":"281829682901","Type":"<span class=\"chip\">正式 REG</span>","Team":"T100"},{"Emp ID":"MK9007","EVAL":"Andi Wijaya","Photo":"<span class=\"ph\"></span>","Job-ID":"<span class=\"chip\">Host Live</span>","Gender":"<span class=\"chip f\">🌸-F</span>","Total Score":"<span class=\"bar\"><i style=\"width:48%\"></i></span>48","Phone":"281830620182","Type":"<span class=\"chip\">正式 REG</span>","Team":"T101"}];
+var cur=0,auto=true,timer=null;
+function S(i){return document.getElementById(i)}
+function cell(col,row){var r=SEED[row%SEED.length]||{};return r[col.n]!==undefined?r[col.n]:""}
+function seedRow(no,ri){
+ // 属性一律加引号：属性值一旦含特殊字符（或为空），无引号会被解析成隔壁属性（2026-08-30 实测过）
+ var tds=COLS.map(function(c){return '<div class="td" data-col="'+c.f+'" style="width:'+c.w+'px">'+cell(c,ri)+"</div>"});
+ return '<div class="rrow"><div class="rn"><span class="cb"></span>'+no+"</div>"+tds.join("")+"</div>"}
+var DW=820, scale=1;
+function layout(){
+ // ① 整体等比缩放到容器宽度（820 = 设计基准 = 飞书正文封顶宽）
+ var cw=document.documentElement.clientWidth||window.innerWidth;
+ scale=Math.min(1,cw/DW);
+ var wrap=document.querySelector(".wrap");
+ wrap.style.transform=scale<1?"scale("+scale+")":"none";
+ // ② 行数在「设计坐标系」里算：容器实高换算回设计像素，再按 24px 行高排
+ var dh=window.innerHeight/scale;
+ var gridTop=document.querySelector(".grid").offsetTop;   // offsetTop 不受 transform 影响，本就是设计像素
+ var noteH=S("note").offsetHeight+9;
+ var n=Math.max(0,Math.floor((dh-gridTop-noteH-8)/24)-4);
+ n=Math.min(n,40);
+ var h="";for(var i=0;i<n;i++)h+=seedRow(15+i,i);
+ S("ctx").innerHTML=h;
+ S("rnA").textContent=15+n;S("rnB").textContent=16+n;
+}
+function apply(n){
+ cur=n;
+ document.querySelectorAll(".td[id]").forEach(function(e){e.innerHTML="";e.classList.remove("act")});
+ for(var k in BASE){var e=S("a_"+k);if(e)e.innerHTML=BASE[k]}
+ var merged={},done=0,note=0;
+ for(var i=0;i<=n;i++){var st=STEPS[i];for(var c in st.cells)merged[c]=st.cells[c];
+  done=st.done||done;note=st.note||note}
+ for(var c2 in merged){var e2=S("b_"+c2);if(e2)e2.innerHTML=merged[c2]}
+ var act=STEPS[n].act;
+ if(act&&S("b_"+act))S("b_"+act).classList.add("act");
+ // 横向滚动把整组关注列带进视野。⚠ 锚点必须取「物理最靠右」的列，
+ // 不能取 focus 数组的最后一项 —— 配置里的书写顺序不等于列在表里的顺序（2026-08-30 实测踩到）
+ var ml=0,maxR=-1;
+ (STEPS[n].focus||[]).concat(act?[act]:[]).forEach(function(f){
+  var e=S("b_"+f);if(e){var r=e.offsetLeft+e.offsetWidth;if(r>maxR)maxR=r}});
+ if(maxR>0){var gw=document.querySelector(".grid").clientWidth;
+  ml=-Math.max(0,maxR+10-gw)}
+ S("gwrap").style.marginLeft=ml+"px";
+ S("r1").className="rrow"+(done?" done":"");
+ S("note").className="note"+(note?" show":"");
+ S("cap").innerHTML=STEPS[n].cap;S("sub").textContent=STEPS[n].sub;
+ document.querySelectorAll(".pill[data-s]").forEach(function(p){
+  p.className="pill"+(+p.dataset.s===n?" on":"")});
+}
+function tick(){apply((cur+1)%STEPS.length)}
+function setAuto(v){auto=v;clearInterval(timer);if(auto)timer=setInterval(tick,2600);
+ S("pp").textContent=auto?"⏸":"▶"}
+document.querySelectorAll(".pill[data-s]").forEach(function(p){
+ p.onclick=function(){setAuto(false);apply(+p.dataset.s)}});
+S("pp").onclick=function(){setAuto(!auto)};
+// 尺寸自适应三重保险：resize 事件 / ResizeObserver / 心跳兜底
+//   （iframe 内某些宿主改尺寸不派发 resize 事件，实测过 —— 只靠事件会漏）
+var rto,lastW=0,lastH=0;
+function relayout(){clearTimeout(rto);rto=setTimeout(function(){layout();apply(cur)},160)}
+window.addEventListener("resize",relayout);
+if(window.ResizeObserver)try{new ResizeObserver(relayout).observe(document.documentElement)}catch(e){}
+// 高度广播（宿主若支持自动适配就白赚；飞书实测不监听，无害）
+function beat(){
+ if(window.innerWidth!==lastW||window.innerHeight!==lastH){
+  lastW=window.innerWidth;lastH=window.innerHeight;layout();apply(cur)}
+ // 广播的是缩放后的实际高度（getBoundingClientRect 已含 transform）
+ var h=Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height)+8;
+ try{parent.postMessage({type:"resize",height:h,src:"muke-demo"},"*")}catch(e){}}
+layout();apply(0);setAuto(true);lastW=window.innerWidth;lastH=window.innerHeight;
+setTimeout(beat,300);setInterval(beat,1200);
+</script></body></html>

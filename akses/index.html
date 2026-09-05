@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>权限矩阵查询</title>
+<style>
+/* 两条铁律：背景透明 + 820 等比缩放。暗色兜底写在 transparent 之后。全中间调配色。 */
+html,body{background:transparent}
+@media (prefers-color-scheme:dark){html,body{background:#1a1a1a}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei","Source Han Sans SC",-apple-system,sans-serif;
+ color:#8a9099;overflow:hidden}
+#stage{width:820px;transform-origin:top left;padding:16px 28px 8px}
+h1{font-size:17px;font-weight:700;color:#6f757e;margin-bottom:2px}
+.sub{font-size:12px;opacity:.85;margin-bottom:14px}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{padding:7px 13px;border:1px solid rgba(138,144,153,.34);border-radius:99px;
+ font-size:13px;cursor:pointer;background:transparent;color:#8a9099;transition:.2s;white-space:nowrap}
+.tab:hover{border-color:#6d3b85}
+.tab[aria-pressed="true"]{border-color:#6d3b85;color:#6f757e;font-weight:600}
+.tab .n{font-family:ui-monospace,monospace;font-size:11.5px;opacity:.7;margin-right:5px}
+
+.body{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.left{flex:0 0 316px}
+.right{flex:1;min-width:320px}
+
+.desc{border:1px solid rgba(138,144,153,.34);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7}
+.desc .who{font-size:14px;font-weight:700;color:#6f757e;margin-bottom:6px}
+.desc .cnt{font-size:11.5px;opacity:.8;margin-top:8px;font-family:ui-monospace,monospace}
+
+.grid{display:flex;flex-direction:column;gap:7px}
+.cell{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
+ border:1px solid rgba(138,144,153,.34);font-size:13px;transition:border-color .3s}
+.cell .b{flex:0 0 132px;font-weight:600;color:#6f757e}
+.cell .v{flex:1}
+.cell.no{opacity:.5}
+.cell.yes{border-color:#6d3b85}
+.cell .ic{flex:0 0 18px;font-size:14px}
+
+.note{margin-top:12px;font-size:11.5px;opacity:.82;line-height:1.7;
+ border-left:2px solid rgba(138,144,153,.34);padding-left:10px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1>权限矩阵查询 · Matriks Akses</h1>
+  <div class="sub">点一个角色，看他在四个 Base 里各能做什么。这是 <code>G05_权限 PERM</code> 的现行口径。</div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="body">
+    <div class="left"><div class="desc" id="desc"></div></div>
+    <div class="right"><div class="grid" id="grid"></div></div>
+  </div>
+
+  <div class="note" id="note"></div>
+</div>
+
+<script>
+// 数据源 = Base1 › G05_权限 PERM（现行 32 行）+ T09_角色 ROLE 的职责描述
+var ROLES = [
+  { id: "R0", nm: "高管", who: "公司决策层",
+    d: "全部 Base 最高权限，可看薪酬、借款、财务。负责审批与最终决策，不参与日常录入。",
+    n: 2, atd: "MGT",
+    p: ["全权 RW", "全权 RW", "全权 RW", "全权 RW"] },
+  { id: "R1", nm: "财务", who: "财务职能组",
+    d: "薪酬核算、借款扣款、报销账务。财务表可读写；对艺人分成与业务数据只读。",
+    n: 2, atd: "ADD",
+    p: ["现金表 R", "考勤 R（引用计算）", "RW", "❌"] },
+  { id: "R2", nm: "人事行政", who: "HR / GA 职能组",
+    d: "花名册、考勤、入转调离、合同与签证、固定资产的唯一维护入口。不可见薪酬明细。",
+    n: 7, atd: "ADD",
+    p: ["❌", "人事线 RW", "❌", "❌"] },
+  { id: "R3", nm: "业务管理", who: "业务线负责人",
+    d: "直播团 / 经纪 / 招商的负责人。管本业务线排班、业绩、主播数据；只读人事结果。",
+    n: 2, atd: "MGT",
+    p: ["❌", "本部门 RW（隐金额与证件）", "❌", "❌"] },
+  { id: "R4", nm: "现场管理", who: "场控 / 导播 / 运营助理",
+    d: "开播签到、设备检查、现场 SOP 执行与记录。只填现场类表单，无敏感数据。",
+    n: 2, atd: "LIV",
+    p: ["❌", "本团视图 + 表单填报", "❌", "❌"] },
+  { id: "R5", nm: "外部协作", who: "合作方 / 外包 / 临时支持",
+    d: "不进组织架构与花名册。只能访问被单独共享的指定表或视图，最小权限。",
+    n: 0, atd: "—",
+    p: ["❌", "❌", "限时只读", "❌"] },
+  { id: "R6", nm: "签约艺人", who: "签约主播与艺人",
+    d: "只看本人信息、考勤、排班、个人业绩。看不到他人数据与任何公司敏感信息。",
+    n: 14, atd: "LIV / ADD",
+    p: ["❌", "仅本人数据", "❌", "❌"] },
+  { id: "R9", nm: "系统账号", who: "API 集成 / 自动化机器人",
+    d: "按集成需求精确授权，禁止人类日常使用。所有操作留痕可审计。",
+    n: 0, atd: "—",
+    p: ["最小权限", "最小权限", "❌", "❌"] },
+];
+var BASES = ["Base1_CEO 决策与配置", "Base2_HR-Ops 人事与招募", "Base3_FN-Ops 财务", "Base4_Security 安全"];
+
+var tabs = document.getElementById("tabs");
+ROLES.forEach(function (r, i) {
+  var b = document.createElement("button");
+  b.className = "tab"; b.type = "button"; b.dataset.i = i;
+  b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+  b.innerHTML = '<span class="n">' + r.id + "</span>" + r.nm;
+  tabs.appendChild(b);
+});
+
+function show(i) {
+  var r = ROLES[i];
+  [].slice.call(tabs.children).forEach(function (b, k) { b.setAttribute("aria-pressed", k === i ? "true" : "false"); });
+  document.getElementById("desc").innerHTML =
+    '<div class="who">' + r.id + " · " + r.nm + "</div>" + r.d +
+    '<div class="cnt">现有 ' + r.n + " 人　考勤组 " + r.atd + "</div>";
+  document.getElementById("grid").innerHTML = BASES.map(function (b, k) {
+    var v = r.p[k], no = v === "❌";
+    return '<div class="cell ' + (no ? "no" : "yes") + '"><span class="ic">' + (no ? "⛔" : "✅") +
+      '</span><span class="b">' + b.split(" ")[0] + '</span><span class="v">' +
+      (no ? "没有权限" : v) + "</span></div>";
+  }).join("");
+  document.getElementById("note").innerHTML = r.id === "R9"
+    ? "⚠ 系统账号的权限按每个集成单独开，不走通用矩阵。凭据由张博保管，任何脚本都不许把它写进文件或日志。"
+    : "权限载体是 <b>Lark 动态用户组</b> —— 人进出组织架构，组自动跟，不用手工加人。要改矩阵先改 <code>G05_权限 PERM</code>，再到 Base 的权限面板落地。";
+}
+tabs.addEventListener("click", function (e) {
+  var b = e.target.closest(".tab"); if (b) show(+b.dataset.i);
+});
+show(0);
+
+var stage = document.getElementById("stage");
+function fit() {
+  var s = Math.min(1, document.documentElement.clientWidth / 820);
+  stage.style.transform = s < 1 ? "scale(" + s + ")" : "none";
+  document.body.style.height = Math.ceil(stage.offsetHeight * s) + "px";
+}
+fit();
+addEventListener("resize", fit);
+if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body);
+setInterval(fit, 1200);
+</script>
+</body>
+</html>

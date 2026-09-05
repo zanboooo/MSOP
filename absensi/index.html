@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>考勤扣款试算</title>
+<style>
+/* 两条铁律：① 背景一律透明 ② 按 820 基准等比缩放。
+   ⚠ 暗色兜底必须写在 transparent 之后，同特异性后者胜。
+   配色全用中间调，白底黑底通吃，不赌宿主主题。 */
+html,body{background:transparent}
+@media (prefers-color-scheme:dark){html,body{background:#1a1a1a}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei","Source Han Sans SC",-apple-system,"Segoe UI",sans-serif;
+ color:#8a9099;overflow:hidden}
+#stage{width:820px;transform-origin:top left;padding:16px 28px 8px}
+
+h1{font-size:17px;font-weight:700;color:#6f757e;margin-bottom:2px}
+.sub{font-size:12px;color:#8a9099;opacity:.85;margin-bottom:14px}
+
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.f{flex:1;min-width:118px}
+label{display:block;font-size:12px;color:#8a9099;margin-bottom:5px}
+input{width:100%;border:1px solid rgba(138,144,153,.34);border-radius:8px;padding:9px 11px;
+ font-size:15px;font-weight:600;background:transparent;color:#6f757e;transition:border-color .25s}
+input:focus{outline:none;border-color:#6d3b85}
+
+.res{border:1px solid rgba(138,144,153,.34);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.res .top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.res b{font-size:26px;font-variant-numeric:tabular-nums;color:#e4007f}
+.res .cap{font-size:12px;color:#8a9099}
+.bars{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.bar{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.bar .nm{flex:0 0 168px;color:#8a9099}
+.bar .track{flex:1;height:7px;border-radius:99px;background:rgba(138,144,153,.18);overflow:hidden}
+.bar .track i{display:block;height:100%;width:0;border-radius:99px;
+ background:linear-gradient(90deg,#e4007f,#6d3b85);transition:width .35s ease}
+.bar .val{flex:0 0 108px;text-align:right;font-variant-numeric:tabular-nums;color:#6f757e}
+
+.cap25{margin-top:10px;font-size:12.5px;padding:8px 11px;border-radius:8px;
+ border:1px solid rgba(138,144,153,.34);color:#8a9099}
+.cap25.hit{border-color:#e4007f;color:#e4007f}
+.formula{font-family:ui-monospace,monospace;font-size:11.5px;color:#8a9099;
+ border:1px solid rgba(138,144,153,.34);border-radius:6px;padding:6px 9px;display:inline-block;margin-top:10px}
+.note{margin-top:11px;font-size:11.5px;color:#8a9099;opacity:.82;line-height:1.7}
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1>考勤扣款试算 · Simulasi Potongan Absensi</h1>
+  <div class="sub">填你自己的数字，看这个月会扣多少。扣款上限是当月工资的 25%。</div>
+
+  <div class="row">
+    <div class="f"><label>月薪 Gaji (Rp)</label><input id="g" type="number" inputmode="numeric" value="5729876" min="0"></div>
+    <div class="f"><label>迟到次数 Telat</label><input id="a" type="number" inputmode="numeric" value="2" min="0"></div>
+    <div class="f"><label>严重迟到 Telat berat</label><input id="b" type="number" inputmode="numeric" value="0" min="0"></div>
+    <div class="f"><label>缺卡次数 Lupa absen</label><input id="c" type="number" inputmode="numeric" value="1" min="0"></div>
+    <div class="f"><label>旷工天数 Mangkir</label><input id="d" type="number" inputmode="numeric" value="0" min="0"></div>
+  </div>
+
+  <div class="res">
+    <div class="top">
+      <b id="out">− Rp 0</b>
+      <span class="cap" id="daily">日薪 = Rp 0　（月薪 ÷ 30）</span>
+    </div>
+    <div class="bars">
+      <div class="bar"><span class="nm">迟到 × 20% 日薪</span><span class="track"><i id="i1"></i></span><span class="val" id="v1">0</span></div>
+      <div class="bar"><span class="nm">严重迟到 × 40% 日薪</span><span class="track"><i id="i2"></i></span><span class="val" id="v2">0</span></div>
+      <div class="bar"><span class="nm">缺卡 × 60% 日薪</span><span class="track"><i id="i3"></i></span><span class="val" id="v3">0</span></div>
+      <div class="bar"><span class="nm">旷工 × 200% 日薪</span><span class="track"><i id="i4"></i></span><span class="val" id="v4">0</span></div>
+    </div>
+    <div class="cap25" id="cap">未触及上限。上限 = 月薪 × 25% = Rp 0</div>
+    <span class="formula" id="fm">potongan = (gaji ÷ 30) × (telat×0,2 + berat×0,4 + lupa×0,6 + mangkir×2)</span>
+  </div>
+
+  <div class="note">
+    ⚠ 严重迟到 = 超过班次开始 <b>30 分钟</b>；缺卡 = 超过 <b>60 分钟</b>未打卡（M02 组为 90 分钟）。自由班制（A03／M01）不看迟到，只看当天是否满 8 小时。<br>
+    ✅ <b>补卡通过就不扣缺卡款，也不影响满勤奖</b> —— 每月最多补 3 次，窗口 3 天。<br>
+    ⛔ 旷工按 2 天日薪扣；连续 5 天旷工且两次书面传唤未回，视为自愿离职。
+  </div>
+</div>
+
+<script>
+var $ = function (id) { return document.getElementById(id); };
+var fmt = function (n) { return "Rp " + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
+var RATE = [0.2, 0.4, 0.6, 2.0];   // 迟到 / 严重迟到 / 缺卡 / 旷工，均为日薪倍数
+var CAP = 0.25;                    // 单月扣款封顶 = 当月工资 25%（法定上限 50%，MUKE 收紧）
+
+function calc() {
+  var G = Math.max(0, parseFloat($("g").value) || 0);
+  var n = ["a", "b", "c", "d"].map(function (k) { return Math.max(0, parseFloat($(k).value) || 0); });
+  var daily = G / 30;
+  var parts = n.map(function (x, i) { return daily * RATE[i] * x; });
+  var raw = parts.reduce(function (s, x) { return s + x; }, 0);
+  var cap = G * CAP;
+  var final = Math.min(raw, cap);
+  var max = Math.max.apply(null, parts.concat([1]));
+
+  $("daily").textContent = "日薪 = " + fmt(daily) + "　（月薪 ÷ 30）";
+  $("out").textContent = "− " + fmt(final);
+  parts.forEach(function (p, i) {
+    $("i" + (i + 1)).style.width = (p / max * 100) + "%";
+    $("v" + (i + 1)).textContent = p ? fmt(p) : "—";
+  });
+  var hit = raw > cap;
+  $("cap").className = "cap25" + (hit ? " hit" : "");
+  $("cap").textContent = hit
+    ? "🔴 已触上限：按公式算是 " + fmt(raw) + "，超过 25% 上限，实扣封顶为 " + fmt(cap)
+    : "未触及上限。上限 = 月薪 × 25% = " + fmt(cap);
+}
+["g", "a", "b", "c", "d"].forEach(function (k) { $(k).addEventListener("input", calc); });
+calc();
+
+// 等比缩放到 820 设计基准；transform 不改布局高度，必须写回 body
+var stage = $("stage");
+function fit() {
+  var s = Math.min(1, document.documentElement.clientWidth / 820);
+  stage.style.transform = s < 1 ? "scale(" + s + ")" : "none";
+  document.body.style.height = Math.ceil(stage.offsetHeight * s) + "px";
+}
+fit();
+addEventListener("resize", fit);
+if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body);
+setInterval(fit, 1200);
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# 模型分块是二进制且内容哈希命名，永不变更 —— 关掉行尾转换与 diff，避免 git 折腾它们
+avatar/vendor/imgly/** binary

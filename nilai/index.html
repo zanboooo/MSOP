@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>笔试成绩档位换算</title>
+<style>
+/* 两条铁律：背景透明 + 820 基准等比缩放。暗色兜底写在 transparent 之后。配色全中间调。 */
+html,body{background:transparent}
+@media (prefers-color-scheme:dark){html,body{background:#1a1a1a}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei","Source Han Sans SC",-apple-system,sans-serif;
+ color:#8a9099;overflow:hidden}
+#stage{width:820px;transform-origin:top left;padding:16px 28px 8px}
+h1{font-size:17px;font-weight:700;color:#6f757e;margin-bottom:2px}
+.sub{font-size:12px;opacity:.85;margin-bottom:16px}
+
+.wrap{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.left{flex:0 0 300px}
+.right{flex:1;min-width:300px}
+
+label{display:block;font-size:12px;margin-bottom:6px}
+input[type=number]{width:100%;border:1px solid rgba(138,144,153,.34);border-radius:8px;padding:9px 11px;
+ font-size:15px;font-weight:600;background:transparent;color:#6f757e}
+input[type=number]:focus{outline:none;border-color:#6d3b85}
+input[type=range]{width:100%;margin-top:12px;accent-color:#6d3b85}
+
+.badge{margin-top:14px;border:1px solid rgba(138,144,153,.34);border-radius:10px;padding:14px 16px}
+.badge .b{font-size:30px;font-weight:700;color:#e4007f;line-height:1.2}
+.badge .t{font-size:12.5px;margin-top:4px}
+
+/* 四档刻度：当前档高亮，其余中间调 */
+.scale{display:flex;flex-direction:column;gap:7px}
+.tier{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;
+ border:1px solid rgba(138,144,153,.34);transition:border-color .3s,color .3s}
+.tier.on{border-color:#6d3b85;color:#6f757e}
+.tier .ic{font-size:16px;flex:0 0 22px}
+.tier .nm{flex:0 0 74px;font-weight:600;font-size:13px}
+.tier .rg{flex:0 0 68px;font-size:12px;font-variant-numeric:tabular-nums}
+.tier .ds{flex:1;font-size:12px;opacity:.85}
+.tier.on .ds{opacity:1}
+
+.conv{margin-top:14px;font-size:12.5px;border:1px solid rgba(138,144,153,.34);
+ border-radius:8px;padding:10px 12px;line-height:1.7}
+.conv b{color:#6f757e}
+.note{margin-top:12px;font-size:11.5px;opacity:.8;line-height:1.7}
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1>笔试成绩档位换算 · Konversi Nilai</h1>
+  <div class="sub">拖一下就知道这个分是什么档、在总评里折成多少分。</div>
+
+  <div class="wrap">
+    <div class="left">
+      <label>笔试得分 Nilai（0–100）</label>
+      <input id="s" type="number" min="0" max="100" value="73">
+      <input id="r" type="range" min="0" max="100" value="73">
+      <div class="badge">
+        <div class="b" id="tier">🌖 GOOD</div>
+        <div class="t" id="desc">合格线以上，可以进面试</div>
+      </div>
+      <div class="conv" id="conv"></div>
+    </div>
+
+    <div class="right">
+      <div class="scale">
+        <div class="tier" data-k="BEST"><span class="ic">🌕</span><span class="nm">BEST</span><span class="rg">≥ 85</span><span class="ds">优秀，优先安排面试</span></div>
+        <div class="tier" data-k="GOOD"><span class="ic">🌖</span><span class="nm">GOOD</span><span class="rg">≥ 70</span><span class="ds">合格线以上，可以进面试</span></div>
+        <div class="tier" data-k="PASS"><span class="ic">🌗</span><span class="nm">PASS</span><span class="rg">≥ 50</span><span class="ds">刚过线，面试时重点问薄弱项</span></div>
+        <div class="tier" data-k="WEAK"><span class="ic">🌘</span><span class="nm">WEAK</span><span class="rg">&lt; 50</span><span class="ds">未达线，除非其他环节特别突出</span></div>
+      </div>
+      <div class="note">
+        📐 <b>单题计分</b>：<code>MAX(0,(选对数 − 选错数) ÷ 正确数 × 权重)</code> —— 选错倒扣，最低 0 分。<br>
+        📐 <b>全卷权重之和恒等于 100</b>，所以 Score 就是百分数，不用再换算。<br>
+        ⏱ <b>LIMIT = 题数</b>（每题 1 分钟）。超时成绩照记，但 Valid 列会标出来。
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var $ = function (id) { return document.getElementById(id); };
+var TIERS = [
+  { k: "BEST", min: 85, ic: "🌕", d: "优秀，优先安排面试" },
+  { k: "GOOD", min: 70, ic: "🌖", d: "合格线以上，可以进面试" },
+  { k: "PASS", min: 50, ic: "🌗", d: "刚过线，面试时重点问薄弱项" },
+  { k: "WEAK", min: 0,  ic: "🌘", d: "未达线，除非其他环节特别突出" },
+];
+
+function render(v) {
+  v = Math.max(0, Math.min(100, Math.round(v) || 0));
+  var t = TIERS.find(function (x) { return v >= x.min; });
+  $("tier").textContent = t.ic + " " + t.k;
+  $("desc").textContent = t.d;
+  [].slice.call(document.querySelectorAll(".tier")).forEach(function (el) {
+    el.classList.toggle("on", el.dataset.k === t.k);
+  });
+  var ex = Math.round(v / 100 * 25 * 10) / 10;
+  $("conv").innerHTML = "在 A09 总评里折成 <b>EX-S = " + ex + " 分</b>（满分 25）<br>" +
+    "总评四环节各占 25：简历 CV-S · 背调 PR-S · 笔试 EX-S · 面试 IN-S";
+}
+$("s").addEventListener("input", function () { $("r").value = this.value; render(this.value); });
+$("r").addEventListener("input", function () { $("s").value = this.value; render(this.value); });
+render($("s").value);
+
+var stage = $("stage");
+function fit() {
+  var s = Math.min(1, document.documentElement.clientWidth / 820);
+  stage.style.transform = s < 1 ? "scale(" + s + ")" : "none";
+  document.body.style.height = Math.ceil(stage.offsetHeight * s) + "px";
+}
+fit();
+addEventListener("resize", fit);
+if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body);
+setInterval(fit, 1200);
+</script>
+</body>
+</html>

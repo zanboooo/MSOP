@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>iframe 嵌入探针</title>
+<style>
+:root{
+  --ink:#14181F; --ground:#FAFBFC; --paper:#FFF; --rule:#E2E5EA;
+  --muted:#68707C; --faint:#9BA3AE; --accent:#3B7DD8; --quiet:#EAF1FB;
+  --good:#3E8E41; --warn:#C0504D;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  --sans:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --ink:#E8EBF0; --ground:#0F1216; --paper:#161A20; --rule:#252B33;
+  --muted:#8A929E; --faint:#5C646F; --accent:#6BA3E8; --quiet:#16233A;
+  --good:#7FBF83; --warn:#E08A86;
+}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.6;padding:28px 24px 36px;-webkit-font-smoothing:antialiased}
+.w{max-width:720px;margin:0 auto}
+.badge{display:inline-flex;align-items:center;gap:9px;background:var(--quiet);color:var(--accent);
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;padding:6px 13px;border-radius:20px}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--accent);font-style:normal;
+  animation:p 1.9s ease-in-out infinite}
+@keyframes p{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+h1{font-size:26px;line-height:1.25;font-weight:700;letter-spacing:-.02em;margin:18px 0 10px}
+.lede{color:var(--muted);margin-bottom:26px}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:11px;padding:20px 22px;margin-bottom:14px}
+.card h2{font-size:12px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);font-weight:500;margin-bottom:14px}
+dl{display:grid;grid-template-columns:auto 1fr;gap:9px 20px;font-size:14px}
+dt{color:var(--muted);white-space:nowrap}
+dd{font-family:var(--mono);font-size:13px;word-break:break-all}
+dd.y{color:var(--good);font-weight:600} dd.n{color:var(--warn);font-weight:600}
+button{font:inherit;font-size:14px;font-weight:600;padding:10px 20px;border-radius:8px;border:0;
+  background:var(--accent);color:#fff;cursor:pointer;transition:filter .15s}
+button:hover{filter:brightness(1.08)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.out{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.out b{color:var(--accent);font-variant-numeric:tabular-nums}
+footer{margin-top:24px;font-family:var(--mono);font-size:11.5px;color:var(--faint);
+  border-top:1px solid var(--rule);padding-top:14px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="w">
+  <span class="badge"><i></i>LIVE</span>
+  <h1 id="verdict">正在检测…</h1>
+  <p class="lede" id="say">这一页托管在 GitHub Pages，用来验证飞书文档的 iframe 块能不能加载外部网页。</p>
+
+  <div class="card">
+    <h2>环境</h2>
+    <dl>
+      <dt>是否在 iframe 内</dt><dd id="inFrame">—</dd>
+      <dt>本页地址</dt><dd id="loc">—</dd>
+      <dt>嵌入方（父页面）</dt><dd id="parent">—</dd>
+      <dt>页面加载时刻</dt><dd id="ts">—</dd>
+      <dt>视口</dt><dd id="vp">—</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>交互还活着吗</h2>
+    <div class="row">
+      <button id="btn">点我</button>
+      <span class="out">已点 <b id="n">0</b> 次 · 页面已运行 <b id="up">0</b> 秒</span>
+    </div>
+  </div>
+
+  <footer>MUKE · 嵌入可行性探针 · 本页不含任何业务数据</footer>
+</div>
+
+<script>
+(function () {
+  var framed = window.self !== window.top;
+  var $ = function (i) { return document.getElementById(i); };
+  $("inFrame").textContent = framed ? "是 — 被嵌入显示" : "否 — 直接打开";
+  $("inFrame").className = framed ? "y" : "";
+  $("loc").textContent = location.href;
+  var p = "（跨域，读不到 — 这是正常且安全的）";
+  try { if (framed && document.referrer) p = document.referrer; } catch (e) {}
+  $("parent").textContent = framed ? p : "—";
+  var d = new Date();
+  $("ts").textContent = d.toISOString().replace("T", " ").slice(0, 19) + " UTC";
+  $("vp").textContent = window.innerWidth + " × " + window.innerHeight;
+
+  if (framed) {
+    $("verdict").textContent = "✅ 通了 —— 飞书能嵌入外部网页";
+    $("say").textContent = "你现在是在飞书文档里看到这一页的。说明 iframe 块可以加载 GitHub Pages，交互页面能直接嵌进文档。";
+  } else {
+    $("verdict").textContent = "这一页要放进飞书文档里看才算数";
+    $("say").textContent = "你现在是直接打开的。把这个地址塞进飞书文档的 iframe 块，如果那边也能显示这一页，就说明链路通了。";
+  }
+
+  var n = 0;
+  $("btn").addEventListener("click", function () { $("n").textContent = ++n; });
+  var t0 = Date.now();
+  setInterval(function () { $("up").textContent = Math.floor((Date.now() - t0) / 1000); }, 1000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>账号与权限的三层</title>
+<!-- built by tools/demo/shell.js —— 版面与步骤栏由外壳锁定，勿手改本文件 -->
+<style>
+/* 两条铁律：① 背景一律透明（暗色下白块突兀）② 按 820 基准等比缩放。
+   ⚠ 暗色兜底必须写在 transparent 之后，同特异性后者胜。配色全中间调，白底黑底通吃。 */
+html,body{background:transparent}
+@media (prefers-color-scheme:dark){html,body{background:#1a1a1a}}
+
+:root{
+  --ink:#8a9099; --ink2:#6f757e;
+  --line:rgba(138,144,153,.34); --line2:rgba(138,144,153,.18);
+  --b1:#e4007f; --b2:#6d3b85; --b3:#1d2088;
+  --gut:28px; --unit:8px; --r:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:14px/1.6 "PingFang SC","Microsoft YaHei","Source Han Sans SC",system-ui,sans-serif;
+ color:var(--ink);overflow:hidden}
+
+/* 版面：左右 gutter 是硬规矩，内容永远不贴边 */
+#stage{width:820px;transform-origin:top left;padding:calc(var(--unit)*2) var(--gut) var(--unit)}
+
+.hd{margin-bottom:calc(var(--unit)*2)}
+.hd h1{font-size:16px;font-weight:700;color:var(--ink2);letter-spacing:-.01em}
+.hd .sub{font-size:12px;opacity:.85;margin-top:2px}
+
+/* ── 步骤栏：全站唯一一套 ── */
+.bar{display:flex;align-items:center;gap:var(--unit);flex-wrap:wrap;
+ margin-bottom:calc(var(--unit)*2)}
+.pill{border:1px solid var(--line);border-radius:14px;padding:4px 13px;font-size:12.5px;
+ color:var(--ink);cursor:pointer;user-select:none;background:transparent;white-space:nowrap;
+ transition:border-color .2s,color .2s}
+.pill:hover{border-color:var(--b2)}
+.pill.on{border-color:var(--b2);color:var(--ink2);font-weight:700}
+.pill.play{font-family:ui-monospace,monospace;min-width:36px;text-align:center}
+.pill:focus-visible{outline:2px solid var(--b2);outline-offset:2px}
+
+/* ── 底部说明条 ── */
+.cap{margin-top:calc(var(--unit)*2);border-top:1px solid var(--line);
+ padding-top:calc(var(--unit)*1.5);display:flex;align-items:flex-start;gap:var(--unit);min-height:40px}
+.cap .no{flex:0 0 auto;font-size:11.5px;padding:1px 8px;border:1px solid var(--line);
+ border-radius:20px;color:var(--ink2);font-family:ui-monospace,monospace}
+/* 基态就是可见 —— 动画只负责滑入。动画没跑文字仍看得见（抽帧时抓到过 opacity:0） */
+.cap .tx{font-size:13px;line-height:1.6;opacity:.95;animation:fade .45s ease-out;max-width:66ch}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:.95;transform:none}}
+
+/* ── 通用积木：代码片 / 强调 ── */
+.k{font-family:ui-monospace,monospace;font-size:11.5px;border:1px solid var(--line);
+ border-radius:4px;padding:1px 5px;white-space:nowrap}
+.hi{color:var(--b1);font-weight:600;font-style:normal}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.ly{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:var(--r);
+ overflow:hidden;margin-bottom:var(--unit);cursor:pointer;
+ transition:border-color .4s,box-shadow .4s}
+.ly:hover{border-color:var(--b2)}
+.ly.on{border-color:var(--b2);box-shadow:inset 3px 0 0 var(--b2)}
+.ly .no{flex:0 0 40px;display:grid;place-items:center;font-family:ui-monospace,monospace;
+ font-size:15px;border-right:1px solid var(--line2);color:var(--ink)}
+.ly.on .no{color:var(--b1);font-weight:700}
+/* 左栏说明 + 右栏动作 —— 把 764 的宽度用满，不留大片空白 */
+.ly .bd{flex:1;min-width:0;padding:10px 14px}
+.ly .bd b{display:block;font-size:14px;color:var(--ink2)}
+.ly .bd i{font-style:normal;font-size:12.5px;opacity:.85}
+.ly .act{flex:0 0 300px;padding:10px 14px;border-left:1px solid var(--line2);
+ display:flex;flex-direction:column;justify-content:center;gap:2px;
+ opacity:.5;transition:opacity .4s}
+.ly.on .act{opacity:1}
+.ly .act b{font-size:13px;font-weight:600;color:var(--ink2)}
+.ly .act i{font-style:normal;font-size:12px;opacity:.8;line-height:1.5}
+.scn{font-size:12px;color:var(--ink2);margin-bottom:var(--unit);font-weight:600}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="hd"><h1>账号与权限的三层</h1><div class="sub">权限不是一处开的。人进出组织架构，三层各管一段 —— 漏掉哪层都会出事。点场景切换，点某一层看它这一步做什么。</div></div>
+  <div class="bar" id="bar"></div>
+  <div class="scn" id="scn"></div>
+  <div class="ly" data-i="0"><div class="no">1</div>
+    <div class="bd"><b data-fit>Lark 账号与席位</b><i>有没有账号、占哪种席位（A1 中国员工 / A2 印尼员工）</i></div>
+    <div class="act"><b id="ab0"></b><i id="ai0"></i></div></div>
+  <div class="ly" data-i="1"><div class="no">2</div>
+    <div class="bd"><b data-fit>组织架构与动态用户组</b><i>在哪个部门 → 动态组自动带出角色，不用手工加人</i></div>
+    <div class="act"><b id="ab1"></b><i id="ai1"></i></div></div>
+  <div class="ly" data-i="2"><div class="no">3</div>
+    <div class="bd"><b data-fit>Base 权限</b><i>角色对四个 Base 各是什么权限，口径在 <span class="k">G05_权限 PERM</span></i></div>
+    <div class="act"><b id="ab2"></b><i id="ai2"></i></div></div>
+  <div class="cap"><span class="no" id="cn"></span><span class="tx" id="ct"></span></div>
+</div>
+<script>
+var TABS = [{"l":"新人入职","s":0},{"l":"换岗 / 调部门","s":3},{"l":"离职","s":6}];
+
+var __cur = -1, __auto = true, __timer = null;
+var bar = document.getElementById("bar");
+var __tabs = TABS.map(function (t, i) {
+  return (typeof t === "string") ? { l: t, s: i } : { l: t.l, s: t.s };
+});
+// ⚠ 必须在 boot() 里赋值：SHELL_JS 排在页面脚本**之前**，
+//   这里直接取 window.STEPS_N 会永远拿不到，底部序号会显示成「1 / 标签数」。
+var TOTAL = __tabs.length;
+
+function setCap(n, total, html) {
+  document.getElementById("cn").textContent = (n + 1) + " / " + total;
+  var t = document.getElementById("ct");
+  t.innerHTML = html;
+  t.style.animation = "none"; void t.offsetWidth; t.style.animation = "";
+}
+function __tick() { apply((__cur + 1) % TOTAL); }
+function setAuto(v) {
+  __auto = v; clearInterval(__timer);
+  if (__auto) __timer = setInterval(__tick, (window.STEP_MS || 3200));
+  document.getElementById("pp").textContent = __auto ? "⏸" : "▶";
+}
+// 标签落在「起点 ≤ 当前步」的最后一个上 —— 一步一标签时等价于精确匹配
+function __markTabs(n) {
+  var hit = 0;
+  __tabs.forEach(function (t, i) { if (t.s <= n) hit = i; });
+  [].slice.call(bar.querySelectorAll(".pill[data-s]")).forEach(function (p, i) {
+    p.classList.toggle("on", i === hit);
+  });
+}
+// 页面内「每一步」的可点元素统一走这里：切到那一步并暂停
+function goto(n) { setAuto(false); apply(n); }
+function boot() {
+  TOTAL = window.STEPS_N || __tabs.length;
+  bar.innerHTML = '<span class="pill play" id="pp" tabindex="0" role="button" aria-label="播放或暂停">⏸</span>' +
+    __tabs.map(function (t) {
+      return '<span class="pill" tabindex="0" role="button" data-s="' + t.s + '">' + t.l + "</span>";
+    }).join("");
+  // 点任意流程标签 → 切到那一步并**暂停**；播放键单独控制自动
+  bar.addEventListener("click", function (e) {
+    var p = e.target.closest(".pill"); if (!p) return;
+    if (p.id === "pp") { setAuto(!__auto); return; }
+    setAuto(false); apply(+p.dataset.s);
+  });
+  bar.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault(); e.target.click();
+  });
+  apply(0); setAuto(true); fit();
+}
+
+// 等比缩放到设计基准；transform 不改布局高度，必须写回 body
+var __stage = document.getElementById("stage");
+function fit() {
+  var s = Math.min(1, document.documentElement.clientWidth / 820);
+  __stage.style.transform = s < 1 ? "scale(" + s + ")" : "none";
+  document.body.style.height = Math.ceil(__stage.offsetHeight * s) + "px";
+}
+addEventListener("resize", fit);
+if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body);
+setInterval(fit, 1200);   // 某些宿主改 iframe 尺寸不派发 resize，心跳兜底
+
+// 文本宽度检验：宽度是准则，字号是结果
+window.__fit = [];
+setTimeout(function () {
+  [].slice.call(document.querySelectorAll("[data-fit]")).forEach(function (el) {
+    var lim = 764 * 0.9;
+    window.__fit.push({ t: el.textContent.slice(0, 24), w: el.scrollWidth, fit: el.scrollWidth <= lim });
+  });
+}, 600);
+
+// ── 版面美学自检 ──（张博 2026-08-31：规范要含页面美学审核、空间利用效率、对齐、留白）
+// 这四类判据**只有渲染后才测得出来** —— 静态 lint 看不出「右侧空了一块」。
+// 出图前在浏览器里读 window.__audit()；不合格的项会同时打进 console。
+window.__audit = function () {
+  var G = 28, INNER = 764;
+  var sr = __stage.getBoundingClientRect();
+  var all = [].slice.call(__stage.querySelectorAll("*")).filter(function (e) {
+    var r = e.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== "hidden";
+  });
+  var minL = 1e9, maxR = -1e9, maxB = -1e9;
+  all.forEach(function (e) {
+    var r = e.getBoundingClientRect();
+    if (r.left < minL) minL = r.left;
+    if (r.right > maxR) maxR = r.right;
+    if (r.bottom > maxB) maxB = r.bottom;
+  });
+  // 直接子块的左基线：同层级必须落在同一条线上
+  var lefts = [].slice.call(__stage.children).map(function (e) {
+    return Math.round(e.getBoundingClientRect().left - sr.left);
+  });
+  var uniq = lefts.filter(function (v, i, a) { return a.indexOf(v) === i; });
+
+  var A = {
+    padL: Math.round(minL - sr.left),          // 左留白（实测）
+    padR: Math.round(sr.right - maxR),         // 右留白（实测）
+    slackR: Math.round(sr.right - G - maxR),   // 右侧「空了一块」的量
+    lefts: uniq,
+    fill: +(((maxR - minL) / INNER) * 100).toFixed(1) + "%",
+    issues: [],
+  };
+  if (A.padL < G - 1 || A.padR < G - 1) A.issues.push("贴边：实测左 " + A.padL + " 右 " + A.padR + "，应 ≥ " + G);
+  if (A.slackR > 80) A.issues.push("右侧空白过大：" + A.slackR + "px（阈值 80）—— 要么加内容，要么收窄容器");
+  if (uniq.length > 2) A.issues.push("左基线不齐：直接子块出现 " + uniq.length + " 个左边界 " + uniq.join("/"));
+  if (A.issues.length) console.warn("【版面美学】" + A.issues.join("；"));
+  return A;
+};
+setTimeout(window.__audit, 700);
+
+
+window.STEP_MS = 3200;
+window.STEPS_N = 9;
+var S = [{"tab":"新人入职","a":[["点 <span class=\"k\">Add Lark</span> 建号并分席位","前提：<span class=\"hi\">Ready 转 ✅GO</span>"],["建档流写 <span class=\"k\">department_ids</span>","动态组按部门自动收人"],["不用单独开","角色进了组，<span class=\"k\">G05</span> 矩阵自动套上"]],"c":["先有账号，没账号就没有一切。<span class=\"hi\">Ready 不过</span>（缺姓名／入职日／KTP）时按钮点了也没用。","<span class=\"hi\">部门决定角色。</span>放错部门 = 给错权限，比不给权限更危险。","这一层几乎不用动手。要动的是 G05 的口径，不是某个人的权限。"]},{"tab":"换岗 / 调部门","a":[["什么都不用做","账号不动，席位不动 —— <span class=\"hi\">换岗不换号</span>"],["<span class=\"hi\">只改 <span class=\"k\">department_ids</span></span>","旧组自动移出，新组自动加入"],["不用动","权限跟着角色走，不逐个 Base 改"]],"c":["换岗不碰账号。谁要你重开一个号，那是做错了。","<span class=\"hi\">只改部门这一个字段。</span>「绑定一次配死，职务归职务、部门归部门」—— 别手工加减组成员。","同理不用动。若权限没跟上，是动态组没刷新，不是权限配错。"]},{"tab":"离职","a":[["停号 + 回收席位","由 <span class=\"k\">Status</span> 转 ⛔离岗 触发"],["移出所有部门与考勤组","动态组随之清空，角色自动失效"],["<span class=\"hi\">手工复核 <span class=\"k\">G05</span></span>","查有没有给他单独开过的例外"]],"c":["停号和回收席位是两件事，席位不回收就一直计费。","移出部门是关键动作 —— 只改 Status 不移部门，动态组还留着他，权限没真收回。","<span class=\"hi\">单独开过的例外权限动态组收不回</span>，必须手工查一遍 G05。这是最容易漏的一步。"]}];
+function apply(n) {
+  var sc = Math.floor(n / 3), ly = n % 3;
+  __cur = n; __markTabs(n);
+  document.getElementById("scn").textContent = "场景：" + S[sc].tab;
+  for (var i = 0; i < 3; i++) {
+    document.getElementById("ab" + i).innerHTML = S[sc].a[i][0];
+    document.getElementById("ai" + i).innerHTML = S[sc].a[i][1];
+  }
+  [].slice.call(document.querySelectorAll(".ly")).forEach(function (e, i) {
+    e.classList.toggle("on", i === ly);
+  });
+  setCap(n, TOTAL, S[sc].c[ly]);
+}
+// 每一层行本身可点 —— 场景标签只有 3 个，组内三步靠这里抵达
+[].slice.call(document.querySelectorAll(".ly")).forEach(function (e, i) {
+  e.addEventListener("click", function () { goto(Math.floor(__cur / 3) * 3 + i); });
+});
+boot();
+</script>
+</body>
+</html>

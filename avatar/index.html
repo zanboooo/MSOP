@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="id" data-mode="col" data-theme="g" data-id="none">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Foto Profil MUKE</title>
+<meta name="description" content="Alat mandiri untuk membuat foto profil karyawan MUKE.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Noto+Sans+SC:wght@700;900&family=Martian+Mono:wght@400&display=swap">
+<style>
+/* ============================================================
+   MUKE · 头像自助制作
+   合成规格取自「MUKE 员工头像模板」slides（960×960），本页 2.5× 到 2400×2400。
+   抠图用 @imgly/background-removal（AGPL-3.0），模型自托管在 vendor/imgly/，
+   全程在浏览器里跑，照片不离开设备。
+
+   ── 身份怎么来（张博 2026-09-02 三稿定）──
+   【不做查询，做投递】。查询要秘密、要限流、要后端；而建档那一刻系统已经知道他是谁。
+   主路：入职私信里的专属欢迎链接自带身份，欢迎页把它原样拼进本页 iframe 的 #fragment。
+         fragment 浏览器【根本不发给服务器】—— 不落地、不进日志、不进 Referer，天然实时。
+   备路：弄丢链接的人输完整手机号，从加密快照里解出自己那一条（见 data/roster.enc.json）。
+   ⚠ 上一版把全员工号/姓名/职级/职务明文放进公开仓库，等于把组织架构挂到互联网上。
+     现在没有任何明文名单，也没有下拉列表 —— 谁都看不到别人。
+
+   ── 版式 ──
+   左边【纯预览】，右边【操作区】，两者等宽。等宽是消掉中缝的解：
+   预览方块若在 1fr 格子里居中，格子比方块宽得多，中间就空出一条。
+       row：s = min(可用高, (可用宽 - 列距)/2)      col：s = min(可用宽, 可用高)
+   外壳宽度 = 内容组宽 + 内边距并居中，所以顶栏与内容组左右对齐；
+   页脚宽度 = 单栏宽并左对齐，所以它居中在【预览的中线】上。
+   用 col 还是 row：两套都算一遍 s，谁大用谁，带 6% 迟滞。断点在这里必错 ——
+   900×300 和 300×900 宽度天差地别却是同一类问题，真正的约束是两轴的绝对余量。
+
+   两条踩过的坑：
+   · canvas 是替换元素，max-width 与 max-height 同时给时浏览器不保证都遵守 →
+     画布尺寸一律 JS 算，不交给 CSS。
+   · 选择器一律用类名限定：写 .ops label 会连 .up 一起吃掉（它本身就是个 label）。
+   ============================================================ */
+:root{
+  --ground:#14171C; --line:#2E343D;
+  --ink:#F2F5F3; --muted:#8E9AA3;
+  --lime:#B4FF70; --warn:#FFC24B; --bad:#FF5C7A;   /* --lime = 当前主题强调色 */
+  --pad:.85rem; --gap:.6rem; --u:16rem;            /* --u = 预览边长，也是操作区宽度 */
+  /* 高度为主的连续字号：外壳是纵向堆叠，压缩它的是高度不是宽度 */
+  font-size:clamp(10.5px, 1.9vh + 0.55vw, 14px);
+}
+/* 紫色主题：女性员工强制套用（张博定：不是自由选择，公司头像要成套）。
+   素材同源 —— assets/*-p.png 是绿版按色相重映射生成的，版式像素级一致。 */
+html[data-theme="p"]{--lime:#D3A6FF}
+
+*{box-sizing:border-box;margin:0;padding:0;min-width:0;min-height:0}
+html,body{height:100%;overflow:hidden}          /* 固定窗口：整页不滚动、无弹层 */
+body{background:var(--ground);color:var(--ink);
+  font-family:Figtree,-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
+  line-height:1.5;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+button,select,input{font:inherit;color:inherit}
+
+/* ---------- 外壳：宽度 = 内容组宽 + 内边距，居中 ----------
+   顶栏与页脚因此天然和内容对齐，不需要各自再算一遍。 */
+.shell{height:100%;display:flex;flex-direction:column;gap:var(--gap);
+  padding:0 var(--pad) var(--pad);margin:0 auto;max-width:100%;
+  width:calc(var(--u) * 2 + var(--gap) + var(--pad) * 2)}
+html[data-mode="col"] .shell{width:calc(var(--u) + var(--pad) * 2)}
+.app{flex:1 1 auto;display:grid;gap:var(--gap);
+  grid-template-columns:var(--u);grid-template-rows:minmax(0,1fr)}
+html[data-mode="row"] .app{grid-template-columns:var(--u) var(--u)}
+/* 探测态：外壳放开到满宽、列放开成 1fr，量出格子【真实可用】的宽高。
+   直接拿 .app 的高度当预览可用高度是错的 —— col 模式下操作区那一行也在里面。 */
+/* 必须带 html[data-mode] 前缀：否则 (0,2,0) 压不过 html[data-mode="col"] .shell 的 (0,2,1)，
+   探测态收不回满宽 → 外壳每轮自我收缩（390 视口里只剩 202），col 模式全线塌掉。 */
+html[data-mode] .shell[data-measure="1"]{width:100%}
+.shell[data-measure="1"] .app{grid-template-columns:minmax(0,1fr)}
+html[data-mode="row"] .shell[data-measure="1"] .app{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+
+/* ---------- 顶栏 ---------- */
+.bar{flex:0 0 auto;display:flex;align-items:center;gap:.7rem;height:3rem;
+  border-bottom:1px solid var(--line)}
+.brand{font-family:'Martian Mono',monospace;font-size:.75rem;letter-spacing:.12em;color:var(--lime);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang{margin-left:auto;flex:0 0 auto;display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;color:var(--muted);cursor:pointer;
+  font-weight:600;font-size:.82rem;padding:0 .95rem;height:2.15rem}
+.lang button[aria-pressed="true"]{background:var(--lime);color:#0F1216}
+
+/* ---------- 左：纯预览 ---------- */
+.pane{display:grid;place-items:center}
+.pvBox{position:relative;background:#0E1116;border:1px solid var(--line);
+  border-radius:.6rem;overflow:hidden}
+#cv{display:block;transition:opacity .25s}       /* 显示尺寸由 JS 定，见 fitCanvas */
+.pvBox[data-idle="1"] #cv{opacity:.32}
+.busy{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:1.2rem;
+  background:rgba(14,17,22,.88);backdrop-filter:blur(3px)}
+.busy.on{display:grid}
+.busy b{display:block;font-size:.95rem;margin-bottom:.35rem}
+.busy span{color:var(--muted);font-size:.85rem}
+.spin{width:2rem;height:2rem;border:.2rem solid var(--line);border-top-color:var(--lime);
+  border-radius:50%;margin:0 auto .8rem;animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- 右：操作区 ---------- */
+/* row 用 flex 列 + space-between：控件之间【等间距】，间距随可用高度自适应。
+   （grid item 里的 margin-top:auto 吃不到剩余空间，行高是 auto。） */
+.ops{display:grid;gap:.5rem}
+html[data-mode="row"] .ops{display:flex;flex-direction:column;justify-content:space-between}
+html[data-mode="col"] .ops{grid-template-columns:repeat(12,1fr);align-content:end}
+html[data-mode="col"] .ops>.f {grid-column:span 6}   /* 01 与 02 并排，窄屏最缺高度 */
+html[data-mode="col"] .ops>.sl{grid-column:span 3}   /* 四个滑块一行 */
+html[data-mode="col"] .ops>.go{grid-column:1/-1}
+
+.f{position:relative;flex:0 0 auto}
+.badge{position:absolute;top:0;left:.8rem;transform:translateY(-50%);z-index:3;
+  background:var(--ground);padding:0 .35rem;font-style:normal;
+  font-family:'Martian Mono',monospace;font-size:.64rem;letter-spacing:.1em;color:var(--lime);
+  pointer-events:none}
+
+/* 01 身份：两态同高，切换不改变版面 */
+.idn>#emp{flex:0 0 88px;min-width:0;text-transform:uppercase}
+.idn{display:flex;align-items:center;gap:.4rem;width:100%;height:3.2rem;
+  background:#12151A;border:1px solid var(--line);border-radius:.5rem;padding:0 .5rem 0 .85rem}
+.idn input{flex:1 1 auto;background:none;border:0;outline:none;font-size:.95rem;min-width:0}
+.idn input::placeholder{color:#67707B}
+.idn .ok{flex:0 0 auto;width:2.2rem;height:2.2rem;border:0;border-radius:.35rem;cursor:pointer;
+  background:var(--line);color:var(--ink);font-size:1rem;line-height:1}
+.idn .ok:hover{background:var(--lime);color:#0F1216}
+.me{display:flex;align-items:center;gap:.5rem;width:100%;height:3.2rem;
+  background:#12151A;border:1px solid var(--line);border-radius:.5rem;padding:0 .5rem 0 .85rem}
+.me b{flex:1 1 auto;font-weight:600;font-size:.95rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me .re{flex:0 0 auto;background:none;border:0;color:var(--muted);cursor:pointer;
+  font-size:.75rem;padding:.3rem .45rem;border-radius:.3rem;white-space:nowrap}
+/* col 模式下 01 与 02 并排，每格只有半宽 —— 把「不是我」缩成图标，宽度全让给名字 */
+html[data-mode="col"] .me .re{font-size:.95rem;padding:.3rem .35rem}
+.me .re:hover{background:var(--line);color:var(--ink)}
+html[data-id="none"] .me{display:none}
+html:not([data-id="none"]) .idn{display:none}
+
+/* 02 上传：高亮用【外边线】，和 01 得到焦点时的样式一致（张博 2026-09-02） */
+.up{display:flex;align-items:center;justify-content:center;gap:.4rem;padding:0 .8rem;
+  width:100%;height:3.2rem;background:#12151A;border:1px dashed var(--line);
+  border-radius:.5rem;color:var(--muted);font-weight:600;font-size:.88rem;
+  text-align:center;cursor:not-allowed;transition:.18s;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up input{display:none}
+.up.on{border-style:solid;color:var(--lime);cursor:pointer;
+  outline:2px solid var(--lime);outline-offset:2px}
+.up.on:hover{background:#191E25}
+
+.sl{flex:0 0 auto}
+.sl label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.1rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sl input[type=range]{width:100%;accent-color:var(--lime);height:1.4rem;display:block}
+.sl.off{opacity:.32;pointer-events:none}
+
+/* 下载按钮永远在最下方；被文档拦截的提示直接写在按钮里、主文字下方 */
+.go{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:.1rem;
+  width:100%;background:var(--lime);color:#0F1216;border:0;border-radius:.5rem;
+  padding:.7rem .8rem;font-weight:700;font-size:1rem;cursor:pointer;line-height:1.3}
+.go:hover{background:#c6ff8c}
+.go:disabled{opacity:.32;cursor:not-allowed}
+.goSub{font-size:.68rem;font-weight:600;opacity:.66;line-height:1.35}
+
+/* ---------- 提示条：空的时候整格塌掉，不占位、不推动布局 ---------- */
+.msg{flex:0 0 auto;padding:.5rem .8rem;border-radius:.4rem;font-size:.85rem;
+  border-left:2px solid var(--warn);background:rgba(255,194,75,.09);color:#E7DCC4}
+.msg:empty{display:none}
+.msg.bad{border-left-color:var(--bad);background:rgba(255,92,122,.09);color:#FFD0D9}
+.msg.ok{border-left-color:var(--lime);background:rgba(180,255,112,.08);color:#DAF5C2}
+
+/* 页脚宽度 = 单栏宽并左对齐 → 文字居中在【预览的中线】上 */
+.foot{flex:0 0 auto;align-self:flex-start;width:var(--u);text-align:center;
+  font-family:'Martian Mono',monospace;font-size:.62rem;letter-spacing:.03em;
+  color:#4E5760;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foot a{color:#5C6670}
+/* 紧凑档（视口高 < 380）：7 个控件按常规尺寸放不下，会溢出。
+   收页脚、藏滑块文字标签（标签内容移到 aria-label，读屏和悬停仍拿得到）、控件变矮。 */
+html[data-tight="1"] .foot{display:none}
+html[data-tight="1"] .sl label{display:none}
+html[data-tight="1"] .idn,
+html[data-tight="1"] .me,
+html[data-tight="1"] .up{height:2.6rem}
+html[data-tight="1"] .go{padding:.5rem .7rem}
+html[data-tight="1"] .goSub{display:none}
+
+.l-zh{display:none}
+html[data-lang="zh"] .l-id{display:none}
+html[data-lang="zh"] .l-zh{display:inline}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="shell" id="shell">
+
+  <header class="bar">
+    <span class="brand">MUKE · FOTO PROFIL</span>
+    <div class="lang" role="group" aria-label="Bahasa">
+      <button type="button" id="bId" aria-pressed="true">ID</button>
+      <button type="button" id="bZh" aria-pressed="false">中</button>
+    </div>
+  </header>
+
+  <div class="app" id="app">
+
+    <div class="pane" id="pane">
+      <div class="pvBox" id="pvBox" data-idle="1">
+        <canvas id="cv" width="2400" height="2400"></canvas>
+        <div class="busy" id="busy">
+          <div><div class="spin"></div><b id="busyT"></b><span id="busyS"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ops" id="ops">
+
+      <div class="f">
+        <i class="badge">01</i>
+        <div class="idn">
+          <input id="ph" type="tel" inputmode="numeric" autocomplete="tel" aria-label="Nomor HP">
+          <input id="emp" type="text" inputmode="text" autocomplete="off" spellcheck="false"
+                 autocapitalize="characters" maxlength="10" aria-label="Emp ID">
+          <button type="button" class="ok" id="go1" aria-label="OK">→</button>
+        </div>
+        <div class="me">
+          <b id="meT"></b>
+          <button type="button" class="re" id="reset"></button>
+        </div>
+      </div>
+
+      <div class="f">
+        <i class="badge">02</i>
+        <label class="up" id="up" aria-disabled="true">
+          <input type="file" id="file" accept="image/*" disabled>
+          <span id="upT"></span>
+        </label>
+      </div>
+
+      <div class="sl off">
+        <label><span class="l-id">Ukuran</span><span class="l-zh">大小</span></label>
+        <input type="range" id="zoom" title="Ukuran / 大小" aria-label="Ukuran / 大小" min="60" max="204" value="100">
+      </div>
+      <div class="sl off">
+        <label><span class="l-id">Putar</span><span class="l-zh">旋转</span></label>
+        <input type="range" id="rot" title="Putar / 旋转" aria-label="Putar / 旋转" min="-25" max="25" value="0">
+      </div>
+      <div class="sl off">
+        <label><span class="l-id">Atas–bawah</span><span class="l-zh">上下</span></label>
+        <input type="range" id="oy" title="Atas-bawah / 上下" aria-label="Atas-bawah / 上下" min="-30" max="30" value="0">
+      </div>
+      <div class="sl off">
+        <label><span class="l-id">Kiri–kanan</span><span class="l-zh">左右</span></label>
+        <input type="range" id="ox" title="Kiri-kanan / 左右" aria-label="Kiri-kanan / 左右" min="-30" max="30" value="0">
+      </div>
+
+      <button class="go" id="dl" disabled>
+        <span><span class="l-id">Unduh PNG</span><span class="l-zh">下载 PNG</span></span>
+        <small class="goSub" id="tip" hidden>
+          <span class="l-id">diblokir di dokumen? klik kanan gambar → simpan gambar</span>
+          <span class="l-zh">被文档拦了？右键预览图 → 另存为</span>
+        </small>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <footer class="foot">
+    bg-removal <a href="https://github.com/imgly/background-removal-js" target="_blank" rel="noopener">@imgly</a>
+    (AGPL-3.0) · <a href="https://github.com/zanboooo/muke" target="_blank" rel="noopener">source</a>
+  </footer>
+
+</div>
+
+<script type="module">
+"use strict";
+const D=document, root=D.documentElement, $=s=>D.querySelector(s);
+const IN_FRAME = self !== top;     // 嵌在飞书文档里 → 浏览器会拦掉下载
+
+/* ---------- 合成规格：模板 960 → 本页 2400 ---------- */
+const S=2.5, W=2400;
+/* 文字整体下移：等比 2:1 —— 名字下移 2 份、职务 1 份。NUDGE 是 960 坐标系里的一份。 */
+const NUDGE=12;
+const SPEC={
+  bg   :{w:993*S, h:993*S, x:-17*S, y:-17*S},
+  photo:{w:738*S, h:736*S, x: 94*S, y: 52*S},
+  frame:{w:960*S, h:960*S, x:0,     y:0    },
+  name :{w:680*S, h:134*S, x:140*S, y:(612+NUDGE*2)*S, size:89*S},
+  job  :{w:671*S, h: 62*S, x:145*S, y:(726+NUDGE  )*S, size:41*S},
+};
+const MIN_RATIO=0.55;
+
+/* 主题：女紫男绿，按人事档案的性别定，没有开关 */
+const THEMES={
+  g:{acc:"#B4FF70", bg:"assets/bg.png",   frame:"assets/frame.png"  },
+  p:{acc:"#D3A6FF", bg:"assets/bg-p.png", frame:"assets/frame-p.png"},
+};
+let THEME="g";
+
+/* 模型自托管：上游 staticimgly.com 是 max-age=14400 且不带 ETag，4 小时就整包重下。
+   我们的 GH Pages 带 ETag，过期后走 304 空响应。fp16 而非 quint8 ——
+   同图实测背景残留 0.00% vs 7.05%。?m=small 可切。 */
+const MODELS={small:"isnet_quint8", medium:"isnet_fp16"};
+const MODEL=MODELS[new URLSearchParams(location.search).get("m")]||MODELS.medium;
+const MODEL_MB=MODEL==="isnet_fp16"?81:33;      // 实际下行（GH Pages 会 gzip）
+const PUBLIC_PATH=new URL("vendor/imgly/",location.href).href;
+
+const load=src=>new Promise((ok,no)=>{const i=new Image();i.crossOrigin="anonymous";
+  i.onload=()=>ok(i);i.onerror=()=>no(new Error("load "+src));i.src=src;});
+let ME=null,CUT=null,CUT_URL=null;
+
+const ART={}, READY={};       // ART=取图的 Promise（去重）  READY=已就绪的图（draw 同步读）
+const art=t=>ART[t]||(ART[t]=Promise.all([load(THEMES[t].bg),load(THEMES[t].frame)])
+  .then(([bg,frame])=>READY[t]={bg,frame}));
+
+const zh=()=>root.getAttribute("data-lang")==="zh";
+function msg(text,kind){
+  const m=$("#msg");
+  m.textContent=text||"";
+  m.className="msg"+(text&&kind?" "+kind:"");
+  relayout();                      // 提示条出现/消失会改变外壳高度，要重算
+}
+
+/* ============================================================
+   版式引擎
+   ============================================================ */
+function solve(mode){
+  root.dataset.mode=mode;
+  const shell=$("#shell"), pane=$("#pane");
+  // ① 先用满宽 + 1fr 探测上界：此时 pane 拿到的就是它能占的最大格子
+  shell.dataset.measure="1";
+  let r=pane.getBoundingClientRect();
+  let s=Math.max(72,Math.floor(Math.min(r.width,r.height)));
+  shell.dataset.measure="";
+  // ② 定宽后会换行的东西（提示条）高度会变，格子可能变矮 —— 只往下收敛
+  for(let i=0;i<3;i++){
+    root.style.setProperty("--u",s+"px");
+    r=pane.getBoundingClientRect();
+    const s2=Math.max(72,Math.floor(Math.min(r.width,r.height)));
+    if(s2>=s) break;
+    s=s2;
+  }
+  return s;
+}
+
+/* 选模式：两套都算一遍，谁给的预览大用谁。6% 迟滞防边界横跳。 */
+function relayout(){
+  const shell=$("#shell"); shell.style.rowGap="";
+  const cur=root.dataset.mode==="row"?"row":"col";
+  const alt=cur==="col"?"row":"col";
+  const sCur=solve(cur), sAlt=solve(alt);
+  const mode = sAlt>sCur*1.06 ? alt : cur;
+  root.dataset.tight = innerHeight<380 ? "1" : "0";
+  let s=solve(mode);
+
+  /* 纵向富余均摊：预览受【宽度】限制时高度方向会剩一块。全让 .pane 居中吸收 →
+     预览浮在空洞里而顶栏页脚挤在一起，同一页两种间距语言。解 paneH(g')=s+2g'。
+     ⚠ 基准必须是【预览格子】的高度，不是 .app 的 —— col 模式下 .app 还含着操作区那一行。 */
+  const pane=$("#pane"), base=parseFloat(getComputedStyle(shell).rowGap)||8;
+  const ph=()=>pane.getBoundingClientRect().height;
+  const h1=ph();
+  shell.style.rowGap=(base+10)+"px";
+  const k=(h1-ph())/10;
+  shell.style.rowGap="";
+  if(k>0.5 && h1-s>base*2){
+    /* 上限 6 倍基准且不超过 56px：再宽就不是「透气」而是「散架」 */
+    shell.style.rowGap=Math.min(base*6,56,Math.max(base,(h1+k*base-s)/(2+k)))+"px";
+    solve(mode);
+  }
+  fitCanvas();
+  resetLabel();     // 模式变了，「不是我」的形态跟着换。⚠ 这里不能调 setLang ——
+}                   //   setLang 里有 kick()，kick 又回到 relayout，会每帧一次死循环
+
+/* 画布显示尺寸一律 JS 算：canvas 是替换元素，
+   max-width 与 max-height 同时给时浏览器不保证都遵守（实测 661 塞进 470 被裁）。 */
+function fitCanvas(){
+  const r=$("#pane").getBoundingClientRect(), box=$("#pvBox"), cv=$("#cv");
+  const s=Math.max(72,Math.floor(Math.min(r.width,r.height)));
+  box.style.width=box.style.height=s+"px";
+  cv.style.width=cv.style.height=(s-2)+"px";     // -2 让开 1px 边框
+}
+
+/* 观察 body 而不是 .shell —— 外壳宽度现在跟着 --u 走，观察它会形成回授环 */
+let pending=0;
+const kick=()=>{if(pending)return;pending=requestAnimationFrame(()=>{pending=0;relayout();});};
+if(window.ResizeObserver) new ResizeObserver(kick).observe(D.body);
+addEventListener("resize",kick);
+addEventListener("orientationchange",kick);
+if(window.visualViewport) visualViewport.addEventListener("resize",kick);
+
+/* ============================================================
+   身份
+   ============================================================ */
+const b64u=s=>{const t=s.replace(/-/g,"+").replace(/_/g,"/");
+  return atob(t+"=".repeat((4-t.length%4)%4));};
+
+/* 主路：专属欢迎链接把 #p=<base64url(JSON)> 一路带到这里。
+   fragment 不会发给服务器，所以这份身份【不落地】：不进仓库、不进日志、不进 Referer。 */
+function fromHash(){
+  const h=location.hash.replace(/^#/,"");
+  const m=/(?:^|&)p=([A-Za-z0-9\-_]+)/.exec(h);
+  if(!m) return null;
+  try{
+    const raw=b64u(m[1]);
+    const bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));
+    const v=JSON.parse(new TextDecoder().decode(bytes));
+    return v && v.n ? v : null;
+  }catch(e){ return null; }
+}
+
+/* col 模式两格并排，每格只有半宽 —— 「不是我」换成图标把宽度让给名字，
+   语义交给 title / aria-label。纯函数：不许在这里碰版式，否则和 relayout 互相递归。 */
+function resetLabel(){
+  const rs=$("#reset"); if(!rs) return;
+  rs.textContent = root.dataset.mode==="col" ? "⟲" : (zh()?"不是我":"Bukan saya");
+  rs.title = zh()?"不是我，重新确认身份":"Bukan saya, ganti identitas";
+  rs.setAttribute("aria-label", rs.title);
+}
+function setLang(l){
+  root.setAttribute("data-lang",l);
+  root.setAttribute("lang", l==="zh"?"zh-CN":"id");
+  $("#bId").setAttribute("aria-pressed",String(l!=="zh"));
+  $("#bZh").setAttribute("aria-pressed",String(l==="zh"));
+  try{localStorage.setItem("muke.lang",l)}catch(e){}
+  $("#ph").placeholder = zh()?"手机号":"Nomor HP";
+  $("#emp").placeholder = zh()?"工号":"Emp ID";
+  resetLabel();
+  upText(); kick();
+}
+let sv="id"; try{sv=localStorage.getItem("muke.lang")||"id"}catch(e){}
+$("#bId").onclick=()=>setLang("id"); $("#bZh").onclick=()=>setLang("zh");
+
+async function setTheme(t){
+  THEME=THEMES[t]?t:"g";
+  root.dataset.theme=THEME;
+  draw();
+  try{ await art(THEME); draw(); }catch(e){}
+}
+
+function adopt(v){
+  ME=v;
+  root.dataset.id="ok";
+  /* 只放名字：这一格是让人确认「是我」，职级职务在右边的预览图上看得见。
+     窄屏下 01 与 02 并排，塞进职务必然截断 —— 截断的名字比没有职务更糟。 */
+  $("#meT").textContent=[v.n,v.cn].filter(Boolean).join(" ");
+  $("#meT").title=[[v.n,v.cn].filter(Boolean).join(" "),[v.l,v.j].filter(Boolean).join("-")]
+    .filter(Boolean).join("  ·  ");
+  $("#file").disabled=false;
+  $("#up").classList.add("on");
+  $("#up").setAttribute("aria-disabled","false");
+  setTheme(v.g==="F"?"p":"g");     // 女紫男绿，按档案定，没有开关
+  if(!v.cn) msg(zh()?"系统里还没有你的中文译名，头像会只显示一行。要补就找 HR。"
+                   :"Nama Mandarin belum ada — kartunya satu baris. Hubungi HR bila perlu.");
+  else msg("");
+  upText(); draw();
+}
+function forget(){
+  ME=null; root.dataset.id="none";
+  dropCut(); lockOps(true);
+  $("#file").disabled=true;
+  $("#up").classList.remove("on");
+  $("#up").setAttribute("aria-disabled","true");
+  $("#pvBox").dataset.idle="1";
+  $("#ph").value=""; $("#emp").value=""; upText(); draw(); msg("");
+  $("#ph").focus();
+}
+$("#reset").onclick=forget;
+
+/* 备路：手机号 → 从加密快照里解出自己那一条。
+   索引与密钥【同源于同一次 PBKDF2】。若索引用便宜哈希，攻击者能先拿它筛掉
+   99.999% 的候选号码、只对命中的做 PBKDF2 —— 那等于把 30 万次迭代白送。 */
+let ENC=null;
+/* 失败不留缓存。原先把 fetch 的 Promise 直接塞进 ENC，只要第一次网络抖动失败，
+   ENC 里就永远是一个已 reject 的 Promise —— 用户再点多少次「确认」都是同一个错误，
+   网络恢复也没用，只能刷新整页。雅加达的手机网络下这是常态，不是极端情况。
+   顺带补 r.ok 判断：文件缺失时 Pages 返回 HTML，直接 r.json() 会抛
+   「Unexpected token '<'」，用户看到的是一串莫名其妙的英文。 */
+/* 密钥 = 手机号后 9 位 + 工号。两个因子缺一不可。
+   为什么不能只用手机尾号：这个文件在公开仓库里，谁都能下载慢慢爆破；
+   salt 全局共用、索引又与密钥同源派生 —— 遍历一遍 9 位数字空间就能一次性解开所有人，
+   单张显卡量级是「小时」。加上工号（MK####）之后空间抬到 ~1e13，同样算力要 8 年量级。 */
+const KEYVER=2;
+const keyOf=(tail,emp)=>tail+"|"+String(emp||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+const encFile=()=>ENC||(ENC=fetch("data/roster.enc.json")
+  .then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+  .catch(e=>{ ENC=null; throw e; }));
+async function lookup(phone,emp){
+  const meta=await encFile();
+  if((meta.keyver||1)!==KEYVER) throw new Error(zh()?"数据版本不匹配，请刷新页面":"Versi data tidak cocok, refresh halaman");
+  const tail=String(phone).replace(/\D/g,"").slice(-meta.tail);
+  if(tail.length<meta.tail) return null;
+  const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(keyOf(tail,emp)),"PBKDF2",false,["deriveBits"]);
+  const bits=new Uint8Array(await crypto.subtle.deriveBits(
+    {name:"PBKDF2",salt:Uint8Array.from(atob(meta.salt),c=>c.charCodeAt(0)),
+     iterations:meta.iter,hash:"SHA-256"}, km, 40*8));
+  const idx=[...bits.subarray(0,8)].map(x=>x.toString(16).padStart(2,"0")).join("");
+  const blob=meta.rows[idx];
+  if(!blob) return null;
+  const b=Uint8Array.from(atob(blob),c=>c.charCodeAt(0));
+  const key=await crypto.subtle.importKey("raw",bits.subarray(8),"AES-GCM",false,["decrypt"]);
+  const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b.subarray(0,12)},key,b.subarray(12));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+async function tryPhone(){
+  const raw=$("#ph").value.trim();
+  const emp=$("#emp").value.trim();
+  if(raw.replace(/\D/g,"").length<8) return msg(zh()?"请输入完整手机号。":"Masukkan nomor HP lengkap.","bad");
+  if(emp.replace(/[^A-Za-z0-9]/g,"").length<4) return msg(zh()?"请输入工号（如 MK9001）。":"Masukkan Emp ID (misal MK9001).","bad");
+  msg(zh()?"正在核对…":"Mencocokkan…");
+  try{
+    const v=await lookup(raw,emp);
+    if(!v) return msg(zh()?"没找到。手机号和工号都要与人事档案一致；刚入职的话请用私信里的专属链接。"
+                          :"Tidak ketemu. Nomor HP dan Emp ID harus sama dengan data HR; kalau baru masuk, pakai tautan khusus di chat.","bad");
+    adopt(v);
+  }catch(e){
+    msg((zh()?"核对失败：":"Gagal: ")+String(e.message||e).slice(0,60),"bad");
+  }
+}
+$("#go1").onclick=tryPhone;
+$("#ph").addEventListener("keydown",e=>{if(e.key==="Enter")tryPhone();});
+$("#emp").addEventListener("keydown",e=>{if(e.key==="Enter")tryPhone();});
+
+/* ---------- 上传 ---------- */
+function upText(){
+  const el=$("#upT");
+  if(!ME)      el.textContent = zh()?"请先确认身份":"Konfirmasi dulu";
+  else if(CUT) el.textContent = zh()?"换一张照片":"Ganti foto";
+  else         el.textContent = zh()?"点这里上传照片":"Ketuk untuk unggah foto";
+}
+function lockOps(off){
+  D.querySelectorAll(".sl").forEach(el=>el.classList.toggle("off",off));
+  $("#dl").disabled=off;
+}
+$("#file").addEventListener("change",e=>{const f=e.target.files[0]; if(f) handle(f);});
+
+function busy(on,t,s){$("#busy").classList.toggle("on",on);
+  if(t!==undefined)$("#busyT").textContent=t; if(s!==undefined)$("#busyS").textContent=s;}
+
+/* 抠好的图是几 MB 的 blob，不 revoke 就一直挂在内存里 —— 换一张就漏一张 */
+function dropCut(){
+  if(CUT_URL){URL.revokeObjectURL(CUT_URL);CUT_URL=null;}
+  CUT=null;
+}
+
+async function handle(f){
+  msg("");
+  if(!/^image\//.test(f.type)) return msg(zh()?"这不是图片文件。":"Bukan file gambar.","bad");
+  if(f.size>12*1024*1024)      return msg(zh()?"图片超过 12MB，压缩后再传。":"Lebih dari 12MB.","bad");
+  $("#pvBox").dataset.idle="0";
+  busy(true, zh()?"正在抠图…":"Menghapus latar…","");
+  try{
+    const mod=await import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm");
+    /* 真实进度：首次要下 81MB 模型。不给进度的话，
+       手机上盯着转圈半分钟的人一半会以为卡死直接关掉。 */
+    const blob=await mod.removeBackground(f,{
+      publicPath:PUBLIC_PATH, model:MODEL,
+      output:{format:"image/png",quality:1},
+      progress:(key,cur,total)=>{
+        const dl=/fetch|download/i.test(key), pct=total?Math.round(cur/total*100):0;
+        busy(true,
+          dl?(zh()?"首次准备中…":"Menyiapkan…"):(zh()?"正在抠图…":"Menghapus latar…"),
+          dl?(zh()?"下载模型 "+pct+"%（"+MODEL_MB+"MB，只有第一次）"
+                  :"Unduh model "+pct+"% ("+MODEL_MB+"MB, sekali saja)")
+             :(zh()?"快好了":"Hampir selesai"));
+      }
+    });
+    dropCut();
+    CUT_URL=URL.createObjectURL(blob);
+    CUT=await load(CUT_URL);
+    busy(false);
+    lockOps(false); upText(); draw();
+  }catch(e){
+    busy(false); $("#pvBox").dataset.idle=CUT?"0":"1";
+    msg((zh()?"抠图失败：":"Gagal: ")+String(e.message||e).slice(0,80)+
+        (zh()?" 换张背景干净的再试。":" Coba latar lebih polos."),"bad");
+  }
+}
+
+/* ---------- 抠图后的包围盒：只算不透明像素 ---------- */
+function bbox(img){
+  const c=D.createElement("canvas"), n=Math.min(400,img.width), s=n/img.width;
+  c.width=n; c.height=Math.round(img.height*s);
+  const x=c.getContext("2d",{willReadFrequently:true});
+  x.drawImage(img,0,0,c.width,c.height);
+  const d=x.getImageData(0,0,c.width,c.height).data;
+  let l=c.width,r=-1,t=c.height,b=-1;
+  for(let yy=0;yy<c.height;yy++)for(let xx=0;xx<c.width;xx++)
+    if(d[(yy*c.width+xx)*4+3]>24){if(xx<l)l=xx;if(xx>r)r=xx;if(yy<t)t=yy;if(yy>b)b=yy;}
+  if(r<0) return {x:0,y:0,w:img.width,h:img.height};
+  return {x:l/s,y:t/s,w:(r-l+1)/s,h:(b-t+1)/s};
+}
+
+/* ---------- 自适应字号：绝不换行、绝不截断 ---------- */
+function fitFont(ctx,text,boxW,nominal,family){
+  let size=nominal; const floor=nominal*MIN_RATIO;
+  while(size>floor){
+    ctx.font='900 '+size+'px '+family;
+    if(ctx.measureText(text).width<=boxW) return size;
+    size-=Math.max(1,size*0.03);
+  }
+  return floor;
+}
+
+/* ---------- 合成 ---------- */
+function draw(){
+  const g=$("#cv").getContext("2d"), A=READY[THEME]||{};
+  const BG=A.bg, FRAME=A.frame, ACC=THEMES[THEME].acc;
+  g.clearRect(0,0,W,W);
+  if(BG) g.drawImage(BG,SPEC.bg.x,SPEC.bg.y,SPEC.bg.w,SPEC.bg.h);
+  if(CUT){
+    const bb=bbox(CUT), P=SPEC.photo, z=(+$("#zoom").value)/100;
+    const k=Math.min(P.w/bb.w,P.h/bb.h)*z;
+    const dx=P.x+(P.w-bb.w*k)/2-bb.x*k+(+$("#ox").value)/100*P.w;
+    const dy=P.y                -bb.y*k+(+$("#oy").value)/100*P.h;
+    const rot=(+$("#rot").value)*Math.PI/180;
+    g.save();
+    if(rot){
+      // 绕【人像包围盒的中心】转，不是画布中心 —— 否则一转头就飞出框
+      const cx=dx+(bb.x+bb.w/2)*k, cy=dy+(bb.y+bb.h/2)*k;
+      g.translate(cx,cy); g.rotate(rot); g.translate(-cx,-cy);
+    }
+    g.drawImage(CUT,dx,dy,CUT.width*k,CUT.height*k);
+    g.restore();
+  }
+  if(FRAME) g.drawImage(FRAME,SPEC.frame.x,SPEC.frame.y,SPEC.frame.w,SPEC.frame.h);
+  if(ME){
+    const fam='"Noto Sans SC","PingFang SC",sans-serif';
+    g.fillStyle=ACC; g.textAlign="center"; g.textBaseline="top";
+    const l1=[ME.n,ME.cn].filter(Boolean).join(" ");
+    const s1=fitFont(g,l1,SPEC.name.w,SPEC.name.size,fam);
+    g.font='900 '+s1+'px '+fam;
+    g.fillText(l1,SPEC.name.x+SPEC.name.w/2,SPEC.name.y+(SPEC.name.size-s1)/2);
+    const l2=[ME.l,ME.j].filter(Boolean).join("-");
+    if(l2){
+      const s2=fitFont(g,l2,SPEC.job.w,SPEC.job.size,fam);
+      g.font='700 '+s2+'px '+fam;
+      g.fillText(l2,SPEC.job.x+SPEC.job.w/2,SPEC.job.y+(SPEC.job.size-s2)/2);
+    }
+  }
+}
+["zoom","rot","oy","ox"].forEach(id=>$("#"+id).addEventListener("input",draw));
+
+/* ---------- 下载 ----------
+   内嵌在飞书文档里时浏览器会拦掉 iframe 发起的下载（沙箱策略，页面改不了）。
+   张博实测右键另存为可行 —— 提示直接写在按钮里，点下载后 msg 再说一次。 */
+$("#tip").hidden = !IN_FRAME;
+$("#dl").onclick=()=>{
+  draw();
+  $("#cv").toBlob(b=>{
+    const a=D.createElement("a");
+    a.href=URL.createObjectURL(b);
+    a.download="MUKE_"+(ME&&ME.e?ME.e:"avatar")+".png";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    msg(IN_FRAME
+      ? (zh()?"没弹出保存框？文档里的下载会被浏览器拦。右键左边预览图 → 图片另存为。"
+            :"Tidak muncul dialog simpan? Unduhan di dalam dokumen diblokir. Klik kanan gambar di kiri → Simpan gambar.")
+      : (zh()?"已下载。设到 Lark：Mine → 点你的名字 → Edit Profile → 头像。"
+            :"Terunduh. Pasang di Lark: Mine → ketuk namamu → Edit Profile → foto."),
+      IN_FRAME?"":"ok");
+  },"image/png");
+};
+
+/* ---------- 关页清场 ----------
+   两种缓存要分治：HTTP 缓存（浏览器管、有配额会自动淘汰）是模型不重下的靠山，留着；
+   源站存储（Cache Storage/IndexedDB，脚本建的，不清就永久占着）清掉。
+   实测 @imgly 1.7.0 源码里没有 caches./indexedDB 调用，眼下不产生源站存储，
+   下面这段是保险，且只删名字明确属于本工具依赖的条目 ——
+   本页与欢迎页同源，无差别删会误伤别人的缓存。 */
+const MINE=/imgly|onnx|ort-wasm|background-removal/i;
+async function sweep(){
+  try{
+    if(!window.caches||!caches.keys) return;
+    for(const k of await caches.keys()) if(MINE.test(k)) await caches.delete(k);
+  }catch(e){}
+}
+addEventListener("pagehide",()=>{dropCut();sweep();});
+sweep();   // 崩溃或强杀时 pagehide 不一定跑得完，开页时也扫一遍兜底
+
+/* ---------- 启动 ---------- */
+(async()=>{
+  setLang(sv);
+  relayout();
+  try{
+    await art("g");            // 绿色是空态要画的，必须等
+    art("p");                  // 紫色后台预取，不等
+  }catch(e){
+    msg((zh()?"素材加载失败：":"Gagal memuat: ")+String(e.message||e).slice(0,60),"bad");
+  }
+  const v=fromHash();          // 专属链接带来的身份，优先
+  if(v) adopt(v); else forget();
+  await (D.fonts?D.fonts.ready:Promise.resolve());   // 字体没就绪时量宽会算错
+  relayout(); draw();
+})();
+/* 欢迎页可能在 iframe 挂上之后才把身份写进 hash */
+addEventListener("hashchange",()=>{const v=fromHash(); if(v) adopt(v);});
+/* 被嵌在欢迎页里时跟着外层切语言 —— 只认同源来的消息 */
+addEventListener("message",e=>{
+  if(e.origin!==location.origin) return;
+  if(e.data && e.data.muke==="lang") setLang(e.data.v==="zh"?"zh":"id");
+});
+</script>
+</body>
+</html>
