@@ -1,0 +1,23 @@
+name: 公开库护栏
+
+# 事后一道。真正能挡住的是本机的 .githooks/pre-commit 和 GitHub 的 Push protection ——
+# 推上来的那一刻内容就已经公开了。失败会触发 GitHub 给仓库所有者发邮件。
+#（这个库没有 Secrets，所以不发 Lark；muke 那边有。）
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      # ⚠ 不加 -v。命中的原文会被打进 **公开的** Actions 日志。
+      - run: node tools/guard-tree.js --all

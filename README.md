@@ -35,6 +35,26 @@ GitHub 会一直按 SHA 提供它。所以这个仓库从**一个孤儿提交**�
 
 ---
 
+## ⚠ 克隆下来第一件事
+
+```bash
+git config core.hooksPath .githooks
+```
+
+**不跑这一条 = 没有护栏，而且不会报错。** `core.hooksPath` 不跟着 clone 走。
+钩子做的事是：commit 前扫暂存区，发现工资／电话／身份证／真实工号／凭据就拒绝提交。
+
+推上去的那一刻内容就已经公开了，**而且删文件删不掉历史** —— 能真正挡住的只有这个钩子
+和 GitHub 的 Push protection；`.github/workflows/guard.yml` 是事后报警。
+
+误杀了就在 `.guardignore` 写一行「路径 规则id # 理由」，或在那一行加
+`guard-tree:allow <规则id> <理由>`。**⛔ 不要用 `--no-verify` 绕过。**
+
+⚠ `tools/guard-tree.js` 在 muke 里有一份**逐字节相同**的副本。改这份就要同步那份 ——
+在 `AI CEO` 里跑 `node tools/guard_drift.js --sync`。改了一边忘了另一边，
+是这类工具最典型的死法：你以为规则加上了，实际有一半仓库没有，而它照样报「未发现」。
+
+
 ## 里面有什么
 
 | 页面 | 是什么 | 被谁用 |
