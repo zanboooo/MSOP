@@ -69,10 +69,11 @@ body{font:14px/1.6 "PingFang SC","Microsoft YaHei","Source Han Sans SC",system-u
 .nd{border-radius:8px;overflow:hidden;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.12);
  border:2px solid transparent;transition:border-color .35s,transform .35s,box-shadow .35s;background:#fff}
 @media (prefers-color-scheme:dark){.nd{background:#2c2e33}}
-.nh{font-size:12px;font-weight:600;color:#fff;padding:3px 10px;line-height:1.6}
+.nh{font-size:12px;font-weight:600;color:#fff;padding:3px 10px;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nb{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;font-size:13px;color:#1f2329}
 @media (prefers-color-scheme:dark){.nb{color:#e6e6e6}}
-.nb i{font-style:normal;color:#8f959e;font-size:16px;line-height:1}
+.nb span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nb i{font-style:normal;color:#8f959e;font-size:16px;line-height:1;flex:0 0 auto;margin-left:6px}
 .st .nh,.ed .nh{background:#9aa9c6}
 .ap .nh{background:#ff8800}
 .do .nh{background:#9b5de5}
@@ -82,6 +83,7 @@ body{font:14px/1.6 "PingFang SC","Microsoft YaHei","Source Han Sans SC",system-u
 .cd .nh em{font-style:normal;font-size:11px;color:#00b42a}
 .cd .nh em.g{color:#8f959e}
 .cd .nb{font-size:12px;color:#646a73;line-height:1.45}
+.cd .nb span{white-space:normal}
 .nd.on{border-color:var(--b2);transform:translateY(-2px);box-shadow:0 6px 16px rgba(109,59,133,.28)}
 /* ── 连线：竖线 + ⊕，和后台一样 ── */
 .lk{width:2px;height:34px;background:#c9ccd1;position:relative;margin:0 auto}
@@ -103,46 +105,53 @@ body{font:14px/1.6 "PingFang SC","Microsoft YaHei","Source Han Sans SC",system-u
   <div class="bar" id="bar"></div>
 <div class="wrap">
  <div class="tree">
-  <div class="nd st" data-n="n0" data-s="0" style="width:200px"><div class="nh">提交</div><div class="nb"><span>提交人：中国员工、高管、财务</span><i>›</i></div></div>
+  <div class="nd st" data-n="n0" data-s="0" style="width:200px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
   <div class="lk"><b>+</b></div>
-  <div class="nd ap" data-n="n1" data-s="1" style="width:200px"><div class="nh">印尼公司财务审核</div><div class="nb"><span>审批人：印尼公司财务</span><i>›</i></div></div>
+  <div class="nd ap" data-n="n1" data-s="1" style="width:200px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
   <div class="lk"><b>+</b></div>
   <div class="br">
    <div class="col"><div class="lk"><b>+</b></div>
-    <div class="nd cd" data-n="c1" data-s="2" style="width:184px"><div class="nh">条件分支 1 <em>优先级 1</em></div><div class="nb"><span>当 申请总额 超过该币种限额</span><i>›</i></div></div>
+    <div class="nd cd" data-n="c1" data-s="2" style="width:184px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
     <div class="lk"><b>+</b></div>
-    <div class="nd ap" data-n="n3a" data-s="3" style="width:184px"><div class="nh">总部财务审核</div><div class="nb"><span>审批人：总部财务</span><i>›</i></div></div>
+    <div class="nd ap" data-n="n3a" data-s="3" style="width:184px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
     <div class="lk"><b>+</b></div>
-    <div class="nd ap" data-n="n3b" data-s="3" style="width:184px"><div class="nh">CEO高额审批</div><div class="nb"><span>审批人：CEO</span><i>›</i></div></div>
+    <div class="nd ap" data-n="n3b" data-s="3" style="width:184px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
     <div class="lk"><b>+</b></div>
    </div>
    <div class="col"><div class="lk"><b>+</b></div>
-    <div class="nd cd" data-n="c2" data-s="2" style="width:184px"><div class="nh">其他情况 <em class="g">优先级 2</em></div><div class="nb"><span>未满足分支条件时，进入此分支</span><i>›</i></div></div>
+    <div class="nd cd" data-n="c2" data-s="2" style="width:184px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
     <div class="lk"><b>+</b></div>
-    <div class="nd ap" data-n="n4a" data-s="4" style="width:184px"><div class="nh">首席运营限额内审批</div><div class="nb"><span>审批人：首席运营</span><i>›</i></div></div>
+    <div class="nd ap" data-n="n4a" data-s="4" style="width:184px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
     <div class="lk"><b>+</b></div>
-    <div class="nd ap" data-n="n4b" data-s="4" style="width:184px"><div class="nh">总经理限额内审批</div><div class="nb"><span>审批人：总经理</span><i>›</i></div></div>
+    <div class="nd ap" data-n="n4b" data-s="4" style="width:184px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
     <div class="lk"><b>+</b></div>
    </div>
   </div>
   <div class="mg"></div>
   <div class="lk"><b>+</b></div>
-  <div class="nd do" data-n="n5" data-s="5" style="width:200px"><div class="nh">财务付款</div><div class="nb"><span>办理人：印尼公司财务</span><i>›</i></div></div>
+  <div class="nd do" data-n="n5" data-s="5" style="width:200px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
   <div class="lk"><b>+</b></div>
-  <div class="nd ap" data-n="n6" data-s="6" style="width:200px"><div class="nh">总部复核</div><div class="nb"><span>审批人：总部复核</span><i>›</i></div></div>
+  <div class="nd ap" data-n="n6" data-s="6" style="width:200px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
   <div class="lk"><b>+</b></div>
-  <div class="nd ed" data-n="n7" data-s="7" style="width:200px"><div class="nh">结束</div><div class="nb"><span>抄送人：提交人本人</span><i>›</i></div></div>
+  <div class="nd ed" data-n="n7" data-s="7" style="width:200px"><div class="nh"></div><div class="nb"><span></span><i>›</i></div></div>
  </div>
  <div class="side">
   <h2 id="sh" data-fit></h2><div class="who" id="sw"></div>
   <ol id="sd"></ol>
-  <div class="due">时限：<b id="su"></b></div>
+  <div class="due"><span id="sul"></span><b id="su"></b></div>
  </div>
 </div>
   <div class="cap"><span class="no" id="cn"></span><span class="tx" id="ct"></span></div>
 </div>
 <script>
-var TABS = [{"l":"发起","s":0},{"l":"财务审核","s":1},{"l":"金额分支","s":2},{"l":"财务付款","s":5},{"l":"总部复核","s":6}];
+var __I18N = {"id":{"title":"Delapan Node Payment Request","sub":"Tampilannya sama dengan halaman desain alur di admin Approval Lark. Klik node mana pun untuk melihat siapa, apa, dan batas waktunya.","tabs":[{"l":"Ajukan","s":0},{"l":"Cek Finance","s":1},{"l":"Nominal","s":2},{"l":"Pembayaran","s":5},{"l":"Review HQ","s":6}]}};
+var __LANG = (new URLSearchParams(location.search).get("lang") || "zh");
+if (!__I18N[__LANG]) __LANG = "zh";
+window.__LANG = __LANG;
+var TABS = (__I18N[__LANG] && __I18N[__LANG].tabs) || [{"l":"发起","s":0},{"l":"财务审核","s":1},{"l":"金额分支","s":2},{"l":"财务付款","s":5},{"l":"总部复核","s":6}];
+if (__I18N[__LANG]) { document.documentElement.lang = __LANG;
+  if (__I18N[__LANG].title) { document.title = __I18N[__LANG].title; document.querySelector(".hd h1").textContent = __I18N[__LANG].title; }
+  var __sub = document.querySelector(".hd .sub"); if (__sub && __I18N[__LANG].sub) __sub.textContent = __I18N[__LANG].sub; }
 
 var __cur = -1, __auto = true, __timer = null;
 var bar = document.getElementById("bar");
@@ -256,22 +265,22 @@ setTimeout(window.__audit, 700);
 
 window.STEP_MS = 3400;
 window.STEPS_N = 8;
-var S = [{"who":"申请人","due":"计划付款日前 1 个工作日","d":["填付款类型、费用归属、付款用途","填币种、金额、期望付款日期","填收款户名、银行或平台、账号","附合同、账单、报价单或报销明细"],"c":"在 Lark › 审批 › <span class=\"hi\">付款申请</span> 发起。户名和账号复制粘贴后再核一遍，资料不全不提交。"},{"who":"印尼公司财务","due":"收到后 1 个工作日","d":["支出真实、合理、属公司业务","金额、币种、收款方与附件一致","没有重复申请或重复付款","收款账户正确，新账户无风险"],"c":"第一道闸。缺资料<span class=\"hi\">退回</span>让申请人补；明显异常直接<span class=\"hi\">拒绝</span>并写原因。"},{"who":"系统自动分流","due":"即时","d":["按申请币种取对应限额","超过限额 → 高额分支","刚好等于或低于 → 限额内分支"],"c":"不用人判断。三种币种各有限额，数值在 SOP 正文第 2 章。<span class=\"hi\">拆单规避高额审批是违规</span>，总部复核会查。"},{"who":"总部财务 → CEO","due":"每节点 1 个工作日","d":["总部财务：查金额、依据、账户与财务风险","CEO：确认付款必要性，最终授权"],"c":"高额两级。<span class=\"hi\">不得只点同意</span>，发现信息不一致要退回并写明需要改什么。"},{"who":"首席运营 → 总经理","due":"每节点 1 个工作日","d":["首席运营：确认业务真实性与必要性","总经理：确认付款授权"],"c":"限额内两级。同样<span class=\"hi\">不得只点同意</span>，退回要写明改什么。"},{"who":"印尼公司财务（办理）","due":"按批准的付款日期","d":["付前再核户名、账号、币种、金额","回填实付日期、币种、金额、手续费","回填付款账户别名与银行参考号","上传转账成功截图或银行回单"],"c":"这是<span class=\"hi\">办理节点</span>，不是审批。金额、币种或收款账户变了不许直接付，退回修改或重新发起。"},{"who":"总部复核","due":"信息补齐后 1 个工作日","d":["走的分支对不对","实付与批准内容是否一致","凭证与银行参考号是否齐全","有无拆分、重复付款或异常差额"],"c":"最后一道闸。无误通过；异常<span class=\"hi\">退回财务处理</span>并记录原因。"},{"who":"系统抄送申请人","due":"—","d":["申请人确认对方已收款","继续验收、报销核销或预付款跟踪"],"c":"付款成功<span class=\"hi\">不等于</span>验收、核销、对账已完成。审批记录与凭证是流水登记和月度对账的依据，不得删。"}];
-var NAMES = ["发起申请","印尼财务审核","按金额分支","高额：总部财务 → CEO","限额内：首席运营 → 总经理","财务付款","总部复核","结束 · 抄送申请人"];
+var L = window.__LANG || "zh";
+var S = {"zh":[{"who":"申请人","due":"计划付款日前 1 个工作日","d":["填付款类型、费用归属、付款用途","填币种、金额、期望付款日期","填收款户名、银行或平台、账号","附合同、账单、报价单或报销明细"],"c":"在 Lark › 审批 › <span class=\"hi\">付款申请</span> 发起。户名和账号复制粘贴后再核一遍，资料不全不提交。"},{"who":"印尼公司财务","due":"收到后 1 个工作日","d":["支出真实、合理、属公司业务","金额、币种、收款方与附件一致","没有重复申请或重复付款","收款账户正确，新账户无风险"],"c":"第一道闸。缺资料<span class=\"hi\">退回</span>让申请人补；明显异常直接<span class=\"hi\">拒绝</span>并写原因。"},{"who":"系统自动分流","due":"即时","d":["按申请币种取对应限额","超过限额 → 高额分支","刚好等于或低于 → 限额内分支"],"c":"不用人判断。三种币种各有限额，数值在 SOP 正文第 2 章。<span class=\"hi\">拆单规避高额审批是违规</span>，总部复核会查。"},{"who":"总部财务 → CEO","due":"每节点 1 个工作日","d":["总部财务：查金额、依据、账户与财务风险","CEO：确认付款必要性，最终授权"],"c":"高额两级。<span class=\"hi\">不得只点同意</span>，发现信息不一致要退回并写明需要改什么。"},{"who":"首席运营 → 总经理","due":"每节点 1 个工作日","d":["首席运营：确认业务真实性与必要性","总经理：确认付款授权"],"c":"限额内两级。同样<span class=\"hi\">不得只点同意</span>，退回要写明改什么。"},{"who":"印尼公司财务（办理）","due":"按批准的付款日期","d":["付前再核户名、账号、币种、金额","回填实付日期、币种、金额、手续费","回填付款账户别名与银行参考号","上传转账成功截图或银行回单"],"c":"这是<span class=\"hi\">办理节点</span>，不是审批。金额、币种或收款账户变了不许直接付，退回修改或重新发起。"},{"who":"总部复核","due":"信息补齐后 1 个工作日","d":["走的分支对不对","实付与批准内容是否一致","凭证与银行参考号是否齐全","有无拆分、重复付款或异常差额"],"c":"最后一道闸。无误通过；异常<span class=\"hi\">退回财务处理</span>并记录原因。"},{"who":"系统抄送申请人","due":"—","d":["申请人确认对方已收款","继续验收、报销核销或预付款跟踪"],"c":"付款成功<span class=\"hi\">不等于</span>验收、核销、对账已完成。审批记录与凭证是流水登记和月度对账的依据，不得删。"}],"id":[{"who":"Pemohon","due":"≥1 hari kerja sebelum tanggal bayar","d":["Isi jenis, alokasi biaya, tujuan bayar","Isi mata uang, nominal, tanggal bayar","Isi nama rekening, bank/platform, nomor","Lampirkan kontrak, tagihan, penawaran"],"c":"Ajukan di Lark › Approval › <span class=\"hi\">Payment Request</span>. Salin-tempel nama dan nomor rekening lalu cek ulang; data tidak lengkap jangan diajukan."},{"who":"Finance Indonesia","due":"1 hari kerja setelah diterima","d":["Pengeluaran nyata dan untuk perusahaan","Nominal, mata uang, penerima, lampiran cocok","Tidak ada pengajuan/pembayaran ganda","Rekening benar, rekening baru aman"],"c":"Gerbang pertama. Kurang data → <span class=\"hi\">kembalikan</span>; jelas janggal → <span class=\"hi\">tolak</span> dan tulis alasannya."},{"who":"Otomatis oleh sistem","due":"Seketika","d":["Ambil limit sesuai mata uang","Lebih dari limit → cabang nominal tinggi","Sama atau di bawah → cabang dalam limit"],"c":"Tanpa penilaian manusia. Tiap mata uang punya limit; angkanya ada di Bab 2 SOP. <span class=\"hi\">Memecah pengajuan untuk menghindari cabang tinggi = pelanggaran</span>."},{"who":"Finance HQ → CEO","due":"1 hari kerja per node","d":["Finance HQ: cek nominal, dasar, rekening, risiko","CEO: pastikan perlu dibayar, otorisasi akhir"],"c":"Dua tingkat untuk nominal tinggi. <span class=\"hi\">Jangan asal setuju</span>; data tidak cocok → kembalikan dan tulis apa yang harus diubah."},{"who":"COO → GM","due":"1 hari kerja per node","d":["COO: pastikan transaksi nyata dan perlu","GM: pastikan otorisasi pembayaran"],"c":"Dua tingkat dalam limit. Sama: <span class=\"hi\">jangan asal setuju</span>, kembalikan dengan catatan."},{"who":"Finance Indonesia (pelaksana)","due":"Sesuai tanggal bayar disetujui","d":["Cek ulang nama, rekening, mata uang, nominal","Isi tanggal, mata uang, nominal, biaya bank","Isi alias rekening dan referensi bank","Unggah bukti transfer atau slip bank"],"c":"Ini <span class=\"hi\">node pelaksana</span>, bukan persetujuan. Nominal, mata uang, atau rekening berubah → jangan bayar, kembalikan atau ajukan ulang."},{"who":"Reviewer HQ","due":"1 hari kerja setelah data lengkap","d":["Cabang persetujuan sudah benar","Pembayaran sesuai yang disetujui","Bukti dan referensi bank lengkap","Tidak ada pecah/ganda/selisih janggal"],"c":"Gerbang terakhir. Benar → setujui; janggal → <span class=\"hi\">kembalikan ke Finance</span> dan catat alasannya."},{"who":"Sistem CC pemohon","due":"—","d":["Pemohon pastikan penerima sudah terima","Lanjut serah terima, klaim, atau uang muka"],"c":"Terbayar <span class=\"hi\">bukan berarti</span> serah terima, klaim, rekonsiliasi selesai. Catatan approval dan bukti = dasar buku kas dan rekonsiliasi bulanan, jangan dihapus."}]}[L], NAMES = {"zh":["发起申请","印尼财务审核","按金额分支","高额：总部财务 → CEO","限额内：首席运营 → 总经理","财务付款","总部复核","结束 · 抄送申请人"],"id":["Ajukan permohonan","Cek Finance Indonesia","Cabang per nominal","Tinggi: Finance HQ → CEO","Dalam limit: COO → GM","Pembayaran oleh Finance","Review HQ","Selesai · CC pemohon"]}[L], NODE = {"zh":{"n0":["提交","提交人：中国员工、高管、财务"],"n1":["印尼公司财务审核","审批人：印尼公司财务"],"c1":["条件分支 1 <em>优先级 1</em>","当 申请总额 超过该币种限额"],"c2":["其他情况 <em class=\"g\">优先级 2</em>","未满足分支条件时，进入此分支"],"n3a":["总部财务审核","审批人：总部财务"],"n3b":["CEO高额审批","审批人：CEO"],"n4a":["首席运营限额内审批","审批人：首席运营"],"n4b":["总经理限额内审批","审批人：总经理"],"n5":["财务付款","办理人：印尼公司财务"],"n6":["总部复核","审批人：总部复核"],"n7":["结束","抄送人：提交人本人"]},"id":{"n0":["Ajukan","Pemohon: staf CN, manajemen, finance"],"n1":["Cek Finance Indonesia","Penyetuju: Finance Indonesia"],"c1":["Cabang 1 <em>Prioritas 1</em>","Jika total > limit mata uang"],"c2":["Lainnya <em class=\"g\">Prioritas 2</em>","Jika syarat cabang tidak terpenuhi"],"n3a":["Cek Finance HQ","Penyetuju: Finance HQ"],"n3b":["Persetujuan CEO","Penyetuju: CEO"],"n4a":["Persetujuan COO","Penyetuju: COO"],"n4b":["Persetujuan GM","Penyetuju: GM"],"n5":["Pembayaran","Pelaksana: Finance Indonesia"],"n6":["Review HQ","Penyetuju: Reviewer HQ"],"n7":["Selesai","CC: pemohon"]}}[L], UI = {"zh":{"who":"谁：","due":"时限："},"id":{"who":"Siapa: ","due":"Batas waktu: "}}[L];
+[].slice.call(document.querySelectorAll(".nd")).forEach(function (e) {
+  var t = NODE[e.dataset.n]; e.querySelector(".nh").innerHTML = t[0]; e.querySelector(".nb span").textContent = t[1];
+  e.addEventListener("click", function () { goto(+e.dataset.s); });
+});
+document.getElementById("sul").textContent = UI.due;
 function apply(n) {
   __cur = n; __markTabs(n);
-  [].slice.call(document.querySelectorAll(".nd")).forEach(function (e) {
-    e.classList.toggle("on", +e.dataset.s === n);
-  });
+  [].slice.call(document.querySelectorAll(".nd")).forEach(function (e) { e.classList.toggle("on", +e.dataset.s === n); });
   document.getElementById("sh").textContent = NAMES[n];
-  document.getElementById("sw").textContent = "谁：" + S[n].who;
+  document.getElementById("sw").textContent = UI.who + S[n].who;
   document.getElementById("sd").innerHTML = S[n].d.map(function (x) { return "<li>" + x + "</li>"; }).join("");
   document.getElementById("su").textContent = S[n].due;
   setCap(n, TOTAL, S[n].c);
 }
-[].slice.call(document.querySelectorAll(".nd")).forEach(function (e) {
-  e.addEventListener("click", function () { goto(+e.dataset.s); });
-});
 boot();
 </script>
 </body>

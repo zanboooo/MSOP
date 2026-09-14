@@ -42,55 +42,48 @@ h1.s2{font-size:14px;margin-bottom:8px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
 <div id="stage">
-<h1>发起前把这 9 项勾完</h1>
-<div class="sub">资料不全不提交 —— 退回一次，付款就晚一天。</div>
-<div class="grid">
-<div class="g"><h2>申请信息<i id="c0">0/3</i></h2>
-<label><input type="checkbox" data-g="0"><span>付款类型、费用归属都选对了</span></label>
-<label><input type="checkbox" data-g="0"><span>付款用途写清「买什么、为什么付」</span></label>
-<label><input type="checkbox" data-g="0"><span>币种、金额、期望付款日期填了</span></label></div>
-<div class="g"><h2>收款信息<i id="c1">0/3</i></h2>
-<label><input type="checkbox" data-g="1"><span>收款对象、户名与银行账户一致</span></label>
-<label><input type="checkbox" data-g="1"><span>银行或支付平台、账号／VA 复制粘贴后再核过</span></label>
-<label><input type="checkbox" data-g="1"><span>新收款账户已向财务说明来源</span></label></div>
-<div class="g"><h2>申请依据<i id="c2">0/3</i></h2>
-<label><input type="checkbox" data-g="2"><span>合同、账单、报价单或报销明细已附上</span></label>
-<label><input type="checkbox" data-g="2"><span>一笔付款只对应这一份申请，没有合并无关事项</span></label>
-<label><input type="checkbox" data-g="2"><span>没有把同一事项拆成几张单</span></label></div>
-</div>
-<div class="verdict" id="v"><b id="vt">还差 9 项</b><div class="bar"><i id="vb"></i></div><small id="vs">全勾完才提交</small></div>
-
-<h1 class="s2">被退回或拒绝了，怎么走</h1>
+<h1 id="h1"></h1>
+<div class="sub" id="sub"></div>
+<div class="grid" id="grid"></div>
+<div class="verdict" id="v"><b id="vt"></b><div class="bar"><i id="vb"></i></div><small id="vs"></small></div>
+<h1 class="s2" id="h2"></h1>
 <div class="cases">
- <div class="cl" id="cl">
-  <button data-i="0">资料缺了，但能补上</button>
-  <button data-i="1">金额、币种、收款账户或付款对象变了</button>
-  <button data-i="2">被判定重复申请、虚假资料或不合理支出</button>
-  <button data-i="3">审批卡在某个节点，长时间没人动</button>
-  <button data-i="4">急着付，等不及走完流程</button>
- </div>
+ <div class="cl" id="cl"></div>
  <div class="ans"><div class="t" id="at"></div><div id="ab"></div></div>
 </div>
 </div>
 <script>
-var CASES = [["资料缺了，但能补上","审批人选<b>退回</b>并写明缺哪一项。你补齐后，同一张单继续走，不用重新发起。"],["金额、币种、收款账户或付款对象变了","不能在原单上改着付。改完<b>重新发起完整审批</b>，从第一站再走一遍。"],["被判定重复申请、虚假资料或不合理支出","审批人选<b>拒绝</b>并写明原因，原单作废。有异议找当前节点负责人，不要另开一张绕过去。"],["审批卡在某个节点，长时间没人动","联系<b>当前节点负责人</b>。不得绕过审批直接催付款。"],["急着付，等不及走完流程","紧急付款也必须走审批。确需先处理，由<b>最高审批人书面说明</b>，并在<b>当天</b>补齐流程。"]];
-var SIZES = [3,3,3];
+var T = {"zh":{"h1":null,"sub":"资料不全不提交 —— 退回一次，付款就晚一天。","left":null,"ok":"可以提交","hint":"全勾完才提交","go":"去 Lark › 审批 › 付款申请 发起","h2":"被退回或拒绝了，怎么走","groups":[["申请信息",["付款类型、费用归属都选对了","付款用途写清「买什么、为什么付」","币种、金额、期望付款日期填了"]],["收款信息",["收款对象、户名与银行账户一致","银行或支付平台、账号／VA 复制粘贴后再核过","新收款账户已向财务说明来源"]],["申请依据",["合同、账单、报价单或报销明细已附上","一笔付款只对应这一份申请，没有合并无关事项","没有把同一事项拆成几张单"]]],"cases":[["资料缺了，但能补上","审批人选<b>退回</b>并写明缺哪一项。你补齐后，同一张单继续走，不用重新发起。"],["金额、币种、收款账户或付款对象变了","不能在原单上改着付。改完<b>重新发起完整审批</b>，从第一站再走一遍。"],["被判定重复申请、虚假资料或不合理支出","审批人选<b>拒绝</b>并写明原因，原单作废。有异议找当前节点负责人，不要另开一张绕过去。"],["审批卡在某个节点，长时间没人动","联系<b>当前节点负责人</b>。不得绕过审批直接催付款。"],["急着付，等不及走完流程","紧急付款也必须走审批。确需先处理，由<b>最高审批人书面说明</b>，并在<b>当天</b>补齐流程。"]]},"id":{"h1":null,"sub":"Data tidak lengkap jangan diajukan — sekali dikembalikan, pembayaran mundur sehari.","left":null,"ok":"Siap diajukan","hint":"Ajukan setelah semua dicentang","go":"Buka Lark › Approval › Payment Request","h2":"Dikembalikan atau ditolak, lalu bagaimana","groups":[["Data permohonan",["Jenis pembayaran dan alokasi biaya sudah benar","Tujuan bayar jelas: beli apa, kenapa dibayar","Mata uang, nominal, tanggal bayar terisi"]],["Data penerima",["Penerima, nama rekening, dan bank cocok","Bank/platform dan nomor rekening/VA disalin lalu dicek ulang","Rekening baru sudah dijelaskan ke Finance"]],["Dasar permohonan",["Kontrak, tagihan, penawaran, atau rincian klaim dilampirkan","Satu pembayaran satu permohonan, tidak digabung","Tidak memecah satu urusan jadi beberapa permohonan"]]],"cases":[["Data kurang, tapi bisa dilengkapi","Penyetuju memilih <b>kembalikan</b> dan menulis apa yang kurang. Setelah dilengkapi, permohonan yang sama lanjut, tidak perlu ajukan ulang."],["Nominal, mata uang, rekening, atau penerima berubah","Tidak boleh dibayar dari permohonan lama. Ubah lalu <b>ajukan ulang dari awal</b>."],["Dinilai ganda, data palsu, atau pengeluaran tidak wajar","Penyetuju memilih <b>tolak</b> dan menulis alasan; permohonan batal. Keberatan? Hubungi penanggung jawab node, jangan buat permohonan baru untuk menghindar."],["Permohonan tertahan lama di satu node","Hubungi <b>penanggung jawab node saat ini</b>. Dilarang melewati approval dan langsung menagih pembayaran."],["Mendesak, tidak sempat menunggu alur selesai","Pembayaran mendesak tetap lewat approval. Jika terpaksa lebih dulu, <b>penyetuju tertinggi menulis keterangan</b> dan alur dilengkapi <b>hari itu juga</b>."]]}};
+var F = { zh: { h1: function (n) { return "发起前把这 " + n + " 项勾完"; }, left: function (n) { return "还差 " + n + " 项"; } },
+          id: { h1: function (n) { return "Centang " + n + " hal ini sebelum mengajukan"; }, left: function (n) { return "Kurang " + n + " hal"; } } };
+var L = (new URLSearchParams(location.search).get("lang") || "zh"); if (!T[L]) L = "zh";
+document.documentElement.lang = L === "id" ? "id" : "zh-CN";
+var t = T[L], f = F[L], N = 0; t.groups.forEach(function (g) { N += g[1].length; });
+document.title = L === "id" ? "Payment Request · Cek Mandiri" : "付款申请 · 提交自查";
+document.getElementById("h1").textContent = f.h1(N);
+document.getElementById("sub").textContent = t.sub;
+document.getElementById("h2").textContent = t.h2;
+document.getElementById("grid").innerHTML = t.groups.map(function (g, gi) {
+  return '<div class="g"><h2>' + g[0] + '<i id="c' + gi + '">0/' + g[1].length + '</i></h2>' +
+    g[1].map(function (x) { return '<label><input type="checkbox" data-g="' + gi + '"><span>' + x + '</span></label>'; }).join("") + '</div>';
+}).join("");
+document.getElementById("cl").innerHTML = t.cases.map(function (c, i) { return '<button data-i="' + i + '">' + c[0] + '</button>'; }).join("");
 var boxes = [].slice.call(document.querySelectorAll("input[type=checkbox]"));
 function tally() {
   var per = [0, 0, 0], done = 0;
   boxes.forEach(function (b) { b.parentNode.classList.toggle("d", b.checked); if (b.checked) { done++; per[+b.dataset.g]++; } });
-  for (var g = 0; g < 3; g++) document.getElementById("c" + g).textContent = per[g] + "/" + SIZES[g];
-  var n = boxes.length, left = n - done, v = document.getElementById("v");
-  document.getElementById("vb").style.width = (done / n * 100) + "%";
+  t.groups.forEach(function (g, gi) { document.getElementById("c" + gi).textContent = per[gi] + "/" + g[1].length; });
+  var left = N - done, v = document.getElementById("v");
+  document.getElementById("vb").style.width = (done / N * 100) + "%";
   v.classList.toggle("ok", left === 0);
-  document.getElementById("vt").textContent = left === 0 ? "可以提交" : "还差 " + left + " 项";
-  document.getElementById("vs").textContent = left === 0 ? "去 Lark › 审批 › 付款申请 发起" : "全勾完才提交";
+  document.getElementById("vt").textContent = left === 0 ? t.ok : f.left(left);
+  document.getElementById("vs").textContent = left === 0 ? t.go : t.hint;
 }
 boxes.forEach(function (b) { b.addEventListener("change", tally); });
 function pick(i) {
   [].slice.call(document.querySelectorAll("#cl button")).forEach(function (b, j) { b.classList.toggle("on", i === j); });
-  document.getElementById("at").textContent = CASES[i][0];
-  document.getElementById("ab").innerHTML = CASES[i][1];
+  document.getElementById("at").textContent = t.cases[i][0];
+  document.getElementById("ab").innerHTML = t.cases[i][1];
 }
 document.getElementById("cl").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) pick(+b.dataset.i); });
 pick(0); tally();
