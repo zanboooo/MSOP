@@ -1,0 +1,58 @@
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>该用哪个审批</title>
+<style>
+html,body{background:transparent}
+@media (prefers-color-scheme:dark){html,body{background:#1a1a1a}}
+:root{--ink:#8a9099;--ink2:#6f757e;--line:rgba(138,144,153,.34);--line2:rgba(138,144,153,.18);--b1:#e4007f;--b2:#6d3b85;--ok:#2f9e5a;--gut:28px;--unit:8px;--r:9px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:14px/1.6 "PingFang SC","Microsoft YaHei","Source Han Sans SC",system-ui,sans-serif;color:var(--ink);overflow:hidden}
+#stage{width:820px;transform-origin:top left;padding:16px var(--gut) 8px}
+h1{font-size:16px;font-weight:700;color:var(--ink2)}
+.sub{font-size:12px;opacity:.85;margin-bottom:14px}
+.ask{border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:58px}
+.ask .q{font-size:14px;color:var(--ink2);font-weight:600;flex:0 0 auto}
+.ask button{border:1px solid var(--line);border-radius:20px;padding:5px 14px;background:transparent;color:var(--ink);font:inherit;font-size:12.5px;cursor:pointer;transition:border-color .2s,color .2s}
+.ask button:hover{border-color:var(--b2);color:var(--ink2)}
+.ask .res{font-size:15px;font-weight:700;color:var(--ok)}
+.ask .go{font-size:12.5px;opacity:.9}
+.ask .re{margin-left:auto;font-size:12px;opacity:.75;border:0;text-decoration:underline;padding:0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.c{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;transition:border-color .3s,box-shadow .3s}
+.c h2{font-size:14px;color:var(--ink2);margin-bottom:6px}
+.c dl{font-size:12px;line-height:1.5}
+.c dt{color:var(--ink2);font-weight:600;margin-top:6px;font-size:11.5px}
+.c dd{margin:0}
+.c dt.no{color:var(--b1)}
+.c.on{border-color:var(--ok);box-shadow:inset 3px 0 0 var(--ok)}
+.c.off{opacity:.45}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div id="stage">
+<h1 id="h1"></h1><div class="sub" id="sub"></div>
+<div class="ask" id="ask"></div>
+<div class="grid" id="grid"></div>
+</div>
+<script>
+var T = {"zh":{"h1":"该用哪个审批","sub":"两个问题定入口。一笔业务只走一个入口，选错会被退回。","q1":"这笔钱已经付出去了吗？","q1a":["已经付了，是员工垫的","还没付"],"q2":"钱由谁付出去？","q2a":["公司直接付给对方","先给员工一笔备用金，员工去花"],"reset":"重新判断","cards":[["费用报销","员工已先行垫付的真实业务费用，申请公司返还","费用已经发生，且申请人已经付了钱","公司还没付的供应商款；还没发生的预计费用"],["付款申请","公司直接向供应商、员工或其他收款方付款","申请时还没有人垫付，付款主体是公司","员工已经垫付的费用；员工借款"],["员工借款","员工因明确公务需要先领一笔资金","先借后用，事后必须报销冲账或退回余额","工资预支、私人借款；已经发生并由员工垫付的费用"]],"lbl":["适用场景","核心判断","禁止使用"],"go":null},"id":{"h1":"Pakai approval yang mana","sub":"Dua pertanyaan menentukan pintu masuk. Satu urusan satu pintu; salah pintu akan dikembalikan.","q1":"Uangnya sudah dibayarkan?","q1a":["Sudah, ditalangi karyawan","Belum"],"q2":"Siapa yang membayar?","q2a":["Perusahaan bayar langsung ke penerima","Karyawan pegang dana dulu, lalu belanja"],"reset":"Ulangi","cards":[["Expense Claim","Biaya bisnis nyata yang sudah ditalangi karyawan, minta diganti perusahaan","Biaya sudah terjadi dan pemohon sudah membayar","Tagihan vendor yang belum dibayar perusahaan; biaya yang belum terjadi"],["Payment Request","Perusahaan membayar langsung ke vendor, karyawan, atau penerima lain","Belum ada yang menalangi; yang membayar adalah perusahaan","Biaya yang sudah ditalangi karyawan; pinjaman karyawan"],["Employee Loan","Karyawan perlu dana lebih dulu untuk keperluan dinas yang jelas","Pinjam dulu baru pakai; wajib klaim atau kembalikan sisanya","Kasbon gaji, pinjaman pribadi; biaya yang sudah ditalangi"]],"lbl":["Kapan dipakai","Kunci penilaian","Dilarang untuk"],"go":null}};
+var GO = { zh: function (n) { return "去 Lark › 审批 里搜索「" + n + "」发起"; }, id: function (n) { return "Buka Lark › Approval, cari「" + n + "」lalu ajukan"; } };
+var L = (new URLSearchParams(location.search).get("lang") || "zh"); if (!T[L]) L = "zh";
+document.documentElement.lang = L === "id" ? "id" : "zh-CN"; var t = T[L];
+document.title = t.h1; document.getElementById("h1").textContent = t.h1; document.getElementById("sub").textContent = t.sub;
+document.getElementById("grid").innerHTML = t.cards.map(function (c, i) {
+  return '<div class="c" data-i="' + i + '"><h2>' + c[0] + '</h2><dl><dt>' + t.lbl[0] + '</dt><dd>' + c[1] + '</dd><dt>' + t.lbl[1] + '</dt><dd>' + c[2] + '</dd><dt class="no">' + t.lbl[2] + '</dt><dd>' + c[3] + '</dd></dl></div>';
+}).join("");
+var ask = document.getElementById("ask");
+function mark(i) { [].slice.call(document.querySelectorAll(".c")).forEach(function (e, j) { e.classList.toggle("on", i === j); e.classList.toggle("off", i !== null && i !== j); }); }
+function step1() { mark(null); ask.innerHTML = '<span class="q">' + t.q1 + '</span>' + t.q1a.map(function (a, i) { return '<button data-a="' + i + '">' + a + '</button>'; }).join("");
+  ask.onclick = function (e) { var b = e.target.closest("button"); if (!b) return; if (b.dataset.a === "0") done(0); else step2(); }; }
+function step2() { ask.innerHTML = '<span class="q">' + t.q2 + '</span>' + t.q2a.map(function (a, i) { return '<button data-a="' + i + '">' + a + '</button>'; }).join("");
+  ask.onclick = function (e) { var b = e.target.closest("button"); if (!b) return; done(b.dataset.a === "0" ? 1 : 2); }; }
+function done(i) { mark(i); ask.innerHTML = '<span class="res">' + t.cards[i][0] + '</span><span class="go">' + GO[L](t.cards[i][0]) + '</span><button class="re">' + t.reset + '</button>';
+  ask.onclick = function (e) { if (e.target.closest(".re")) step1(); }; }
+step1();
+var st = document.getElementById("stage");
+function fit() { var s = Math.min(1, document.documentElement.clientWidth / 820); st.style.transform = s < 1 ? "scale(" + s + ")" : "none"; document.body.style.height = Math.ceil(st.offsetHeight * s) + "px"; }
+addEventListener("resize", fit); if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body); setInterval(fit, 1200); fit();
+</script></body></html>
