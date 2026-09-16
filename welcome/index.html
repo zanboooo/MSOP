@@ -137,15 +137,20 @@ h2{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;
 .msg{margin-top:30px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
   background:var(--surface)}
 .msg-media{position:relative;aspect-ratio:16/9;background:#0E0B18;overflow:hidden}
-.msg-media img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.12);opacity:.42}
+.msg-media img,.msg-media .vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.12);opacity:.42;background:#000;transition:filter .5s,opacity .5s}
+.msg-media.on .vid{filter:none;opacity:1;z-index:1}
+.msg-media.on::before,.msg-media.on::after,.msg-media.on .play{display:none}
 .msg-media::after{content:"";position:absolute;inset:0;
   background:linear-gradient(140deg,rgba(255,59,107,.5),rgba(255,194,75,.22) 55%,transparent);
   mix-blend-mode:color}
 .msg-media{background:#131024}
 .msg-media::before{content:"";position:absolute;inset:0;
   background:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 2px,transparent 2px 10px)}
-.play{position:absolute;inset:0;display:grid;place-items:center;background:none;border:0;
+.play{position:absolute;inset:0;z-index:2;display:grid;place-items:center;background:none;border:0;
   cursor:pointer;color:var(--ink)}
+/* 两层叠纹只负责好看，不许挡点击 —— 否则播放按钮永远点不到 */
+.msg-media::before,.msg-media::after{pointer-events:none}
 .play i{display:grid;place-items:center;width:62px;height:62px;border-radius:50%;
   border:1px solid rgba(255,255,255,.5);background:rgba(11,9,18,.42);backdrop-filter:blur(6px);
   transition:transform .3s,background .3s}
@@ -158,8 +163,6 @@ h2{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;
 .msg-body p+p{margin-top:11px}
 .sig{margin-top:16px;font-family:'Martian Mono',monospace;font-size:10.5px;
   letter-spacing:.07em;color:var(--muted)}
-.pending{display:none;margin-top:14px;padding:11px 13px;border-left:2px solid var(--amber);
-  background:rgba(255,194,75,.07);font-size:13.5px;color:#E7DCC4}
 
 /* ---------- 通告单：四件事 ---------- */
 .sheet{margin-top:32px;position:relative;padding-left:30px}
@@ -366,10 +369,12 @@ html[data-lang="zh"] p .l-zh{display:inline}
     <h2><span class="l-id">Satu menit tentang MUKE</span><span class="l-zh">一分钟认识 MUKE</span></h2>
 
     <div class="msg">
-      <div class="msg-media">
+      <div class="msg-media" id="media">
+        <!-- 宣传片：媒体部 2026-09 交付，720p H.264 约 13MB。preload=none，点了才下载，雅加达手机流量不白花 -->
+        <video class="vid" id="vid" playsinline preload="none" poster="../assets/profile.jpg" src="../assets/profile.mp4"></video>
         <button class="play" id="play" type="button" aria-label="Putar video / 播放视频">
           <i><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></i>
-          <em>PLACEHOLDER · PROFIL</em>
+          <em>PROFIL MUKE · 1:03</em>
         </button>
       </div>
       <div class="msg-body">
@@ -378,10 +383,6 @@ html[data-lang="zh"] p .l-zh{display:inline}
           <span class="l-zh">"我们不是一家大公司。我们是一家记得住每个人名字的公司。第一天你不需要表现得多好——来了、跟上、不懂就问，就够了。"</span>
         </p>
         <p class="sig">WILLIAM · <span class="l-id">CEO MUKE</span><span class="l-zh">MUKE 首席执行官</span></p>
-        <div class="pending" id="pending">
-          <span class="l-id">Video profil sedang diproduksi. Sementara ini, pesan di atas yang mewakili kami.</span>
-          <span class="l-zh">宣传片制作中。在那之前，上面这段话就是我们想说的。</span>
-        </div>
       </div>
     </div>
   </section>
@@ -811,10 +812,19 @@ html[data-lang="zh"] p .l-zh{display:inline}
     });
   })();
 
-  /* ---------- 视频占位 ---------- */
-  D.getElementById("play").addEventListener("click", function(){
-    D.getElementById("pending").style.display = "block";
-  });
+  /* ---------- 宣传片 ----------
+     点播放才开始下载（preload=none）。播起来后叠层全部撤掉、交出原生控制条；
+     播完不回到海报态 —— 想再看直接用控制条，不必再找那个按钮。 */
+  (function(){
+    var media = D.getElementById("media"), vid = D.getElementById("vid"), btn = D.getElementById("play");
+    if(!vid || !btn) return;
+    btn.addEventListener("click", function(){
+      media.classList.add("on");
+      vid.controls = true;
+      var p = vid.play();
+      if(p && p.catch) p.catch(function(e){ if(window.console) console.warn("宣传片播放失败：", e); });
+    });
+  })();
 
 })();
 </script>
