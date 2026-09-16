@@ -63,18 +63,45 @@ a{color:inherit}
   border-bottom:1px solid var(--line)}
 .top-in{max-width:var(--maxw);margin:0 auto;padding:7px var(--pad);
   display:flex;align-items:center;gap:14px}
-.brand{font-family:Anton,Impact,sans-serif;font-size:19px;letter-spacing:.10em;line-height:1}
-.brand em{font-style:normal;color:var(--hot)}
-/* tally 灯：完成度的物理表达 */
-.tally{display:flex;align-items:center;gap:7px;margin-left:auto;
-  font-family:'Martian Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.06em;color:var(--muted)}
-.tally .bulb{width:8px;height:8px;border-radius:50%;background:#3A3050;transition:background .45s,box-shadow .45s}
-.tally.on .bulb{background:var(--tally);box-shadow:0 0 10px var(--tally)}
-.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
-/* 触控目标 ≥44px —— 手机上按不中的按钮等于没有 */
-.lang button{background:none;border:0;color:var(--muted);cursor:pointer;
-  font:600 12px/1 Figtree,sans-serif;padding:0 16px;height:44px;min-width:48px;letter-spacing:.04em}
-.lang button[aria-pressed="true"]{background:var(--hot);color:#fff}
+/* 头部三件：logo / 名牌 / 语言胶囊 —— 同一高度基准 --hh，水平居中对齐 */
+.top-in{--hh:34px}
+.logo{display:flex;align-items:center;gap:9px;min-width:0;text-decoration:none;color:var(--ink);height:var(--hh);transition:opacity .2s}
+.logo:hover{opacity:.78}
+.logo svg{height:var(--hh);width:auto;flex:none;display:block}
+.logo b{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:19px;letter-spacing:.10em;line-height:1;white-space:nowrap}
+.logo b em{font-style:normal;color:var(--hot)}
+/* 名牌：游戏名片框。边框色 = 岗位主题；shim 扫光；角标是岗位缩写 */
+.tag{margin-left:auto;position:relative;height:var(--hh);display:none;align-items:center;gap:8px;
+  padding:0 12px 0 10px;border-radius:9px;background:var(--surface);min-width:0;max-width:44vw;
+  --tc:#C9C2D8;border:1px solid color-mix(in srgb,var(--tc) 55%,transparent);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 0 14px -6px var(--tc)}
+.tag.on{display:flex}
+.tag::before,.tag::after{content:"";position:absolute;width:7px;height:7px;border-color:var(--tc);border-style:solid;pointer-events:none}
+.tag::before{left:-1px;top:-1px;border-width:2px 0 0 2px;border-radius:3px 0 0 0}
+.tag::after{right:-1px;bottom:-1px;border-width:0 2px 2px 0;border-radius:0 0 3px 0}
+.tag i{flex:none;width:18px;height:18px;border-radius:5px;background:var(--tc);color:#0B0912;display:grid;place-items:center;
+  font:700 8.5px/1 'Martian Mono',monospace;letter-spacing:.02em}
+.tag b{font:700 13px/1 Figtree,sans-serif;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tag .shim{position:absolute;inset:0;pointer-events:none;border-radius:9px;overflow:hidden}
+.tag .shim::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 34%,rgba(255,255,255,.22) 50%,transparent 66%);
+  transform:translateX(-130%);animation:shim 7.2s ease-in-out infinite}
+@keyframes shim{0%{transform:translateX(-130%)}30.5%,100%{transform:translateX(130%)}}
+/* 岗位主题：主播 / 主持 / 经纪 / 妆造 / 办公 / 其他 */
+.tag[data-th="host"]{--tc:#FF3B6B}.tag[data-th="mc"]{--tc:#FFC24B}.tag[data-th="agent"]{--tc:#9B7BFF}
+.tag[data-th="mua"]{--tc:#2FE08A}.tag[data-th="office"]{--tc:#4CC9F0}.tag[data-th="crew"]{--tc:#C9C2D8}
+/* 语言胶囊：滑块带回弹（招聘页同款）。高度 = --hh，但每个钮 ≥44px 宽，手机按得中 */
+.lang{position:relative;display:flex;height:var(--hh);border:1px solid var(--line);border-radius:999px;overflow:hidden;
+  background:rgba(255,255,255,.03);flex:none}
+.lang:not(.has-tag){margin-left:auto}
+.lang em{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;
+  background:var(--hot);box-shadow:0 2px 10px -2px rgba(255,59,107,.7);
+  transition:transform .42s cubic-bezier(.34,1.56,.64,1);will-change:transform}
+.lang.zh em{transform:translateX(100%)}
+.lang button{position:relative;z-index:1;background:none;border:0;color:var(--muted);cursor:pointer;
+  font:600 12px/1 Figtree,sans-serif;padding:0 14px;height:100%;min-width:46px;letter-spacing:.04em;transition:color .3s}
+.lang button[aria-pressed="true"]{color:#fff}
+@media(max-width:430px){.logo b{display:none}.tag{max-width:38vw}}
 /* 进度条压在顶栏底边 */
 .rail{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--amber);
   box-shadow:0 0 12px var(--amber);transition:width .6s cubic-bezier(.2,.8,.2,1)}
@@ -250,13 +277,28 @@ h2{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;
 .rule:hover .arw{transform:translateX(3px);color:var(--hot)}
 
 /* ---------- 页脚 ---------- */
-footer{padding:52px 0 64px;border-top:1px solid var(--line);margin-top:24px}
-.help{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
-.chip{border:1px solid var(--line);border-radius:999px;padding:12px 18px;font-size:14px;
-  color:var(--muted);text-decoration:none;transition:.2s}
-.chip:hover{border-color:var(--hot);color:var(--ink)}
-.fine{margin-top:28px;font-family:'Martian Mono',monospace;font-size:9.5px;
-  letter-spacing:.06em;color:#6B5F7C;line-height:1.9}
+footer{margin-top:40px;padding:22px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+/* 行 1：品牌 · 地址 · 两个 TikTok；行 2：内部声明 · 遇事找谁 · 版权。两行两端顶满，不留大片空高 */
+.frow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+.frow+.frow{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);color:#7A6E8C;font-size:11px}
+.fbrand{font-family:Anton,Impact,sans-serif;font-size:15px;letter-spacing:.12em;color:var(--ink);text-decoration:none;transition:opacity .2s}
+.fbrand:hover{opacity:.78}
+.fbrand i{font-style:normal;background:linear-gradient(100deg,#FF3B6B,#9B7BFF 60%,#4CC9F0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.flink{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font:500 12px 'Martian Mono',monospace;transition:color .2s;min-height:26px}
+.flink svg{width:12.5px;height:12.5px;fill:currentColor;flex:none;opacity:.6;transition:opacity .2s}
+.flink:hover{color:var(--ink)}.flink:hover svg{opacity:1}
+.fcopy-s{display:none}
+/* 手机：地址只留图标、版权用短写，两行各自塞得下，不再叠到三四行 */
+@media(max-width:560px){
+  footer{margin-top:30px;padding:16px 0 30px}
+  .frow{gap:8px 12px;font-size:11.5px}
+  .frow+.frow{margin-top:10px;padding-top:9px;font-size:10.5px}
+  .fbrand{font-size:13px}
+  .flink{font-size:11px;min-height:22px}
+  .faddr-t{display:none}
+  .fcopy-l{display:none}.fcopy-s{display:inline}
+  #h8{display:none}   /* 08 遇事找谁 已在上面手册列表里，手机页脚不重复占一行 */
+}
 
 /* ---------- 语言 ---------- */
 .l-zh{display:none}
@@ -307,11 +349,16 @@ html[data-lang="zh"] p .l-zh{display:inline}
 
 <header class="top">
   <div class="top-in">
-    <div class="brand">MUKE<em>.</em></div>
-    <div class="tally" id="tally">
-      <span class="bulb"></span><span id="tallyTxt">0/4</span>
-    </div>
-    <div class="lang" role="group" aria-label="Bahasa / 语言">
+    <a class="logo" href="https://mukestar.jp.larksuite.com/slides/YE9jstEzSlc9qSdmZvKj2KWIpye" target="_blank" rel="noopener" aria-label="MUKE MEDIA">
+      <svg viewBox="0 0 277.58 146.31" role="img" aria-hidden="true"><defs>
+      <linearGradient id="mg" x1="0" y1="73.16" x2="277.58" y2="73.16" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e4007f"/><stop offset=".53" stop-color="#6d3b85"/><stop offset="1" stop-color="#1d2088"/></linearGradient></defs>
+      <path fill="url(#mg)" d="M3.44,122.26L84.57,6.29c4.61-6.6,13.69-8.21,20.29-3.6,4.05,2.83,6.22,7.35,6.23,11.94h.06v71.37L168.03,6.17c4.67-6.57,13.78-8.1,20.35-3.43,4,2.84,6.13,7.33,6.13,11.89h.04v71.21L250.4,7.09c2.56-4.25,7.22-7.09,12.54-7.09,8.08,0,14.63,6.55,14.63,14.63,0,3.54-1.26,6.8-3.36,9.33l-81.76,115.26c-2.56,4.25-7.22,7.09-12.54,7.09-8.08,0-14.63-6.55-14.63-14.63V60.31l-56.24,78.93c-2.56,4.24-7.21,7.07-12.53,7.07-8.08,0-14.63-6.55-14.63-14.63V60.97l-54.54,77.96c-2.52,4.41-7.27,7.38-12.71,7.38-8.08,0-14.63-6.55-14.63-14.63,0-3.59,1.3-6.88,3.44-9.43Z"/>
+      <path fill="url(#mg)" fill-rule="evenodd" d="M252.43,89.06c14.17,1.77,25.14,13.87,25.14,28.52s-10.97,26.74-25.14,28.52v-17.11l11.62-9.14h0c.36-.28.67-.62.93-1.01,1.32-1.99.77-4.67-1.21-5.98l-11.33-7.48v-16.31ZM248.84,88.83c1.22,0,2.42.08,3.6.22v16.31l-6.32-4.17c-.73-.55-1.64-.88-2.62-.88-2.39,0-4.33,1.93-4.33,4.32v25.87h0c0,.93.3,1.88.92,2.67,1.47,1.88,4.2,2.2,6.07.73l6.26-4.93v17.11c-1.18.15-2.38.22-3.6.22-15.87,0-28.74-12.87-28.74-28.74s12.87-28.74,28.74-28.74Z"/></svg>
+      <b>MUKE<em>.</em>MEDIA</b>
+    </a>
+    <div class="tag" id="tag" data-th="crew" aria-live="polite"><i id="tagI"></i><b id="tagN"></b><span class="shim"></span></div>
+    <div class="lang" id="lang" role="group" aria-label="Bahasa / 语言"><em></em>
       <button type="button" id="bId" aria-pressed="true">ID</button>
       <button type="button" id="bZh" aria-pressed="false">中</button>
     </div>
@@ -346,8 +393,8 @@ html[data-lang="zh"] p .l-zh{display:inline}
     </h1>
 
     <p class="thesis fade d3">
-      <span class="l-id">Di MUKE kita siaran bareng. Ada tim di sebelahmu, ada mentor di belakangmu. Hari ini kamu cuma perlu beres 4 hal.</span>
-      <span class="l-zh">MUKE 做的是团播——你的左右有队友，身后有带教。今天你只需要办完 4 件事。</span>
+      <span class="l-id">Di MUKE kita siaran bareng. Ada tim di sebelahmu, ada mentor di belakangmu. Hari ini kamu cuma perlu beres 3 hal.</span>
+      <span class="l-zh">MUKE 做的是团播——你的左右有队友，身后有带教。今天你只需要办完 3 件事。</span>
     </p>
 
     <div class="cue fade d4">
@@ -373,8 +420,8 @@ html[data-lang="zh"] p .l-zh{display:inline}
       </div>
       <div class="msg-body">
         <p>
-          <span class="l-id">“Kita bukan agensi besar. Kita agensi yang ingat nama semua orangnya. Hari pertama kamu tidak perlu hebat — cukup datang, ikut, dan tanya kalau bingung.”</span>
-          <span class="l-zh">"我们不是一家大公司。我们是一家记得住每个人名字的公司。第一天你不需要表现得多好——来了、跟上、不懂就问，就够了。"</span>
+          <span class="l-id">“Di MUKE kamu tidak perlu hebat dulu baru layak dilihat. Cukup sungguh-sungguh — menaruhmu di bawah cahaya itu urusan kami.”</span>
+          <span class="l-zh">"在 MUKE，你不需要先变得厉害才配被看见。你只要认真——把你放到光下，是我们的事。"</span>
         </p>
         <p class="sig"><span class="l-id">CEO MUKE</span><span class="l-zh">MUKE 首席执行官</span></p>
       </div>
@@ -384,7 +431,7 @@ html[data-lang="zh"] p .l-zh{display:inline}
   <!-- ============ 四件事 ============ -->
   <section class="rise">
     <p class="eyebrow"><span class="l-id">Panggilan hari ini</span><span class="l-zh">今日通告</span></p>
-    <h2><span class="l-id">Empat hal, urut</span><span class="l-zh">四件事，按顺序</span></h2>
+    <h2><span class="l-id">Tiga hal, urut</span><span class="l-zh">三件事，按顺序</span></h2>
     <p class="sub">
       <span class="l-id">Nomor 2 baru bisa dibuka kalau nomor 1 sudah beres. Centang sendiri setelah selesai.</span>
       <span class="l-zh">第 2 件要第 1 件做完才打得开。做完自己勾。</span>
@@ -399,21 +446,24 @@ html[data-lang="zh"] p .l-zh{display:inline}
           <span class="tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
           <span>
             <span class="no">01</span>
-            <h3><span class="l-id">Pasang foto wajah &amp; nama panggung di Lark</span><span class="l-zh">在 Lark 换本人头像和艺名</span></h3>
+            <h3><span class="l-id">Atur Lark kamu</span><span class="l-zh">把 Lark 设置好</span></h3>
           </span>
         </label>
         <div class="item-body">
           <p>
-            <span class="l-id">Lark → <b>Mine</b> → ketuk namamu → <b>Edit Profile</b>. Nama panggung tidak boleh ada spasi: <code>KimDokja</code>, bukan <code>Kim Dokja</code>. Fotonya harus wajahmu sendiri.</span>
-            <span class="l-zh">Lark → <b>Mine</b> → 点你的名字 → <b>Edit Profile</b>。艺名不能有空格：写 <code>KimDokja</code>，不要写 <code>Kim Dokja</code>。头像必须是你本人的脸。</span>
+            <span class="l-id">Ikuti panduannya, urut: foto profil &amp; nama panggung → terjemahan otomatis → tempat mengajukan izin/cuti → terima buku panduan. Semua ada di satu halaman.</span>
+            <span class="l-zh">照着指南按顺序做：头像和艺名 → 打开自动翻译 → 认识审批入口 → 接收员工手册。全在一页里。</span>
           </p>
+          <a class="btn" data-id="https://mukestar.jp.larksuite.com/wiki/Dxw7wy5aUiv7MFkUt5WjGdfNpJd" data-zh="https://mukestar.jp.larksuite.com/wiki/UPJAwpy9liqKl5knblujZc9rpAe" href="https://mukestar.jp.larksuite.com/wiki/Dxw7wy5aUiv7MFkUt5WjGdfNpJd" target="_blank" rel="noopener noreferrer">
+            <span class="l-id">Buka panduan Lark</span><span class="l-zh">打开 Lark 设置指南</span> →
+          </a>
           <a class="mk" id="mkBtn" href="../avatar/" target="_blank" rel="noopener">
             <span class="l-id">Buat foto profil</span><span class="l-zh">做我的头像</span> ↗
           </a>
           <p class="mkhint" id="mkHint"></p>
           <div class="ok">
-            <span class="l-id">Beres kalau: buka <b>Mine</b>, paling atas muncul wajahmu dan nama tanpa spasi.</span>
-            <span class="l-zh">做对了长这样：打开 <b>Mine</b>，最上面是你的脸和没有空格的艺名。</span>
+            <span class="l-id">Beres kalau: di <b>Mine</b> muncul wajahmu dan nama tanpa spasi, dan pesan berbahasa Mandarin di grup otomatis muncul terjemahannya.</span>
+            <span class="l-zh">做对了长这样：<b>Mine</b> 最上面是你的脸和没有空格的艺名，群里的中文消息会自动出翻译。</span>
           </div>
         </div>
       </article>
@@ -448,38 +498,20 @@ html[data-lang="zh"] p .l-zh{display:inline}
           <span class="tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
           <span>
             <span class="no">03</span>
-            <h3><span class="l-id">Masuk grup tim kamu</span><span class="l-zh">进你的团队群</span></h3>
+            <h3><span class="l-id">Absen sekali hari ini</span><span class="l-zh">今天打一次卡</span></h3>
           </span>
         </label>
         <div class="item-body">
           <p>
-            <span class="l-id"><b>Jangan cari sendiri</b> — grup MUKE tidak bisa dimasuki lewat pencarian. Minta HR atau Manajer Artis. Begitu masuk, kirim satu pesan: nama panggung — posisi — tim.</span>
-            <span class="l-zh"><b>不要自己搜</b>——MUKE 的群搜不到也进不去。找 HR 或艺人经纪拉你。进群后发一条：艺名 — 岗位 — 团队。</span>
+            <span class="l-id">Buka panduan absensi dulu: di sana ada tombol absen, cara lihat kelompok &amp; jam kerjamu, cara cek rekap, dan aturan denda &amp; bonusnya. Lalu absen masuk hari ini. Lark → <b>Workplace</b> → <b>Attendance</b>; kalau HP minta izin <b>Lokasi</b>, ketuk <b>Allow</b>.</span>
+            <span class="l-zh">先打开考勤指南：里面有打卡入口、怎么看自己的考勤组和班次、怎么查考勤统计，以及奖罚规则。然后今天打一次上班卡。Lark → <b>Workplace</b> → <b>Attendance</b>，手机问定位权限就点 <b>Allow</b>。</span>
           </p>
+          <a class="btn" data-id="https://mukestar.jp.larksuite.com/wiki/X43uwAJ1DiRSRvko7Q2j2O0Kpzd" data-zh="https://mukestar.jp.larksuite.com/wiki/EZ1jw2z9OiOkYskvEWKjmiNbp8e" href="https://mukestar.jp.larksuite.com/wiki/X43uwAJ1DiRSRvko7Q2j2O0Kpzd" target="_blank" rel="noopener noreferrer">
+            <span class="l-id">Buka panduan absensi</span><span class="l-zh">打开考勤指南</span> →
+          </a>
           <div class="ok">
-            <span class="l-id">Beres kalau: nama grup muncul di daftar chat Lark kamu dan perkenalanmu sudah terkirim.</span>
-            <span class="l-zh">做对了长这样：群名出现在你的聊天列表里，自我介绍已经发出去了。</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="item" data-t="t4">
-        <label class="item-head">
-          <input type="checkbox" class="chk">
-          <span class="tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
-          <span>
-            <span class="no">04</span>
-            <h3><span class="l-id">Absen masuk &amp; absen pulang</span><span class="l-zh">打上班卡和下班卡</span></h3>
-          </span>
-        </label>
-        <div class="item-body">
-          <p>
-            <span class="l-id">Lark → <b>Workplace</b> → <b>Attendance</b>. Kalau HP minta izin <b>Lokasi</b>, ketuk <b>Allow</b>. <b>Dua kali sehari</b> — kurang satu, hari itu dihitung bolong.</span>
-            <span class="l-zh">Lark → <b>Workplace</b> → <b>Attendance</b>。手机问定位权限就点 <b>Allow</b>。<b>一天两次</b>——少一次，这天算缺卡。</span>
-          </p>
-          <div class="ok">
-            <span class="l-id">Beres kalau: di layar Attendance hari ini ada dua stempel waktu, bukan satu.</span>
-            <span class="l-zh">做对了长这样：Attendance 页面今天有两个时间戳，不是一个。</span>
+            <span class="l-id">Beres kalau: di layar Attendance hari ini ada stempel waktu dan kamu tahu nama kelompok absenmu. Ingat: dua kali sehari, kurang satu dihitung bolong.</span>
+            <span class="l-zh">做对了长这样：Attendance 页面今天有一个时间戳，而且你说得出自己的考勤组名。记住：一天两次，少一次算缺卡。</span>
           </div>
         </div>
       </article>
@@ -491,8 +523,8 @@ html[data-lang="zh"] p .l-zh{display:inline}
     <p class="eyebrow"><span class="l-id">Tim kamu</span><span class="l-zh">你的人</span></p>
     <h2><span class="l-id">Empat orang yang<br>harus kamu kenal</span><span class="l-zh">先认识这四个人</span></h2>
     <p class="sub">
-      <span class="l-id">Kalau bingung soal apa pun hari ini, salah satu dari mereka pasti bisa jawab.</span>
-      <span class="l-zh">今天遇到任何不懂的，这四个人里一定有人能答。</span>
+      <span class="l-id">Yang memimpin, yang menjalankan, yang mengurus orang, yang mengurus gaji. Nama-nama ini akan sering kamu dengar.</span>
+      <span class="l-zh">定方向的、管运营的、管人的、管钱的。这四个名字你会经常听到。</span>
     </p>
     <div class="people" id="people"></div>
   </section>
@@ -523,19 +555,17 @@ html[data-lang="zh"] p .l-zh{display:inline}
 </main>
 
 <footer class="wrap">
-  <p class="eyebrow"><span class="l-id">Butuh bantuan</span><span class="l-zh">遇事找谁</span></p>
-  <h2 style="font-size:clamp(22px,5vw,34px)">
-    <span class="l-id">Bingung? Tanya.</span><span class="l-zh">卡住了就问。</span>
-  </h2>
-  <div class="help">
-    <a class="chip" id="h8" href="#" target="_blank" rel="noopener"><span class="l-id">Panduan: siapa yang dihubungi</span><span class="l-zh">手册：遇事找谁</span></a>
-    <a class="chip" href="https://mukestar.jp.larksuite.com/share/base/form/shrjpPmltlTLfCk827WeeSl0Zne" target="_blank" rel="noopener"><span class="l-id">Formulir data karyawan</span><span class="l-zh">员工资料表</span></a>
+  <div class="frow">
+    <a class="fbrand" href="https://mukestar.jp.larksuite.com/slides/YE9jstEzSlc9qSdmZvKj2KWIpye" target="_blank" rel="noopener">MUKE STAR<i>_ID</i></a>
+    <a class="flink" href="https://maps.app.goo.gl/QK3aB68W8FY22Tag6" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 017 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 017-7zm0 4.5A2.5 2.5 0 1012 11.5 2.5 2.5 0 0012 6.5z"/></svg><span class="faddr-t">PT MUKE · E9 Landmark Pluit</span></a>
+    <a class="flink" href="https://www.tiktok.com/@muke.md" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 5.8a4.3 4.3 0 01-1-2.8h-3.1v11.6a2.6 2.6 0 11-1.9-2.5V9a5.7 5.7 0 105 5.6V9.3a7.3 7.3 0 004.3 1.4V7.6a4.3 4.3 0 01-3.3-1.8z"/></svg><span>@muke.md</span></a>
+    <a class="flink" href="https://www.tiktok.com/@.mk.stars" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 5.8a4.3 4.3 0 01-1-2.8h-3.1v11.6a2.6 2.6 0 11-1.9-2.5V9a5.7 5.7 0 105 5.6V9.3a7.3 7.3 0 004.3 1.4V7.6a4.3 4.3 0 01-3.3-1.8z"/></svg><span>@.mk.stars</span></a>
   </div>
-  <p class="fine">
-    MUKE STAR · JAKARTA · TIKTOK LIVE AGENCY<br>
-    <span class="l-id">Halaman internal. Jangan dibagikan ke luar perusahaan.</span>
-    <span class="l-zh">内部页面，请勿外传。</span>
-  </p>
+  <div class="frow">
+    <span><span class="l-id">Halaman internal · jangan dibagikan ke luar</span><span class="l-zh">内部页面 · 请勿外传</span></span>
+    <a class="flink" id="h8" href="#" target="_blank" rel="noopener"><span class="l-id">Bingung? → 08 Butuh bantuan</span><span class="l-zh">卡住了？→ 08 遇事找谁</span></a>
+    <span><span class="fcopy-l">&copy; PT MUKE · MUKE MEDIA Indonesia</span><span class="fcopy-s">&copy; PT MUKE</span></span>
+  </div>
 </footer>
 
 <script>
@@ -553,6 +583,7 @@ html[data-lang="zh"] p .l-zh{display:inline}
     root.setAttribute("lang", l === "zh" ? "zh-CN" : "id");
     D.getElementById("bId").setAttribute("aria-pressed", String(l !== "zh"));
     D.getElementById("bZh").setAttribute("aria-pressed", String(l === "zh"));
+    D.getElementById("lang").classList.toggle("zh", l === "zh");
     try{ localStorage.setItem("muke.lang", l); }catch(e){}
   }
   var saved = "id";
@@ -567,7 +598,7 @@ html[data-lang="zh"] p .l-zh{display:inline}
      新形态由 H01 的 Welcome URL 公式列直接拼出来（ENCODEURL），不需要任何脚本；
      旧形态 #p=<base64url(JSON)> 是已发出去的链接，继续认。
      没有它就是通用迎新模板，页面照常能看。旧的 ?n= 仍然认，但只填名字。 */
-  var KEYS = /^(n|cn|e|l|j|g|hr|dd|lh|ag)$/;
+  var KEYS = /^(n|cn|e|l|j|g|ceo|coo|hr|fn|dd|lh|ag)$/;
   function clean(v){ return String(v == null ? "" : v).replace(/[<>&"']/g, "").slice(0, 28).trim(); }
   function parseWho(){
     var h = location.hash.replace(/^#/, ""), out = {}, any = false;
@@ -593,6 +624,25 @@ html[data-lang="zh"] p .l-zh{display:inline}
     return any ? out : null;
   }
   var WHO = parseWho();
+
+  /* ---------- 名牌：艺名 + 岗位主题 ----------
+     主题按 j（岗位英文）关键词判：主播 host / 主持 mc / 经纪 agent / 妆造 mua / 办公 office / 其他 crew。
+     没带身份就不显示，语言胶囊自己靠右。 */
+  (function(){
+    var tag = D.getElementById("tag"); if(!tag || !WHO || !WHO.n) return;
+    var j = String(WHO.j || "").toLowerCase(), th = "crew", ab = "MK";
+    if(/host|streamer|live ?talent/.test(j)){ th = "host"; ab = "LH"; }
+    else if(/\bmc\b|host live mc|presenter/.test(j)){ th = "mc"; ab = "MC"; }
+    else if(/manajer artis|artist manager|agent|talent manager/.test(j)){ th = "agent"; ab = "AG"; }
+    else if(/rias|rambut|mua|make ?up/.test(j)){ th = "mua"; ab = "HM"; }
+    else if(/keuangan|finance|hr\b|sumber daya|umum|admin|general affair|direktur|manajer umum|chief/.test(j)){ th = "office"; ab = "OF"; }
+    else if(/videograf|editor|kameramen|switcher|penerjemah|translator|tari|dance/.test(j)){ th = "crew"; ab = "CR"; }
+    tag.dataset.th = th;
+    D.getElementById("tagI").textContent = ab;
+    D.getElementById("tagN").textContent = WHO.n;
+    tag.classList.add("on");
+    D.getElementById("lang").classList.add("has-tag");
+  })();
   try{
     var n = (WHO && WHO.n) || new URLSearchParams(location.search).get("n");
     if(n){
@@ -639,10 +689,10 @@ html[data-lang="zh"] p .l-zh{display:inline}
     return v || fb;
   }
   var TEAM = [
-    { k:"junita", n:who("hr","HR"),     real:!!(WHO&&WHO.hr), role:{id:"HR",            zh:"人事"},     tag:"HR", c:["#FF3B6B","#FF7BA0"] },
-    { k:"ibra",   n:who("dd","Pelatih"),real:!!(WHO&&WHO.dd), role:{id:"Pelatih Tari",  zh:"舞蹈导师"}, tag:"DD", c:["#FFC24B","#FFE0A0"] },
-    { k:"mentor", n:who("lh","Mentor"), real:!!(WHO&&WHO.lh), role:{id:"Host senior",   zh:"业务导师"}, tag:"LH", c:["#2FE08A","#9BF2C8"] },
-    { k:"agen",   n:who("ag","Agen"),   real:!!(WHO&&WHO.ag), role:{id:"Manajer Artis", zh:"艺人经纪"}, tag:"AG", c:["#9B7BFF","#CBB8FF"] }
+    { k:"mentor", n:who("ceo","CEO"),      real:!!(WHO&&WHO.ceo), role:{id:"Direktur Utama",        zh:"首席执行官"}, tag:"CEO", c:["#FF3B6B","#FF7BA0"] },
+    { k:"agen",   n:who("coo","COO"),      real:!!(WHO&&WHO.coo), role:{id:"Direktur Operasional",  zh:"首席运营官"}, tag:"COO", c:["#9B7BFF","#CBB8FF"] },
+    { k:"junita", n:who("hr","HR"),        real:!!(WHO&&WHO.hr),  role:{id:"HR",                    zh:"人事"},       tag:"HR",  c:["#2FE08A","#9BF2C8"] },
+    { k:"ibra",   n:who("fn","Keuangan"),  real:!!(WHO&&WHO.fn),  role:{id:"Keuangan",              zh:"财务"},       tag:"FN",  c:["#FFC24B","#FFE0A0"] }
   ];
   var peo = D.getElementById("people");
   TEAM.forEach(function(p){
@@ -695,8 +745,6 @@ html[data-lang="zh"] p .l-zh{display:inline}
   var items = [].slice.call(D.querySelectorAll(".item"));
   var fill  = D.getElementById("fill");
   var rail  = D.getElementById("rail");
-  var tally = D.getElementById("tally");
-  var tTxt  = D.getElementById("tallyTxt");
   var sheet = D.getElementById("sheet");
 
   /* 想把进度回写 Base，把 Anycross 的 inbound webhook 填这里就行。
@@ -726,9 +774,7 @@ html[data-lang="zh"] p .l-zh{display:inline}
       it.classList.toggle("done", c);
       if(c) done++;
     });
-    tTxt.textContent = done + "/4";
-    tally.classList.toggle("on", done === 4);
-    rail.style.width = (done / 4 * 100) + "%";
+    rail.style.width = (done / items.length * 100) + "%";
     var last = items[Math.max(0, done - 1)];
     fill.style.height = done === 0 ? "0px"
       : (last.offsetTop + last.offsetHeight / 2 - sheet.offsetTop) + "px";
