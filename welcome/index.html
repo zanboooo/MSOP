@@ -67,7 +67,7 @@ a{color:inherit}
 .top-in{--hh:34px}
 .logo{display:flex;align-items:center;gap:9px;min-width:0;text-decoration:none;color:var(--ink);height:var(--hh);transition:opacity .2s}
 .logo:hover{opacity:.78}
-.logo svg{height:var(--hh);width:auto;flex:none;display:block}
+.logo svg{height:19px;width:auto;flex:none;display:block}   /* 与右侧字标同高，不比文字高 */
 .logo b{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:19px;letter-spacing:.10em;line-height:1;white-space:nowrap}
 .logo b em{font-style:normal;color:var(--hot)}
 /* 名牌：游戏名片框。边框色 = 岗位主题；shim 扫光；角标是岗位缩写 */
@@ -226,7 +226,7 @@ h2{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;
 
 /* ---------- 你的人 ---------- */
 .people{margin-top:30px;display:grid;gap:11px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
-.p{display:flex;gap:13px;align-items:center;padding:15px;border:1px solid var(--line);
+.p{display:flex;gap:13px;align-items:flex-start;padding:15px;border:1px solid var(--line);
   border-radius:var(--r);background:var(--surface);transition:.25s}
 .p:hover{border-color:#3E3358;transform:translateY(-2px)}
 .av{flex:0 0 auto;width:56px;height:56px;border-radius:50%;position:relative;overflow:hidden;
@@ -239,6 +239,9 @@ h2{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;
 .p .role{display:block;font-size:12.5px;color:var(--body);margin-top:2px}
 .p .meta em{display:block;font-style:normal;font-family:'Martian Mono',monospace;
   font-size:9.5px;letter-spacing:.07em;color:var(--amber);margin-top:5px}
+.p q{display:block;quotes:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);
+  font-size:13px;line-height:1.5;color:var(--body)}
+.p q::before,.p q::after{content:none}
 
 /* ---------- 你的地方 ---------- */
 .rooms{margin-top:30px;display:grid;gap:11px;grid-template-columns:repeat(auto-fit,minmax(158px,1fr))}
@@ -280,14 +283,14 @@ h2{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;
 footer{margin-top:40px;padding:22px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
 /* 行 1：品牌 · 地址 · 两个 TikTok；行 2：内部声明 · 遇事找谁 · 版权。两行两端顶满，不留大片空高 */
 .frow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
-.frow+.frow{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);color:#7A6E8C;font-size:11px}
+.frow+.frow{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);color:#7A6E8C;font-size:11px;line-height:22px}
+.frow+.frow>span{font:inherit;line-height:inherit}
 .fbrand{font-family:Anton,Impact,sans-serif;font-size:15px;letter-spacing:.12em;color:var(--ink);text-decoration:none;transition:opacity .2s}
 .fbrand:hover{opacity:.78}
 .fbrand i{font-style:normal;background:linear-gradient(100deg,#FF3B6B,#9B7BFF 60%,#4CC9F0);-webkit-background-clip:text;background-clip:text;color:transparent}
 .flink{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font:500 12px 'Martian Mono',monospace;transition:color .2s;min-height:26px}
 .flink svg{width:12.5px;height:12.5px;fill:currentColor;flex:none;opacity:.6;transition:opacity .2s}
 .flink:hover{color:var(--ink)}.flink:hover svg{opacity:1}
-.fcopy-s{display:none}
 /* 手机：地址只留图标、版权用短写，两行各自塞得下，不再叠到三四行 */
 @media(max-width:560px){
   footer{margin-top:30px;padding:16px 0 30px}
@@ -296,8 +299,6 @@ footer{margin-top:40px;padding:22px 0 40px;border-top:1px solid var(--line);colo
   .fbrand{font-size:13px}
   .flink{font-size:11px;min-height:22px}
   .faddr-t{display:none}
-  .fcopy-l{display:none}.fcopy-s{display:inline}
-  #h8{display:none}   /* 08 遇事找谁 已在上面手册列表里，手机页脚不重复占一行 */
 }
 
 /* ---------- 语言 ---------- */
@@ -563,8 +564,7 @@ html[data-lang="zh"] p .l-zh{display:inline}
   </div>
   <div class="frow">
     <span><span class="l-id">Halaman internal · jangan dibagikan ke luar</span><span class="l-zh">内部页面 · 请勿外传</span></span>
-    <a class="flink" id="h8" href="#" target="_blank" rel="noopener"><span class="l-id">Bingung? → 08 Butuh bantuan</span><span class="l-zh">卡住了？→ 08 遇事找谁</span></a>
-    <span><span class="fcopy-l">&copy; PT MUKE · MUKE MEDIA Indonesia</span><span class="fcopy-s">&copy; PT MUKE</span></span>
+    <span>&copy; PT MUKE · MUKE MEDIA Indonesia</span>
   </div>
 </footer>
 
@@ -598,7 +598,7 @@ html[data-lang="zh"] p .l-zh{display:inline}
      新形态由 H01 的 Welcome URL 公式列直接拼出来（ENCODEURL），不需要任何脚本；
      旧形态 #p=<base64url(JSON)> 是已发出去的链接，继续认。
      没有它就是通用迎新模板，页面照常能看。旧的 ?n= 仍然认，但只填名字。 */
-  var KEYS = /^(n|cn|e|l|j|g|ceo|coo|hr|fn|dd|lh|ag)$/;
+  var KEYS = /^(n|cn|e|l|j|g)$/;
   function clean(v){ return String(v == null ? "" : v).replace(/[<>&"']/g, "").slice(0, 28).trim(); }
   function parseWho(){
     var h = location.hash.replace(/^#/, ""), out = {}, any = false;
@@ -682,27 +682,27 @@ html[data-lang="zh"] p .l-zh{display:inline}
      由 tools/gen_invite_links.js 按 H01 → 团队表 → A09 串出来放进去。
      没带载荷、或某个键缺失，就退回通用称呼 —— 页面永远能看，只是没那么贴身。
      真名走 fragment 不走 query，跟姓名一样不进服务器日志。 */
-  function who(k, fb){
-    var v = WHO && WHO[k];
-    if(v == null) return fb;
-    v = String(v).replace(/[<>&"']/g, "").slice(0, 28).trim();
-    return v || fb;
-  }
+  /* 四个人写死在页面里（张博 2026-09-16 定）：不读载荷，也不查表。换人改这里。 */
   var TEAM = [
-    { k:"mentor", n:who("ceo","CEO"),      real:!!(WHO&&WHO.ceo), role:{id:"Direktur Utama",        zh:"首席执行官"}, tag:"CEO", c:["#FF3B6B","#FF7BA0"] },
-    { k:"agen",   n:who("coo","COO"),      real:!!(WHO&&WHO.coo), role:{id:"Direktur Operasional",  zh:"首席运营官"}, tag:"COO", c:["#9B7BFF","#CBB8FF"] },
-    { k:"junita", n:who("hr","HR"),        real:!!(WHO&&WHO.hr),  role:{id:"HR",                    zh:"人事"},       tag:"HR",  c:["#2FE08A","#9BF2C8"] },
-    { k:"ibra",   n:who("fn","Keuangan"),  real:!!(WHO&&WHO.fn),  role:{id:"Keuangan",              zh:"财务"},       tag:"FN",  c:["#FFC24B","#FFE0A0"] }
+    { k:"mentor", n:"William", role:{id:"Direktur Utama",       zh:"首席执行官"}, tag:"CEO", c:["#FF3B6B","#FF7BA0"],
+      say:{id:"Kamu diterima bukan karena sudah hebat, tapi karena kami percaya kamu mau serius.", zh:"录你不是因为你已经很厉害，而是我们相信你愿意认真。"} },
+    { k:"agen",   n:"Mike",    role:{id:"Direktur Operasional", zh:"首席运营官"}, tag:"COO", c:["#9B7BFF","#CBB8FF"],
+      say:{id:"Ada yang macet di lapangan? Bilang. Jalur ke saya selalu terbuka.", zh:"现场卡住了就说，找我的路一直是通的。"} },
+    { k:"junita", n:"Junita",  role:{id:"HR",                   zh:"人事"},       tag:"HR",  c:["#2FE08A","#9BF2C8"],
+      say:{id:"Dokumen, gaji, izin — mulai dari saya. Tanya saja, tidak ada pertanyaan bodoh.", zh:"资料、工资、请假，都从我这里开始。尽管问，没有蠢问题。"} },
+    { k:"ibra",   n:"Sadli",   role:{id:"Keuangan",             zh:"财务"},       tag:"FN",  c:["#FFC24B","#FFE0A0"],
+      say:{id:"Nama rekening harus sama persis dengan KTP. Itu satu-satunya syarat gajimu lancar.", zh:"户名必须和 KTP 一字不差，这是工资准时的唯一条件。"} }
   ];
   var peo = D.getElementById("people");
   TEAM.forEach(function(p){
     var el = D.createElement("div");
-    el.className = "p" + (p.real ? " real" : "");
+    el.className = "p real";
     el.innerHTML =
       '<span class="av" style="background:linear-gradient(140deg,'+p.c[0]+','+p.c[1]+')">'+(PEEPS[p.k]||"")+'</span>'+
       '<span class="meta"><b>'+p.n+'</b>'+
       '<span class="role"><span class="l-id">'+p.role.id+'</span><span class="l-zh">'+p.role.zh+'</span></span>'+
-      '<em>'+p.tag+'</em></span>';
+      '<em>'+p.tag+'</em>'+
+      '<q><span class="l-id">'+p.say.id+'</span><span class="l-zh">'+p.say.zh+'</span></q></span>';
     peo.appendChild(el);
   });
 
@@ -730,7 +730,7 @@ html[data-lang="zh"] p .l-zh{display:inline}
     rules.appendChild(a);
   });
   var h8 = D.getElementById("h8");
-  h8.dataset.id = W + BOOK[7].id[1]; h8.dataset.zh = W + BOOK[7].zh[1];
+  if(h8){ h8.dataset.id = W + BOOK[7].id[1]; h8.dataset.zh = W + BOOK[7].zh[1]; }
 
   function syncLinks(){
     var zh = root.getAttribute("data-lang") === "zh";
