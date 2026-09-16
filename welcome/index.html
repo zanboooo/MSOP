@@ -122,37 +122,18 @@ a{color:inherit}
 .hi .nb{display:none}
 .hi[data-named] .fb{display:none}
 .hi[data-named] .nb{display:inline}
-/* ---------- 新人名字：专属感 ----------
-   · 字号比 h1 大一档，Anton 同族；箔面渐变（白 → 岗位色 → 白）做 background-clip:text
-   · 开幕：从下方切入（同 h1 的 lineUp）→ 一道斜光扫过（sweep，一次）→ 之后 9s 一个来回的极慢漂移
-   · 背后一层描边"残影"错位 4px，是唯一的静态装饰；reduced-motion 下全部动画关掉，只剩静态箔面 */
-.who{margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px}
-.who[hidden]{display:none}
-.who-name{position:relative;display:inline-block;overflow:hidden;padding:.04em .06em 0 0;
-  font-family:Anton,Impact,'Arial Narrow',sans-serif;font-weight:400;text-transform:uppercase;
-  font-size:clamp(64px,17.5vw,176px);line-height:.92;letter-spacing:-.01em}
-.who-name::before{content:attr(data-n);position:absolute;left:5px;top:calc(.04em + 5px);z-index:0;
-  color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--me) 55%,transparent);pointer-events:none;
-  transform:translateY(112%);animation:lineUp .95s cubic-bezier(.16,1,.3,1) .16s forwards}
-.foil{position:relative;z-index:1;display:inline-block;color:transparent;
-  background:linear-gradient(100deg,#FFF 0%,var(--me) 26%,#FFF 48%,var(--me) 70%,#FFF 100%);
-  background-size:240% 100%;background-position:200% 0;-webkit-background-clip:text;background-clip:text;
-  filter:drop-shadow(0 0 24px color-mix(in srgb,var(--me) 42%,transparent));
-  transform:translateY(112%);
-  animation:lineUp .95s cubic-bezier(.16,1,.3,1) .08s forwards,
-            sweep 1.5s cubic-bezier(.2,.8,.2,1) .55s both,
-            foil 9s ease-in-out 2.1s infinite alternate}
-@keyframes sweep{from{background-position:200% 0}to{background-position:0% 0}}
-@keyframes foil{from{background-position:0% 0}to{background-position:100% 0}}
-.who-cn{font:600 clamp(14px,3.6vw,21px)/1 Figtree,sans-serif;color:var(--ink);padding:.42em .7em;
-  border:1px solid color-mix(in srgb,var(--me) 70%,transparent);border-radius:999px;
-  background:color-mix(in srgb,var(--me) 12%,transparent);opacity:0;animation:fadeUp .8s cubic-bezier(.16,1,.3,1) .7s forwards}
-.who-cn[hidden]{display:none}
-.who-tag{display:inline-flex;align-items:center;gap:7px;font-family:'Martian Mono',monospace;font-size:10px;
-  letter-spacing:.16em;color:var(--me);opacity:0;animation:fadeUp .8s cubic-bezier(.16,1,.3,1) .9s forwards}
-.who-tag i{width:6px;height:6px;border-radius:50%;background:var(--me);box-shadow:0 0 10px var(--me)}
-html.settled .foil,html.settled .who-name::before{transform:none!important}
-html.settled .who-cn,html.settled .who-tag{opacity:1!important}
+/* ---------- 新人名字：并在标题第一行 ----------
+   与标题同字号同白色；唯一的装饰是背后一层岗位色描边残影错位 4px，
+   外加揭幕时一次岗位色的辉光（同 .glow 的 bloom 节奏），之后不再动。 */
+.me{position:relative;display:inline-block;font-weight:400;color:var(--ink);
+  animation:meGlow 1.4s cubic-bezier(.2,.8,.2,1) .42s both}
+.me[hidden],.me-sep[hidden]{display:none}
+.me::before{content:attr(data-n);position:absolute;left:4px;top:4px;z-index:-1;color:transparent;
+  -webkit-text-stroke:1px color-mix(in srgb,var(--me) 60%,transparent);pointer-events:none}
+@keyframes meGlow{
+  0%{text-shadow:0 0 0 rgba(0,0,0,0)}
+  40%{text-shadow:0 0 60px color-mix(in srgb,var(--me) 80%,transparent),0 0 22px color-mix(in srgb,var(--me) 55%,transparent)}
+  100%{text-shadow:0 0 0 rgba(0,0,0,0)}}
 h1{font-family:Anton,Impact,'Arial Narrow',sans-serif;font-weight:400;
   font-size:clamp(46px,12.4vw,132px);line-height:.90;letter-spacing:-.015em;
   text-transform:uppercase;text-wrap:balance;margin-top:10px}
@@ -168,7 +149,7 @@ h1 .glow{color:var(--hot);text-shadow:0 0 44px rgba(255,59,107,.5)}
    一次性序列：灯起 → 标题逐行揭幕 → 主张句亮一下 → 其余跟上。
    不循环 —— 循环的动效看第二眼就腻，开幕只看一次才有张力。 */
 .h-line{display:block;overflow:hidden}
-.h-line>span{display:block;transform:translateY(112%);
+.h-line>span{display:block;position:relative;z-index:0;transform:translateY(112%);
   animation:lineUp .95s cubic-bezier(.16,1,.3,1) forwards}
 .h-line:nth-of-type(1)>span{animation-delay:.16s}
 .h-line:nth-of-type(2)>span{animation-delay:.30s}
@@ -352,8 +333,6 @@ html[data-lang="zh"] p .l-zh{display:inline}
   *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
   .wash{opacity:1}
   .h-line>span{transform:none}
-  .foil,.who-name::before{transform:none}
-  .who-cn,.who-tag{opacity:1}
   .fade{opacity:1;transform:none}
   html{scroll-behavior:auto}
 }
@@ -416,20 +395,14 @@ html[data-lang="zh"] p .l-zh{display:inline}
       <span class="l-id">Selamat datang<span class="fb">, rekan baru.</span><span class="nb">,</span></span>
       <span class="l-zh">欢迎你<span class="fb">，新同事。</span><span class="nb">，</span></span>
     </p>
-    <!-- 新人的名字：比标题先出、比标题亮。箔面渐变随岗位主题色，开幕一次性揭幕 + 扫光，之后只做极慢的箔面漂移 -->
-    <div class="who" id="who" hidden>
-      <span class="who-name" id="whoName" data-n=""><span class="foil" id="nm">rekan baru</span></span>
-      <span class="who-cn" id="nmZh" hidden></span>
-      <span class="who-tag"><i></i><span class="l-id">KHUSUS UNTUKMU</span><span class="l-zh">专属页面</span></span>
-    </div>
 
     <h1>
       <span class="l-id">
-        <span class="h-line"><span>Kamu tidak naik</span></span>
+        <span class="h-line"><span><b class="me" id="nm" data-n="" hidden></b><span class="me-sep" hidden>, </span>Kamu tidak naik</span></span>
         <span class="h-line"><span>panggung <span class="glow">sendirian</span>.</span></span>
       </span>
       <span class="l-zh">
-        <span class="h-line"><span>你不会一个人</span></span>
+        <span class="h-line"><span><b class="me" id="nmZh" data-n="" hidden></b><span class="me-sep" hidden>，</span>你不会一个人</span></span>
         <span class="h-line"><span><span class="glow">上场</span>。</span></span>
       </span>
     </h1>
@@ -693,13 +666,13 @@ html[data-lang="zh"] p .l-zh{display:inline}
       n = String(n).replace(/[<>&"']/g, "").slice(0, 28).trim();
       var zhName = ((WHO && WHO.cn) || n).replace(/[<>&"']/g, "").slice(0, 28).trim();
       if(n){
-        D.getElementById("nm").textContent = n;
-        D.getElementById("whoName").setAttribute("data-n", n);
         var cn = (WHO && WHO.cn) ? zhName : "";
-        var cnEl = D.getElementById("nmZh");
-        if(cn && cn !== n){ cnEl.textContent = cn; cnEl.hidden = false; }
+        var idEl = D.getElementById("nm"), zhEl = D.getElementById("nmZh");
+        idEl.textContent = n; idEl.setAttribute("data-n", n); idEl.hidden = false;
+        var zhShow = cn || n;
+        zhEl.textContent = zhShow; zhEl.setAttribute("data-n", zhShow); zhEl.hidden = false;
+        D.querySelectorAll(".me-sep").forEach(function(e){ e.hidden = false; });
         D.getElementById("hi").setAttribute("data-named", "1");
-        D.getElementById("who").hidden = false;
       }
     }
   }catch(e){}
