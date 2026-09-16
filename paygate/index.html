@@ -18,7 +18,7 @@ h1{font-size:16px;font-weight:700;color:var(--ink2)}
 .ask .res{font-size:15px;font-weight:700;color:var(--ok)}
 .ask .go{font-size:12.5px;opacity:.9}
 .ask .re{margin-left:auto;font-size:12px;opacity:.75;border:0;text-decoration:underline;padding:0}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .c{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;transition:border-color .3s,box-shadow .3s}
 .c h2{font-size:14px;color:var(--ink2);margin-bottom:6px}
 .c dl{font-size:12px;line-height:1.5}
@@ -35,7 +35,7 @@ h1{font-size:16px;font-weight:700;color:var(--ink2)}
 <div class="grid" id="grid"></div>
 </div>
 <script>
-var T = {"zh":{"h1":"该用哪个审批","sub":"两个问题定入口。一笔业务只走一个入口，选错会被退回。","q1":"这笔钱已经付出去了吗？","q1a":["已经付了，是员工垫的","还没付"],"q2":"钱由谁付出去？","q2a":["公司直接付给对方","先给员工一笔备用金，员工去花"],"reset":"重新判断","cards":[["费用报销","员工已先行垫付的真实业务费用，申请公司返还","费用已经发生，且申请人已经付了钱","公司还没付的供应商款；还没发生的预计费用"],["付款申请","公司直接向供应商、员工或其他收款方付款","申请时还没有人垫付，付款主体是公司","员工已经垫付的费用；员工借款"],["员工借款","员工因明确公务需要先领一笔资金","先借后用，事后必须报销冲账或退回余额","工资预支、私人借款；已经发生并由员工垫付的费用"]],"lbl":["适用场景","核心判断","禁止使用"],"go":null},"id":{"h1":"Pakai approval yang mana","sub":"Dua pertanyaan menentukan pintu masuk. Satu urusan satu pintu; salah pintu akan dikembalikan.","q1":"Uangnya sudah dibayarkan?","q1a":["Sudah, ditalangi karyawan","Belum"],"q2":"Siapa yang membayar?","q2a":["Perusahaan bayar langsung ke penerima","Karyawan pegang dana dulu, lalu belanja"],"reset":"Ulangi","cards":[["Expense Claim","Biaya bisnis nyata yang sudah ditalangi karyawan, minta diganti perusahaan","Biaya sudah terjadi dan pemohon sudah membayar","Tagihan vendor yang belum dibayar perusahaan; biaya yang belum terjadi"],["Payment Request","Perusahaan membayar langsung ke vendor, karyawan, atau penerima lain","Belum ada yang menalangi; yang membayar adalah perusahaan","Biaya yang sudah ditalangi karyawan; pinjaman karyawan"],["Employee Loan","Karyawan perlu dana lebih dulu untuk keperluan dinas yang jelas","Pinjam dulu baru pakai; wajib klaim atau kembalikan sisanya","Kasbon gaji, pinjaman pribadi; biaya yang sudah ditalangi"]],"lbl":["Kapan dipakai","Kunci penilaian","Dilarang untuk"],"go":null}};
+var T = {"zh":{"h1":"该用哪个审批","sub":"三个问题定入口。一笔业务只走一个入口，选错会被退回。","q0":"是要买东西吗？","q0a":["是，还没买","不是，或已经买了"],"q1":"这笔钱已经付出去了吗？","q1a":["已经付了，是员工垫的","还没付"],"q2":"钱由谁付出去？","q2a":["公司直接付给对方","先给员工一笔备用金，员工去花"],"reset":"重新判断","cards":[["采购申请","公司要买设备、物料、软件、办公资产等，还没买","先批再买；批准后付款走付款申请的采购付款","已经买好的东西；员工自己垫付的小额采购走报销"],["费用报销","员工已先行垫付的真实业务费用，申请公司返还","费用已经发生，且申请人已经付了钱","公司还没付的供应商款；还没发生的预计费用"],["付款申请","公司直接向供应商、员工或其他收款方付款","申请时还没有人垫付，付款主体是公司","员工已经垫付的费用；员工借款"],["员工借款","员工因明确公务需要先领一笔资金","先借后用，事后必须报销冲账或退回余额","工资预支、私人借款；已经发生并由员工垫付的费用"]],"lbl":["适用场景","核心判断","禁止使用"],"go":null},"id":{"h1":"Pakai approval yang mana","sub":"Tiga pertanyaan menentukan pintu masuk. Satu urusan satu pintu; salah pintu akan dikembalikan.","q0":"Mau beli barang?","q0a":["Ya, belum dibeli","Bukan, atau sudah dibeli"],"q1":"Uangnya sudah dibayarkan?","q1a":["Sudah, ditalangi karyawan","Belum"],"q2":"Siapa yang membayar?","q2a":["Perusahaan bayar langsung ke penerima","Karyawan pegang dana dulu, lalu belanja"],"reset":"Ulangi","cards":[["Purchase Request","Perusahaan mau beli alat, bahan, software, aset kantor; belum dibeli","Disetujui dulu baru beli; pembayaran lewat Payment Request","Barang yang sudah dibeli; talangan kecil karyawan lewat klaim"],["Expense Claim","Biaya bisnis nyata yang sudah ditalangi karyawan, minta diganti perusahaan","Biaya sudah terjadi dan pemohon sudah membayar","Tagihan vendor yang belum dibayar perusahaan; biaya yang belum terjadi"],["Payment Request","Perusahaan membayar langsung ke vendor, karyawan, atau penerima lain","Belum ada yang menalangi; yang membayar adalah perusahaan","Biaya yang sudah ditalangi karyawan; pinjaman karyawan"],["Employee Loan","Karyawan perlu dana lebih dulu untuk keperluan dinas yang jelas","Pinjam dulu baru pakai; wajib klaim atau kembalikan sisanya","Kasbon gaji, pinjaman pribadi; biaya yang sudah ditalangi"]],"lbl":["Kapan dipakai","Kunci penilaian","Dilarang untuk"],"go":null}};
 var GO = { zh: function (n) { return "去 Lark › 审批 里搜索「" + n + "」发起"; }, id: function (n) { return "Buka Lark › Approval, cari「" + n + "」lalu ajukan"; } };
 var L = (new URLSearchParams(location.search).get("lang") || "zh"); if (!T[L]) L = "zh";
 document.documentElement.lang = L === "id" ? "id" : "zh-CN"; var t = T[L];
@@ -45,13 +45,15 @@ document.getElementById("grid").innerHTML = t.cards.map(function (c, i) {
 }).join("");
 var ask = document.getElementById("ask");
 function mark(i) { [].slice.call(document.querySelectorAll(".c")).forEach(function (e, j) { e.classList.toggle("on", i === j); e.classList.toggle("off", i !== null && i !== j); }); }
-function step1() { mark(null); ask.innerHTML = '<span class="q">' + t.q1 + '</span>' + t.q1a.map(function (a, i) { return '<button data-a="' + i + '">' + a + '</button>'; }).join("");
-  ask.onclick = function (e) { var b = e.target.closest("button"); if (!b) return; if (b.dataset.a === "0") done(0); else step2(); }; }
+function step0() { mark(null); ask.innerHTML = '<span class="q">' + t.q0 + '</span>' + t.q0a.map(function (a, i) { return '<button data-a="' + i + '">' + a + '</button>'; }).join("");
+  ask.onclick = function (e) { var b = e.target.closest("button"); if (!b) return; if (b.dataset.a === "0") done(0); else step1(); }; }
+function step1() { ask.innerHTML = '<span class="q">' + t.q1 + '</span>' + t.q1a.map(function (a, i) { return '<button data-a="' + i + '">' + a + '</button>'; }).join("");
+  ask.onclick = function (e) { var b = e.target.closest("button"); if (!b) return; if (b.dataset.a === "0") done(1); else step2(); }; }
 function step2() { ask.innerHTML = '<span class="q">' + t.q2 + '</span>' + t.q2a.map(function (a, i) { return '<button data-a="' + i + '">' + a + '</button>'; }).join("");
-  ask.onclick = function (e) { var b = e.target.closest("button"); if (!b) return; done(b.dataset.a === "0" ? 1 : 2); }; }
+  ask.onclick = function (e) { var b = e.target.closest("button"); if (!b) return; done(b.dataset.a === "0" ? 2 : 3); }; }
 function done(i) { mark(i); ask.innerHTML = '<span class="res">' + t.cards[i][0] + '</span><span class="go">' + GO[L](t.cards[i][0]) + '</span><button class="re">' + t.reset + '</button>';
-  ask.onclick = function (e) { if (e.target.closest(".re")) step1(); }; }
-step1();
+  ask.onclick = function (e) { if (e.target.closest(".re")) step0(); }; }
+step0();
 var st = document.getElementById("stage");
 function fit() { var s = Math.min(1, document.documentElement.clientWidth / 820); st.style.transform = s < 1 ? "scale(" + s + ")" : "none"; document.body.style.height = Math.ceil(st.offsetHeight * s) + "px"; }
 addEventListener("resize", fit); if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body); setInterval(fit, 1200); fit();
