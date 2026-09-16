@@ -13,7 +13,9 @@
 /* ============================================================
    MUKE · 头像自助制作
    合成规格取自「MUKE 员工头像模板」slides（960×960），本页 2.5× 到 2400×2400。
-   抠图用 @imgly/background-removal（AGPL-3.0），模型自托管在 vendor/imgly/，
+   抠图用 @imgly/background-removal（AGPL-3.0）。库（vendor/bg-removal.js，esbuild 打包 1.7.0）和模型（vendor/imgly/）
+   全部自托管 —— 2026-09-16 之前库走 jsdelivr CDN，雅加达/国内网络一次拉不到，浏览器会把失败记进模块表，
+   之后换图再传也是同一个错，只能刷新。现在同源加载，CDN 只做最后兜底。
    全程在浏览器里跑，照片不离开设备。
 
    ── 身份怎么来（张博 2026-09-02 三稿定）──
@@ -507,6 +509,21 @@ function dropCut(){
   CUT=null;
 }
 
+/* 抠图库加载：本地 → 本地带缓存破坏重试 → CDN 兜底。
+   浏览器对 import() 失败是按 URL 记忆的（模块表里存的是那个 error），
+   所以每次重试都必须换一个 URL，否则得到的永远是第一次的失败。 */
+let LIB=null;
+async function loadLib(){
+  if(LIB) return LIB;
+  const local=new URL("vendor/bg-removal.js",location.href).href;
+  const tries=[local, local+"?r="+Date.now(), "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm?r="+Date.now()];
+  let last=null;
+  for(const u of tries){
+    try{ LIB=await import(u); return LIB; }catch(e){ last=e; }
+  }
+  throw new Error((zh()?"抠图库没加载下来，检查网络后刷新再试（":"Pustaka gagal dimuat, cek jaringan lalu refresh (")+String(last&&last.message||last).slice(0,50)+")");
+}
+
 async function handle(f){
   msg("");
   if(!/^image\//.test(f.type)) return msg(zh()?"这不是图片文件。":"Bukan file gambar.","bad");
@@ -514,7 +531,7 @@ async function handle(f){
   $("#pvBox").dataset.idle="0";
   busy(true, zh()?"正在抠图…":"Menghapus latar…","");
   try{
-    const mod=await import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm");
+    const mod=await loadLib();
     /* 真实进度：首次要下 81MB 模型。不给进度的话，
        手机上盯着转圈半分钟的人一半会以为卡死直接关掉。 */
     const blob=await mod.removeBackground(f,{
