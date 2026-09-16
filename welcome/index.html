@@ -261,23 +261,12 @@ h2{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;
 .rooms{margin-top:30px;display:grid;gap:11px;grid-template-columns:repeat(auto-fit,minmax(158px,1fr))}
 .room{position:relative;aspect-ratio:3/4;border-radius:var(--r);overflow:hidden;
   border:1px solid var(--line);background:#0E0B18}
-.room img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.15);opacity:.4;
-  transition:opacity .4s,transform .6s}
-.room:hover img{opacity:.55;transform:scale(1.04)}
-.room::after{content:"";position:absolute;inset:0;mix-blend-mode:color}
-.room.c1::after{background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,194,75,.4))}
-.room.c2::after{background:linear-gradient(180deg,rgba(120,80,255,.4),rgba(11,9,18,.7))}
-.room.c3::after{background:linear-gradient(180deg,rgba(47,224,138,.35),rgba(255,59,107,.4))}
-.room.c4::after{background:linear-gradient(180deg,rgba(255,59,107,.4),rgba(120,80,255,.35))}
-/* 场地还在装修，暂时没有实景照 —— 之前这里挂的是 picsum 随机图，
-   那是网上随便抓的照片，跟我们的棚毫无关系，新人会当真。用底纹加角标说明状态，
-   比放错的照片诚实。拍到实景后把 <img> 加回来、去掉 .soon 即可。 */
-.room::before{content:"";position:absolute;inset:0;
-  background:repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 2px,transparent 2px 10px)}
-.room .soon{position:absolute;right:11px;top:10px;z-index:2;
-  font-family:'Martian Mono',monospace;font-size:8.5px;letter-spacing:.08em;
-  color:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.22);
-  border-radius:99px;padding:2px 7px;white-space:nowrap}
+.room img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+.room:hover img{transform:scale(1.04)}
+/* 底部压一层渐变，编号和名字才读得清；不再上色，照片本身已经是各棚的调子 */
+.room::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(11,9,18,.10) 0%,rgba(11,9,18,0) 30%,rgba(11,9,18,.72) 100%)}
+/* 四张实景 2026-09-16 到位（assets/room-*.webp，480×640，各 30–40KB） */
 .room b{position:absolute;left:13px;bottom:11px;z-index:2;font-size:14.5px;line-height:1.25}
 .room i{position:absolute;left:13px;top:11px;z-index:2;font-style:normal;
   font-family:'Martian Mono',monospace;font-size:9px;letter-spacing:.09em;color:rgba(255,255,255,.72)}
@@ -549,10 +538,10 @@ html[data-lang="zh"] p .l-zh{display:inline}
     <p class="eyebrow"><span class="l-id">Tempat kerja</span><span class="l-zh">你的地方</span></p>
     <h2><span class="l-id">Empat ruang</span><span class="l-zh">四个空间</span></h2>
     <div class="rooms">
-      <div class="room c1"><span class="soon"><span class="l-id">SEGERA</span><span class="l-zh">装修中</span></span><i>01</i><b><span class="l-id">Studio Putih</span><span class="l-zh">白棚</span></b></div>
-      <div class="room c2"><span class="soon"><span class="l-id">SEGERA</span><span class="l-zh">装修中</span></span><i>02</i><b><span class="l-id">Studio Hitam</span><span class="l-zh">黑棚</span></b></div>
-      <div class="room c3"><span class="soon"><span class="l-id">SEGERA</span><span class="l-zh">装修中</span></span><i>03</i><b><span class="l-id">Studio LED</span><span class="l-zh">LED 棚</span></b></div>
-      <div class="room c4"><span class="soon"><span class="l-id">SEGERA</span><span class="l-zh">装修中</span></span><i>04</i><b><span class="l-id">Ruang Tari</span><span class="l-zh">舞蹈房</span></b></div>
+      <div class="room c1"><img src="../assets/room-white.webp" width="480" height="640" alt="Studio putih MUKE STAR" loading="lazy" decoding="async"><i>01</i><b><span class="l-id">Studio Putih</span><span class="l-zh">白棚</span></b></div>
+      <div class="room c2"><img src="../assets/room-black.webp" width="480" height="640" alt="Studio hitam muke.md" loading="lazy" decoding="async"><i>02</i><b><span class="l-id">Studio Hitam</span><span class="l-zh">黑棚</span></b></div>
+      <div class="room c3"><img src="../assets/room-led.webp" width="480" height="640" alt="Studio LED muke.md" loading="lazy" decoding="async"><i>03</i><b><span class="l-id">Studio LED</span><span class="l-zh">LED 棚</span></b></div>
+      <div class="room c4"><img src="../assets/room-dance.webp" width="480" height="640" alt="Ruang tari MUKE STAR" loading="lazy" decoding="async"><i>04</i><b><span class="l-id">Ruang Tari</span><span class="l-zh">舞蹈房</span></b></div>
     </div>
   </section>
 
