@@ -294,15 +294,9 @@ html[data-lang="zh"] p .l-zh{display:inline}
 /* ---------- 第 01 件事里内嵌的头像工具 ---------- */
 .mk{display:inline-flex;align-items:center;gap:.5rem;margin-top:14px;
   background:var(--hot);color:#fff;border:0;border-radius:8px;
-  padding:11px 18px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;
+  padding:11px 18px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;
   transition:filter .18s}
 .mk:hover{background:#ff5a83}
-.mk .mk-close{display:none}
-.mk[aria-expanded="true"] .mk-open{display:none}
-.mk[aria-expanded="true"] .mk-close{display:inline}
-.mkbox{margin-top:12px;border:1px solid rgba(255,255,255,.14);border-radius:10px;
-  overflow:hidden;background:#14171C}
-.mkbox iframe{display:block;width:100%;border:0;height:clamp(430px,74vh,620px)}
 .mkhint{margin-top:8px;font-size:12.5px;line-height:1.6;opacity:.62}
 </style>
 </head>
@@ -382,7 +376,7 @@ html[data-lang="zh"] p .l-zh{display:inline}
           <span class="l-id">“Kita bukan agensi besar. Kita agensi yang ingat nama semua orangnya. Hari pertama kamu tidak perlu hebat — cukup datang, ikut, dan tanya kalau bingung.”</span>
           <span class="l-zh">"我们不是一家大公司。我们是一家记得住每个人名字的公司。第一天你不需要表现得多好——来了、跟上、不懂就问，就够了。"</span>
         </p>
-        <p class="sig">WILLIAM · <span class="l-id">CEO MUKE</span><span class="l-zh">MUKE 首席执行官</span></p>
+        <p class="sig"><span class="l-id">CEO MUKE</span><span class="l-zh">MUKE 首席执行官</span></p>
       </div>
     </div>
   </section>
@@ -413,11 +407,9 @@ html[data-lang="zh"] p .l-zh{display:inline}
             <span class="l-id">Lark → <b>Mine</b> → ketuk namamu → <b>Edit Profile</b>. Nama panggung tidak boleh ada spasi: <code>KimDokja</code>, bukan <code>Kim Dokja</code>. Fotonya harus wajahmu sendiri.</span>
             <span class="l-zh">Lark → <b>Mine</b> → 点你的名字 → <b>Edit Profile</b>。艺名不能有空格：写 <code>KimDokja</code>，不要写 <code>Kim Dokja</code>。头像必须是你本人的脸。</span>
           </p>
-          <button type="button" class="mk" id="mkBtn" aria-expanded="false" aria-controls="mkBox">
-            <span class="mk-open"><span class="l-id">Buat foto profil</span><span class="l-zh">做我的头像</span></span>
-            <span class="mk-close"><span class="l-id">Tutup</span><span class="l-zh">收起</span></span>
-          </button>
-          <div class="mkbox" id="mkBox" hidden></div>
+          <a class="mk" id="mkBtn" href="../avatar/" target="_blank" rel="noopener">
+            <span class="l-id">Buat foto profil</span><span class="l-zh">做我的头像</span> ↗
+          </a>
           <p class="mkhint" id="mkHint"></p>
           <div class="ok">
             <span class="l-id">Beres kalau: buka <b>Mine</b>, paling atas muncul wajahmu dan nama tanpa spasi.</span>
@@ -569,21 +561,38 @@ html[data-lang="zh"] p .l-zh{display:inline}
   D.getElementById("bId").onclick = function(){ setLang("id"); };
   D.getElementById("bZh").onclick = function(){ setLang("zh"); };
 
-  /* ---------- 专属身份：#p=<base64url(JSON)> ----------
+  /* ---------- 专属身份：#n=…&cn=…&lh=… ----------
      用 fragment 而不是 ?query：fragment 浏览器【根本不发给服务器】——
      不进访问日志、不进 Referer、不会被转发链接的中间环节记下来。
-     没有它就是通用迎新模板，页面照常能看。
-     旧的 ?n= 仍然认，但只填名字。 */
-  var PAY = (location.hash.match(/(?:^|[#&])p=([A-Za-z0-9\-_]+)/) || [])[1] || "";
-  var WHO = null;
-  if(PAY){
-    try{
-      var t = PAY.replace(/-/g, "+").replace(/_/g, "/");
-      var raw = atob(t + "=".repeat((4 - t.length % 4) % 4));
-      var by = Uint8Array.from(raw, function(c){ return c.charCodeAt(0); });
-      WHO = JSON.parse(new TextDecoder().decode(by));
-    }catch(e){ WHO = null; }
+     新形态由 H01 的 Welcome URL 公式列直接拼出来（ENCODEURL），不需要任何脚本；
+     旧形态 #p=<base64url(JSON)> 是已发出去的链接，继续认。
+     没有它就是通用迎新模板，页面照常能看。旧的 ?n= 仍然认，但只填名字。 */
+  var KEYS = /^(n|cn|e|l|j|g|hr|dd|lh|ag)$/;
+  function clean(v){ return String(v == null ? "" : v).replace(/[<>&"']/g, "").slice(0, 28).trim(); }
+  function parseWho(){
+    var h = location.hash.replace(/^#/, ""), out = {}, any = false;
+    if(!h) return null;
+    var m = /(?:^|&)p=([A-Za-z0-9\-_]+)/.exec(h);
+    if(m){
+      try{
+        var t = m[1].replace(/-/g, "+").replace(/_/g, "/");
+        var raw = atob(t + "=".repeat((4 - t.length % 4) % 4));
+        var by = Uint8Array.from(raw, function(c){ return c.charCodeAt(0); });
+        var o = JSON.parse(new TextDecoder().decode(by));
+        Object.keys(o || {}).forEach(function(k){ if(KEYS.test(k)){ var v = clean(o[k]); if(v){ out[k] = v; any = true; } } });
+      }catch(e){}
+      return any ? out : null;
+    }
+    h.split("&").forEach(function(kv){
+      var i = kv.indexOf("="); if(i < 1) return;
+      var k = kv.slice(0, i), v = kv.slice(i + 1);
+      if(!KEYS.test(k)) return;
+      try{ v = decodeURIComponent(v.replace(/\+/g, " ")); }catch(e){ return; }   /* 坏编码：丢这一个键，其余照用 */
+      v = clean(v); if(v){ out[k] = v; any = true; }
+    });
+    return any ? out : null;
   }
+  var WHO = parseWho();
   try{
     var n = (WHO && WHO.n) || new URLSearchParams(location.search).get("n");
     if(n){
@@ -593,48 +602,24 @@ html[data-lang="zh"] p .l-zh{display:inline}
     }
   }catch(e){}
 
-  /* ---------- 第 01 件事：就地做头像 ----------
-     iframe 同源，身份用同一段 fragment 原样传进去 —— 工具那边不需要名单也不需要查询。
-     没有身份时也能开：工具会自己降级成「输手机号」。 */
+  /* ---------- 第 01 件事：做头像 → 跳转到工具页 ----------
+     不再 iframe 内嵌：工具自带 141MB 抠图模型，手机上嵌在主页里是拖累；
+     跳转后主页少了 postMessage / relayout 一整套联动，简单得多。
+     身份还是同一段 #fragment，原样带过去 —— 工具那边不需要名单也不需要查询。 */
   (function(){
-    var btn = D.getElementById("mkBtn"), box = D.getElementById("mkBox"), hint = D.getElementById("mkHint");
-    if(!btn) return;
+    var a = D.getElementById("mkBtn"), hint = D.getElementById("mkHint");
+    if(!a) return;
+    a.href = "../avatar/" + location.hash;
     function say(){
       var zh = D.documentElement.getAttribute("data-lang") === "zh";
-      hint.textContent = WHO
-        ? (zh ? "已认出是你，名字和职务会自动填。" : "Kamu sudah dikenali — nama dan jabatan terisi otomatis.")
-        : (zh ? "没有专属链接也能用：打开后输入你的手机号即可。"
-              : "Tanpa tautan khusus juga bisa: buka lalu masukkan nomor HP-mu.");
+      hint.textContent = WHO && WHO.n
+        ? (zh ? "会在新页面打开，已认出是你，名字和职务自动填好。" : "Terbuka di halaman baru — kamu sudah dikenali, nama dan jabatan terisi otomatis.")
+        : (zh ? "会在新页面打开。没有专属链接也能用：打开后自己输入艺名。"
+              : "Terbuka di halaman baru. Tanpa tautan khusus juga bisa: ketik sendiri nama panggungmu.");
     }
     say();
-    function tellLang(){
-      var fr = box.firstChild;
-      if(!fr || !fr.contentWindow) return;
-      try{ fr.contentWindow.postMessage(
-        {muke:"lang", v:D.documentElement.getAttribute("data-lang")==="zh"?"zh":"id"},
-        location.origin); }catch(e){}
-    }
-    D.getElementById("bId").addEventListener("click", function(){ say(); tellLang(); });
-    D.getElementById("bZh").addEventListener("click", function(){ say(); tellLang(); });
-    btn.addEventListener("click", function(){
-      var open = box.hasAttribute("hidden");
-      if(open){
-        if(!box.firstChild){
-          var f = D.createElement("iframe");
-          f.title = "Foto Profil MUKE";
-          /* 不设 loading=lazy：它是点开才插入的，插入时就在视野里，lazy 只会平添一次延迟 */
-          f.setAttribute("allow", "clipboard-write");
-          f.src = "../avatar/" + (PAY ? "#p=" + PAY : "");
-          f.addEventListener("load", tellLang);
-          box.appendChild(f);
-        }
-        box.removeAttribute("hidden");
-        setTimeout(function(){ box.scrollIntoView({behavior:"smooth", block:"nearest"}); }, 60);
-      }else{
-        box.setAttribute("hidden", "");
-      }
-      btn.setAttribute("aria-expanded", String(open));
-    });
+    D.getElementById("bId").addEventListener("click", say);
+    D.getElementById("bZh").addEventListener("click", say);
   })();
 
   /* ---------- 你的人 ----------
@@ -654,7 +639,7 @@ html[data-lang="zh"] p .l-zh{display:inline}
     return v || fb;
   }
   var TEAM = [
-    { k:"junita", n:who("hr","Junita"), real:!!(WHO&&WHO.hr), role:{id:"HR",            zh:"人事"},     tag:"HR", c:["#FF3B6B","#FF7BA0"] },
+    { k:"junita", n:who("hr","HR"),     real:!!(WHO&&WHO.hr), role:{id:"HR",            zh:"人事"},     tag:"HR", c:["#FF3B6B","#FF7BA0"] },
     { k:"ibra",   n:who("dd","Pelatih"),real:!!(WHO&&WHO.dd), role:{id:"Pelatih Tari",  zh:"舞蹈导师"}, tag:"DD", c:["#FFC24B","#FFE0A0"] },
     { k:"mentor", n:who("lh","Mentor"), real:!!(WHO&&WHO.lh), role:{id:"Host senior",   zh:"业务导师"}, tag:"LH", c:["#2FE08A","#9BF2C8"] },
     { k:"agen",   n:who("ag","Agen"),   real:!!(WHO&&WHO.ag), role:{id:"Manajer Artis", zh:"艺人经纪"}, tag:"AG", c:["#9B7BFF","#CBB8FF"] }

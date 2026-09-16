@@ -18,11 +18,12 @@
 
    ── 身份怎么来（张博 2026-09-02 三稿定）──
    【不做查询，做投递】。查询要秘密、要限流、要后端；而建档那一刻系统已经知道他是谁。
-   主路：入职私信里的专属欢迎链接自带身份，欢迎页把它原样拼进本页 iframe 的 #fragment。
+   主路：入职私信里的专属欢迎链接自带身份（#n=…&e=…&l=…&j=…，由 H01 公式列拼出），
+         欢迎页的「做我的头像」把同一段 #fragment 原样带到本页。
          fragment 浏览器【根本不发给服务器】—— 不落地、不进日志、不进 Referer，天然实时。
-   备路：弄丢链接的人输完整手机号，从加密快照里解出自己那一条（见 data/roster.enc.json）。
-   ⚠ 上一版把全员工号/姓名/职级/职务明文放进公开仓库，等于把组织架构挂到互联网上。
-     现在没有任何明文名单，也没有下拉列表 —— 谁都看不到别人。
+   备路：弄丢链接 → 找 HR 从 H01 重发。本页没有任何名单，也不查询；没带身份时只能自己输入艺名。
+   ⚠ 历史：曾放过明文名单（等于把组织架构挂到互联网上），后改加密快照，2026-09-16 连加密快照一起删。
+     公开库里现在零名单。
 
    ── 版式 ──
    左边【纯预览】，右边【操作区】，两者等宽。等宽是消掉中缝的解：
@@ -117,7 +118,6 @@ html[data-mode="col"] .ops>.go{grid-column:1/-1}
   pointer-events:none}
 
 /* 01 身份：两态同高，切换不改变版面 */
-.idn>#emp{flex:0 0 88px;min-width:0;text-transform:uppercase}
 .idn{display:flex;align-items:center;gap:.4rem;width:100%;height:3.2rem;
   background:#12151A;border:1px solid var(--line);border-radius:.5rem;padding:0 .5rem 0 .85rem}
 .idn input{flex:1 1 auto;background:none;border:0;outline:none;font-size:.95rem;min-width:0}
@@ -218,9 +218,7 @@ html[data-lang="zh"] .l-zh{display:inline}
       <div class="f">
         <i class="badge">01</i>
         <div class="idn">
-          <input id="ph" type="tel" inputmode="numeric" autocomplete="tel" aria-label="Nomor HP">
-          <input id="emp" type="text" inputmode="text" autocomplete="off" spellcheck="false"
-                 autocapitalize="characters" maxlength="10" aria-label="Emp ID">
+          <input id="nm" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="28" aria-label="Nama panggung">
           <button type="button" class="ok" id="go1" aria-label="OK">→</button>
         </div>
         <div class="me">
@@ -393,21 +391,31 @@ if(window.visualViewport) visualViewport.addEventListener("resize",kick);
 /* ============================================================
    身份
    ============================================================ */
-const b64u=s=>{const t=s.replace(/-/g,"+").replace(/_/g,"/");
-  return atob(t+"=".repeat((4-t.length%4)%4));};
-
-/* 主路：专属欢迎链接把 #p=<base64url(JSON)> 一路带到这里。
-   fragment 不会发给服务器，所以这份身份【不落地】：不进仓库、不进日志、不进 Referer。 */
+/* 主路：专属欢迎链接把身份带在 #fragment 里。fragment 不会发给服务器，所以这份身份【不落地】。
+   新形态 #n=…&cn=…&e=…&l=…&j=…（H01 公式列拼的）；旧形态 #p=<base64url(JSON)> 是已发出去的链接，继续认。 */
+const KEYS=/^(n|cn|e|l|j|g|hr|dd|lh|ag)$/;
+const clean=v=>String(v==null?"":v).replace(/[<>&"']/g,"").slice(0,28).trim();
 function fromHash(){
-  const h=location.hash.replace(/^#/,"");
+  const h=location.hash.replace(/^#/,""); if(!h) return null;
+  const out={}; let any=false;
   const m=/(?:^|&)p=([A-Za-z0-9\-_]+)/.exec(h);
-  if(!m) return null;
-  try{
-    const raw=b64u(m[1]);
-    const bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));
-    const v=JSON.parse(new TextDecoder().decode(bytes));
-    return v && v.n ? v : null;
-  }catch(e){ return null; }
+  if(m){
+    try{
+      const t=m[1].replace(/-/g,"+").replace(/_/g,"/");
+      const raw=atob(t+"=".repeat((4-t.length%4)%4));
+      const o=JSON.parse(new TextDecoder().decode(Uint8Array.from(raw,c=>c.charCodeAt(0))));
+      for(const k of Object.keys(o||{})){ if(KEYS.test(k)){ const v=clean(o[k]); if(v){out[k]=v;any=true;} } }
+    }catch(e){}
+  }else{
+    for(const kv of h.split("&")){
+      const i=kv.indexOf("="); if(i<1) continue;
+      const k=kv.slice(0,i); let v=kv.slice(i+1);
+      if(!KEYS.test(k)) continue;
+      try{ v=decodeURIComponent(v.replace(/\+/g," ")); }catch(e){ continue; }
+      v=clean(v); if(v){out[k]=v;any=true;}
+    }
+  }
+  return any && out.n ? out : null;
 }
 
 /* col 模式两格并排，每格只有半宽 —— 「不是我」换成图标把宽度让给名字，
@@ -424,8 +432,7 @@ function setLang(l){
   $("#bId").setAttribute("aria-pressed",String(l!=="zh"));
   $("#bZh").setAttribute("aria-pressed",String(l==="zh"));
   try{localStorage.setItem("muke.lang",l)}catch(e){}
-  $("#ph").placeholder = zh()?"手机号":"Nomor HP";
-  $("#emp").placeholder = zh()?"工号":"Emp ID";
+  $("#nm").placeholder = zh()?"艺名（自己输入）":"Nama panggung (ketik sendiri)";
   resetLabel();
   upText(); kick();
 }
@@ -463,64 +470,20 @@ function forget(){
   $("#up").classList.remove("on");
   $("#up").setAttribute("aria-disabled","true");
   $("#pvBox").dataset.idle="1";
-  $("#ph").value=""; $("#emp").value=""; upText(); draw(); msg("");
-  $("#ph").focus();
+  $("#nm").value=""; upText(); draw(); msg("");
+  $("#nm").focus();
 }
 $("#reset").onclick=forget;
 
-/* 备路：手机号 → 从加密快照里解出自己那一条。
-   索引与密钥【同源于同一次 PBKDF2】。若索引用便宜哈希，攻击者能先拿它筛掉
-   99.999% 的候选号码、只对命中的做 PBKDF2 —— 那等于把 30 万次迭代白送。 */
-let ENC=null;
-/* 失败不留缓存。原先把 fetch 的 Promise 直接塞进 ENC，只要第一次网络抖动失败，
-   ENC 里就永远是一个已 reject 的 Promise —— 用户再点多少次「确认」都是同一个错误，
-   网络恢复也没用，只能刷新整页。雅加达的手机网络下这是常态，不是极端情况。
-   顺带补 r.ok 判断：文件缺失时 Pages 返回 HTML，直接 r.json() 会抛
-   「Unexpected token '<'」，用户看到的是一串莫名其妙的英文。 */
-/* 密钥 = 手机号后 9 位 + 工号。两个因子缺一不可。
-   为什么不能只用手机尾号：这个文件在公开仓库里，谁都能下载慢慢爆破；
-   salt 全局共用、索引又与密钥同源派生 —— 遍历一遍 9 位数字空间就能一次性解开所有人，
-   单张显卡量级是「小时」。加上工号（MK####）之后空间抬到 ~1e13，同样算力要 8 年量级。 */
-const KEYVER=2;
-const keyOf=(tail,emp)=>tail+"|"+String(emp||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
-const encFile=()=>ENC||(ENC=fetch("data/roster.enc.json")
-  .then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
-  .catch(e=>{ ENC=null; throw e; }));
-async function lookup(phone,emp){
-  const meta=await encFile();
-  if((meta.keyver||1)!==KEYVER) throw new Error(zh()?"数据版本不匹配，请刷新页面":"Versi data tidak cocok, refresh halaman");
-  const tail=String(phone).replace(/\D/g,"").slice(-meta.tail);
-  if(tail.length<meta.tail) return null;
-  const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(keyOf(tail,emp)),"PBKDF2",false,["deriveBits"]);
-  const bits=new Uint8Array(await crypto.subtle.deriveBits(
-    {name:"PBKDF2",salt:Uint8Array.from(atob(meta.salt),c=>c.charCodeAt(0)),
-     iterations:meta.iter,hash:"SHA-256"}, km, 40*8));
-  const idx=[...bits.subarray(0,8)].map(x=>x.toString(16).padStart(2,"0")).join("");
-  const blob=meta.rows[idx];
-  if(!blob) return null;
-  const b=Uint8Array.from(atob(blob),c=>c.charCodeAt(0));
-  const key=await crypto.subtle.importKey("raw",bits.subarray(8),"AES-GCM",false,["decrypt"]);
-  const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b.subarray(0,12)},key,b.subarray(12));
-  return JSON.parse(new TextDecoder().decode(pt));
+/* 备路：没带身份就自己输艺名。不查任何名单 —— 公开库里没有名单，也不该有。
+   职级职务留空，卡片只出一行；要完整版找 HR 重发专属链接。 */
+function tryName(){
+  const n=clean($("#nm").value);
+  if(n.length<2) return msg(zh()?"请输入艺名（至少 2 个字）。":"Ketik nama panggungmu (min. 2 huruf).","bad");
+  adopt({n});
 }
-async function tryPhone(){
-  const raw=$("#ph").value.trim();
-  const emp=$("#emp").value.trim();
-  if(raw.replace(/\D/g,"").length<8) return msg(zh()?"请输入完整手机号。":"Masukkan nomor HP lengkap.","bad");
-  if(emp.replace(/[^A-Za-z0-9]/g,"").length<4) return msg(zh()?"请输入工号（如 MK9001）。":"Masukkan Emp ID (misal MK9001).","bad");
-  msg(zh()?"正在核对…":"Mencocokkan…");
-  try{
-    const v=await lookup(raw,emp);
-    if(!v) return msg(zh()?"没找到。手机号和工号都要与人事档案一致；刚入职的话请用私信里的专属链接。"
-                          :"Tidak ketemu. Nomor HP dan Emp ID harus sama dengan data HR; kalau baru masuk, pakai tautan khusus di chat.","bad");
-    adopt(v);
-  }catch(e){
-    msg((zh()?"核对失败：":"Gagal: ")+String(e.message||e).slice(0,60),"bad");
-  }
-}
-$("#go1").onclick=tryPhone;
-$("#ph").addEventListener("keydown",e=>{if(e.key==="Enter")tryPhone();});
-$("#emp").addEventListener("keydown",e=>{if(e.key==="Enter")tryPhone();});
+$("#go1").onclick=tryName;
+$("#nm").addEventListener("keydown",e=>{if(e.key==="Enter")tryName();});
 
 /* ---------- 上传 ---------- */
 function upText(){
@@ -696,11 +659,6 @@ sweep();   // 崩溃或强杀时 pagehide 不一定跑得完，开页时也扫�
 })();
 /* 欢迎页可能在 iframe 挂上之后才把身份写进 hash */
 addEventListener("hashchange",()=>{const v=fromHash(); if(v) adopt(v);});
-/* 被嵌在欢迎页里时跟着外层切语言 —— 只认同源来的消息 */
-addEventListener("message",e=>{
-  if(e.origin!==location.origin) return;
-  if(e.data && e.data.muke==="lang") setLang(e.data.v==="zh"?"zh":"id");
-});
 </script>
 </body>
 </html>
