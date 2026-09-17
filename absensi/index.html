@@ -1,128 +1,93 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<title>考勤扣款试算</title>
+<title>考勤结果试算</title>
 <style>
-/* 两条铁律：① 背景一律透明 ② 按 820 基准等比缩放。
-   ⚠ 暗色兜底必须写在 transparent 之后，同特异性后者胜。
-   配色全用中间调，白底黑底通吃，不赌宿主主题。 */
 html,body{background:transparent}
 @media (prefers-color-scheme:dark){html,body{background:#1a1a1a}}
+:root{--ink:#8a9099;--ink2:#6f757e;--line:rgba(138,144,153,.34);--line2:rgba(138,144,153,.18);--b1:#e4007f;--b2:#6d3b85;--ok:#2f9e5a;--gut:28px;--r:10px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"PingFang SC","Microsoft YaHei","Source Han Sans SC",-apple-system,"Segoe UI",sans-serif;
- color:#8a9099;overflow:hidden}
-#stage{width:820px;transform-origin:top left;padding:16px 28px 8px}
-
-h1{font-size:17px;font-weight:700;color:#6f757e;margin-bottom:2px}
-.sub{font-size:12px;color:#8a9099;opacity:.85;margin-bottom:14px}
-
+body{font:14px/1.6 "PingFang SC","Microsoft YaHei","Source Han Sans SC",system-ui,sans-serif;color:var(--ink);overflow:hidden}
+#stage{width:820px;transform-origin:top left;padding:16px var(--gut) 8px}
+h1{font-size:17px;font-weight:700;color:var(--ink2)}
+.sub{font-size:12px;opacity:.85;margin-bottom:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.f{flex:1;min-width:118px}
-label{display:block;font-size:12px;color:#8a9099;margin-bottom:5px}
-input{width:100%;border:1px solid rgba(138,144,153,.34);border-radius:8px;padding:9px 11px;
- font-size:15px;font-weight:600;background:transparent;color:#6f757e;transition:border-color .25s}
-input:focus{outline:none;border-color:#6d3b85}
-
-.res{border:1px solid rgba(138,144,153,.34);border-radius:10px;padding:14px 16px;margin-bottom:10px}
-.res .top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.res b{font-size:26px;font-variant-numeric:tabular-nums;color:#e4007f}
-.res .cap{font-size:12px;color:#8a9099}
-.bars{margin-top:12px;display:flex;flex-direction:column;gap:6px}
-.bar{display:flex;align-items:center;gap:8px;font-size:12.5px}
-.bar .nm{flex:0 0 168px;color:#8a9099}
-.bar .track{flex:1;height:7px;border-radius:99px;background:rgba(138,144,153,.18);overflow:hidden}
-.bar .track i{display:block;height:100%;width:0;border-radius:99px;
- background:linear-gradient(90deg,#e4007f,#6d3b85);transition:width .35s ease}
-.bar .val{flex:0 0 108px;text-align:right;font-variant-numeric:tabular-nums;color:#6f757e}
-
-.cap25{margin-top:10px;font-size:12.5px;padding:8px 11px;border-radius:8px;
- border:1px solid rgba(138,144,153,.34);color:#8a9099}
-.cap25.hit{border-color:#e4007f;color:#e4007f}
-.formula{font-family:ui-monospace,monospace;font-size:11.5px;color:#8a9099;
- border:1px solid rgba(138,144,153,.34);border-radius:6px;padding:6px 9px;display:inline-block;margin-top:10px}
-.note{margin-top:11px;font-size:11.5px;color:#8a9099;opacity:.82;line-height:1.7}
-</style>
-</head>
-<body>
+.f{flex:1;min-width:130px}
+label{display:block;font-size:12px;color:var(--ink);margin-bottom:5px;min-height:18px}
+input,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:15px;font-weight:600;background:transparent;color:var(--ink2);font-family:inherit;transition:border-color .25s}
+input:focus,select:focus{outline:none;border-color:var(--b2)}
+.pool{border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pool .nm{font-size:12.5px;color:var(--ink)}
+.pool b{font-size:22px;font-variant-numeric:tabular-nums;color:var(--ink2)}
+.pool .track{flex:1;min-width:160px;height:8px;border-radius:99px;background:var(--line2);overflow:hidden}
+.pool .track i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--ok),var(--b2));transition:width .35s ease}
+.pool.over .track i{background:linear-gradient(90deg,var(--b2),var(--b1))}
+.pool .st{font-size:12.5px;color:var(--ok);font-weight:600}
+.pool.over .st{color:var(--b1)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.c{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;transition:border-color .3s}
+.c .t{font-size:12px;color:var(--ink);margin-bottom:4px}
+.c .v{font-size:20px;font-weight:700;color:var(--ok)}
+.c.bad .v{color:var(--b1)}
+.c.bad{border-color:var(--b1)}
+.c ul{margin-top:6px;padding-left:16px;font-size:12px;line-height:1.55;color:var(--ink)}
+.formula{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 9px;display:inline-block;margin-bottom:10px}
+.note{font-size:11.5px;color:var(--ink);opacity:.85;line-height:1.7}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
 <div id="stage">
-  <h1>考勤扣款试算 · Simulasi Potongan Absensi</h1>
-  <div class="sub">填你自己的数字，看这个月会扣多少。扣款上限是当月工资的 25%。</div>
-
-  <div class="row">
-    <div class="f"><label>月薪 Gaji (Rp)</label><input id="g" type="number" inputmode="numeric" value="5729876" min="0"></div>
-    <div class="f"><label>迟到次数 Telat</label><input id="a" type="number" inputmode="numeric" value="2" min="0"></div>
-    <div class="f"><label>严重迟到 Telat berat</label><input id="b" type="number" inputmode="numeric" value="0" min="0"></div>
-    <div class="f"><label>缺卡次数 Lupa absen</label><input id="c" type="number" inputmode="numeric" value="1" min="0"></div>
-    <div class="f"><label>旷工天数 Mangkir</label><input id="d" type="number" inputmode="numeric" value="0" min="0"></div>
-  </div>
-
-  <div class="res">
-    <div class="top">
-      <b id="out">− Rp 0</b>
-      <span class="cap" id="daily">日薪 = Rp 0　（月薪 ÷ 30）</span>
-    </div>
-    <div class="bars">
-      <div class="bar"><span class="nm">迟到 × 20% 日薪</span><span class="track"><i id="i1"></i></span><span class="val" id="v1">0</span></div>
-      <div class="bar"><span class="nm">严重迟到 × 40% 日薪</span><span class="track"><i id="i2"></i></span><span class="val" id="v2">0</span></div>
-      <div class="bar"><span class="nm">缺卡 × 60% 日薪</span><span class="track"><i id="i3"></i></span><span class="val" id="v3">0</span></div>
-      <div class="bar"><span class="nm">旷工 × 200% 日薪</span><span class="track"><i id="i4"></i></span><span class="val" id="v4">0</span></div>
-    </div>
-    <div class="cap25" id="cap">未触及上限。上限 = 月薪 × 25% = Rp 0</div>
-    <span class="formula" id="fm">potongan = (gaji ÷ 30) × (telat×0,2 + berat×0,4 + lupa×0,6 + mangkir×2)</span>
-  </div>
-
-  <div class="note">
-    ⚠ 严重迟到 = 超过班次开始 <b>30 分钟</b>；缺卡 = 超过 <b>60 分钟</b>未打卡（M02 组为 90 分钟）。自由班制（A03／M01）不看迟到，只看当天是否满 8 小时。<br>
-    ✅ <b>补卡通过就不扣缺卡款，也不影响满勤奖</b> —— 每月最多补 3 次，窗口 3 天。<br>
-    ⛔ 旷工按 2 天日薪扣；连续 5 天旷工且两次书面传唤未回，视为自愿离职。
-  </div>
+<h1 id="h1"></h1><div class="sub" id="sub"></div>
+<div class="row">
+  <div class="f"><label id="l1"></label><input id="late" type="number" inputmode="numeric" value="1" min="0"></div>
+  <div class="f"><label id="l2"></label><input id="missed" type="number" inputmode="numeric" value="1" min="0"></div>
+  <div class="f"><label id="l3"></label><input id="absent" type="number" inputmode="numeric" value="0" min="0"></div>
+  <div class="f"><label id="l4"></label><input id="izin" type="number" inputmode="numeric" value="0" min="0"></div>
+  <div class="f"><label id="l5"></label><select id="noproof"><option value="0"></option><option value="1"></option></select></div>
 </div>
-
+<div class="pool" id="pool"><span class="nm" id="pnm"></span><b id="pn">0</b><span class="track"><i id="pi"></i></span><span class="st" id="pst"></span></div>
+<div class="grid">
+  <div class="c" id="c1"><div class="t" id="t1"></div><div class="v" id="v1"></div><ul id="u1"></ul></div>
+  <div class="c" id="c2"><div class="t" id="t2"></div><div class="v" id="v2"></div><ul id="u2"></ul></div>
+  <div class="c" id="c3"><div class="t" id="t3"></div><div class="v" id="v3"></div><ul id="u3"></ul></div>
+</div>
+<span class="formula" id="fm"></span>
+<div class="note" id="notes"></div>
+</div>
 <script>
+var T = {"zh":{"title":"考勤结果试算","sub":"填本月的数字，看满勤奖还在不在、会不会记警告。迟到和缺卡不扣基本工资。","late":"迟到次数","missed":"缺卡次数（补卡通过的不算）","absent":"旷工天数","izin":"事假小时","noproof":"无证明病假","yes":"有","no":"无","pool":"迟到 + 缺卡合计","poolFree":"不超过 2 次不影响","poolOver":"超过 2 次","bonusT":"满勤奖","keep":"保留","zero":"归零","rBonusPool":"迟到＋缺卡合计超过 2 次","rBonusAbsent":"有旷工","rBonusIzin":"有事假","rBonusSick":"有无证明病假","rBonusOK":"本月出勤干净","spT":"警告（SP）","spNone":"不记","spPool":"考勤类 1 张：合计超过 2 次，一月只开一张","spAbsent":null,"payT":"工资影响","payNone":"基本工资不受影响","payAbsent":null,"payIzin":null,"payNote":"迟到、缺卡不扣基本工资","formula":"事假扣款 = 月薪 ÷ 173 × 小时　｜　旷工 = 当天不计薪","notes":["缺卡按次：上班卡、下班卡各算一次；3 天内可提补卡，每月最多 3 次，通过后不计。迟到、早退不能补。","SP 三级：SP1 → SP2 → SP3，同类问题 6 个月内再犯升一级；SP3 有效期内再犯，解除合同。","连续 5 个工作日没打卡也没请假，且两次传唤不回，按自愿离职处理。"],"sp":["","SP1","SP2","SP3"]},"id":{"title":"Simulasi hasil absensi","sub":"Isi angka bulan ini: uang kerajinan masih ada atau tidak, dapat SP atau tidak. Telat dan lupa absen tidak memotong gaji pokok.","late":"Jumlah terlambat","missed":"Lupa absen (setelah koreksi)","absent":"Hari mangkir","izin":"Jam izin pribadi","noproof":"Sakit tanpa surat","yes":"Ada","no":"Tidak","pool":"Terlambat + lupa absen","poolFree":"sampai 2 kali tidak apa-apa","poolOver":"lebih dari 2 kali","bonusT":"Uang kerajinan","keep":"Tetap dapat","zero":"Hangus","rBonusPool":"terlambat + lupa absen lebih dari 2 kali","rBonusAbsent":"ada mangkir","rBonusIzin":"ada izin pribadi","rBonusSick":"ada sakit tanpa surat","rBonusOK":"absensi bulan ini bersih","spT":"Surat peringatan (SP)","spNone":"Tidak ada","spPool":"1 SP absensi: lebih dari 2 kali, hanya 1 per bulan","spAbsent":null,"payT":"Pengaruh ke gaji","payNone":"Gaji pokok tidak terpengaruh","payAbsent":null,"payIzin":null,"payNote":"Telat dan lupa absen tidak memotong gaji pokok","formula":"potongan izin = gaji ÷ 173 × jam　｜　mangkir = hari itu tidak digaji","notes":["Lupa absen dihitung per kali: absen masuk dan pulang masing-masing satu; koreksi dalam 3 hari, maksimal 3 kali sebulan, disetujui tidak dihitung. Telat dan pulang cepat tidak bisa dikoreksi.","SP tiga tingkat: SP1 → SP2 → SP3, terulang dalam 6 bulan naik satu tingkat; melanggar lagi saat SP3 berlaku, kontrak diakhiri.","5 hari kerja berturut-turut tidak absen dan tidak izin, lalu 2 kali dipanggil tidak menjawab, dianggap mengundurkan diri."],"sp":["","SP1","SP2","SP3"]}};
+var FN = { zh: { spAbsent: function (d, l) { return "旷工 " + d + " 天 → " + l; }, payAbsent: function (d) { return "旷工 " + d + " 天不计薪"; }, payIzin: function (h) { return "事假 " + h + " 小时按小时扣"; } },
+           id: { spAbsent: function (d, l) { return "Mangkir " + d + " hari → " + l; }, payAbsent: function (d) { return "Mangkir " + d + " hari tidak digaji"; }, payIzin: function (h) { return "Izin " + h + " jam dipotong per jam"; } } };
+var L = (new URLSearchParams(location.search).get("lang") || "zh"); if (!T[L]) L = "zh";
+document.documentElement.lang = L === "id" ? "id" : "zh-CN"; var t = T[L], fn = FN[L];
 var $ = function (id) { return document.getElementById(id); };
-var fmt = function (n) { return "Rp " + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
-var RATE = [0.2, 0.4, 0.6, 2.0];   // 迟到 / 严重迟到 / 缺卡 / 旷工，均为日薪倍数
-var CAP = 0.25;                    // 单月扣款封顶 = 当月工资 25%（法定上限 50%，MUKE 收紧）
-
+document.title = t.title; $("h1").textContent = t.title; $("sub").textContent = t.sub;
+$("l1").textContent = t.late; $("l2").textContent = t.missed; $("l3").textContent = t.absent; $("l4").textContent = t.izin; $("l5").textContent = t.noproof;
+$("noproof").options[0].textContent = t.no; $("noproof").options[1].textContent = t.yes;
+$("pnm").textContent = t.pool; $("t1").textContent = t.bonusT; $("t2").textContent = t.spT; $("t3").textContent = t.payT;
+$("fm").textContent = t.formula; $("notes").innerHTML = t.notes.map(function (s) { return "• " + s; }).join("<br>");
+var FREE = 2;   // 合池免扣次数（T01「迟到＋缺卡免扣次数」）
+function num(id) { return Math.max(0, Math.floor(parseFloat($(id).value) || 0)); }
+function li(el, arr) { el.innerHTML = arr.map(function (s) { return "<li>" + s + "</li>"; }).join(""); }
 function calc() {
-  var G = Math.max(0, parseFloat($("g").value) || 0);
-  var n = ["a", "b", "c", "d"].map(function (k) { return Math.max(0, parseFloat($(k).value) || 0); });
-  var daily = G / 30;
-  var parts = n.map(function (x, i) { return daily * RATE[i] * x; });
-  var raw = parts.reduce(function (s, x) { return s + x; }, 0);
-  var cap = G * CAP;
-  var final = Math.min(raw, cap);
-  var max = Math.max.apply(null, parts.concat([1]));
-
-  $("daily").textContent = "日薪 = " + fmt(daily) + "　（月薪 ÷ 30）";
-  $("out").textContent = "− " + fmt(final);
-  parts.forEach(function (p, i) {
-    $("i" + (i + 1)).style.width = (p / max * 100) + "%";
-    $("v" + (i + 1)).textContent = p ? fmt(p) : "—";
-  });
-  var hit = raw > cap;
-  $("cap").className = "cap25" + (hit ? " hit" : "");
-  $("cap").textContent = hit
-    ? "🔴 已触上限：按公式算是 " + fmt(raw) + "，超过 25% 上限，实扣封顶为 " + fmt(cap)
-    : "未触及上限。上限 = 月薪 × 25% = " + fmt(cap);
+  var late = num("late"), missed = num("missed"), absent = num("absent"), izin = num("izin"), noproof = $("noproof").value === "1";
+  var pool = late + missed, over = pool > FREE;
+  $("pn").textContent = pool; $("pi").style.width = Math.min(100, pool / (FREE + 2) * 100) + "%";
+  $("pool").className = "pool" + (over ? " over" : ""); $("pst").textContent = over ? t.poolOver : t.poolFree;
+  // 满勤奖
+  var why = []; if (over) why.push(t.rBonusPool); if (absent) why.push(t.rBonusAbsent); if (izin) why.push(t.rBonusIzin); if (noproof) why.push(t.rBonusSick);
+  var zero = why.length > 0; $("c1").className = "c" + (zero ? " bad" : ""); $("v1").textContent = zero ? t.zero : t.keep; li($("u1"), zero ? why : [t.rBonusOK]);
+  // SP
+  var sp = []; if (over) sp.push(t.spPool); if (absent) sp.push(fn.spAbsent(absent, t.sp[Math.min(3, absent)]));
+  $("c2").className = "c" + (sp.length ? " bad" : ""); $("v2").textContent = sp.length ? sp.length : t.spNone; li($("u2"), sp.length ? sp : []);
+  // 工资
+  var pay = []; if (absent) pay.push(fn.payAbsent(absent)); if (izin) pay.push(fn.payIzin(izin));
+  $("c3").className = "c" + (pay.length ? " bad" : ""); $("v3").textContent = pay.length ? pay.length : t.payNone; li($("u3"), pay.concat([t.payNote]));
+  if (!pay.length) $("v3").style.fontSize = "15px"; else $("v3").style.fontSize = "";
+  if (!sp.length) $("v2").style.fontSize = "15px"; else $("v2").style.fontSize = "";
 }
-["g", "a", "b", "c", "d"].forEach(function (k) { $(k).addEventListener("input", calc); });
+["late", "missed", "absent", "izin"].forEach(function (k) { $(k).addEventListener("input", calc); }); $("noproof").addEventListener("change", calc);
 calc();
-
-// 等比缩放到 820 设计基准；transform 不改布局高度，必须写回 body
-var stage = $("stage");
-function fit() {
-  var s = Math.min(1, document.documentElement.clientWidth / 820);
-  stage.style.transform = s < 1 ? "scale(" + s + ")" : "none";
-  document.body.style.height = Math.ceil(stage.offsetHeight * s) + "px";
-}
-fit();
-addEventListener("resize", fit);
-if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body);
-setInterval(fit, 1200);
-</script>
-</body>
-</html>
+var st = $("stage");
+function fit() { var s = Math.min(1, document.documentElement.clientWidth / 820); st.style.transform = s < 1 ? "scale(" + s + ")" : "none"; document.body.style.height = Math.ceil(st.offsetHeight * s) + "px"; }
+addEventListener("resize", fit); if (window.ResizeObserver) new ResizeObserver(fit).observe(document.body); setInterval(fit, 1200); fit();
+</script></body></html>
